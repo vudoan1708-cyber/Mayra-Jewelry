@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { motion } from 'framer-motion';
 
 export default function NavItem({ href, children }: { href: string, children: ReactNode }) {
   const pathname = usePathname();
@@ -13,6 +16,8 @@ export default function NavItem({ href, children }: { href: string, children: Re
       >
         {children}
       </Link>
+
+      {isActive && <motion.hr className="absolute bottom-[-14px] border-b-2 border-solid border-brand-500 w-[calc(100%+4px)]" />}
     </li>
   );
 }

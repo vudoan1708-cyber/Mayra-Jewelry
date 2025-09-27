@@ -20,6 +20,7 @@ export default {
         'brand-400': 'var(--brand-400)',
         'brand-500': 'var(--brand-500)',
         'transparent-white': 'var(--transparent-white)',
+        'transparent-black': 'var(--transparent-black)',
       },
       colors: {
         'brand-200': 'var(--brand-200)',
