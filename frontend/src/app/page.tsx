@@ -1,17 +1,17 @@
 import { LayoutGroup } from 'framer-motion';
 
-import Navigation from '../components/Navigation';
 import Bio from '../components/Bio';
+import Jewelry from '../components/Jewelry';
 
 import './page.css';
 
 function App() {
   return (
     <LayoutGroup>
-      <Navigation />
       <Bio />
+      <Jewelry />
     </LayoutGroup>
   )
 }
 
-export default App
+export default App;

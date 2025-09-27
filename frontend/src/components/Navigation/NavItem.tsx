@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 
 export default function NavItem({ href, children }: { href: string, children: ReactNode }) {
   const pathname = usePathname();
-  console.log('pathname', pathname);
   const isActive = pathname === href;
   return (
     <li className="relative group">

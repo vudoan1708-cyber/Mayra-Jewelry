@@ -1,4 +1,6 @@
-import type { Metadata } from 'next'
+import type { Metadata } from 'next';
+
+import Navigation from '../components/Navigation';
  
 export const metadata: Metadata = {
   title: 'Mayra Jewelry',
@@ -13,6 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Navigation />
+        
         <div id="root">{children}</div>
         {/* <script type="module" src="/src/main.tsx"></script> */}
       </body>
