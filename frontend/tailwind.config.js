@@ -15,10 +15,16 @@ export default {
         '6': '48px',
       },
       backgroundColor: {
+        'brand-200': 'var(--brand-200)',
+        'brand-300': 'var(--brand-300)',
+        'brand-400': 'var(--brand-400)',
         'brand-500': 'var(--brand-500)',
         'transparent-white': 'var(--transparent-white)',
       },
       colors: {
+        'brand-200': 'var(--brand-200)',
+        'brand-300': 'var(--brand-300)',
+        'brand-400': 'var(--brand-400)',
         'brand-500': 'var(--brand-500)',
       }
     },

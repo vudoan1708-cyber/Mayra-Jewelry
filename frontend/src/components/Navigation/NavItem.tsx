@@ -1,18 +1,19 @@
 import type { ReactNode } from 'react';
-import { NavLink, type NavLinkRenderProps } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-export default function NavItem({ to, children }: { to: string, children: ReactNode | ((props: NavLinkRenderProps) => ReactNode) }) {
+export default function NavItem({ href, children }: { href: string, children: ReactNode }) {
+  const pathname = usePathname();
+  console.log('pathname', pathname);
+  const isActive = pathname === href;
   return (
     <li className="relative group">
-      <NavLink
-        to={to}
-        className={({ isActive }) =>
-          `${isActive ? 'text-brand-500' : 'text-black'} hover:text-brand-200 text-xs transition-colors font-semibold flex gap-1 justify-center items-center`
-        }
-        state={{ scrollToDetails: true }}
+      <Link
+        href={href}
+        className={`${isActive ? 'text-brand-500' : 'text-black'} hover:text-brand-400 text-xs transition-colors font-semibold flex gap-1 justify-center items-center`}
       >
         {children}
-      </NavLink>
+      </Link>
     </li>
   );
 }
