@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import ReactDOM from 'react-dom';
 
+import { motion } from 'framer-motion';
+
 import { SlidersHorizontal, X } from 'lucide-react';
 
 import Button from '../Button';
@@ -13,15 +15,23 @@ export default function Filter() {
 
   function FilterModal({ ref }: { ref: RefObject<HTMLDivElement | null> }) {
     return (
-      <div className="fixed w-dvw h-dvh left-0 bg-transparent-black backdrop-blur-md transition-all">
-        <div ref={ref} className="relative w-full md:w-96 top-[48px] h-dvh bg-white">
+      <motion.div
+        initial={{ backgroundColor: 'var(--backdrop-color)' }}
+        animate={{ backgroundColor: 'var(--transparent-black)', transition: { duration: 0.2 } }}
+        className="fixed w-dvw h-dvh left-0 backdrop-blur-md">
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          style={{ transformOrigin: 'left' }}
+          ref={ref}
+          className="absolute w-full md:w-96 top-0 md:top-[48px] h-dvh bg-white">
           <header className="uppercase p-4 flex justify-between items-center">
             Filter
             <Button variant="tertiary" onClick={() => { setOpenFilter(false); }}><X /></Button>
           </header>
           <hr />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     )
   }
 
@@ -30,19 +40,24 @@ export default function Filter() {
       setOpenFilter(false);
     }
   };
+  const escKey = (e: KeyboardEvent) => {
+    if (e.code === 'Escape') {
+      setOpenFilter(false);
+    }
+  };
 
   useEffect(() => {
     if (openFilter) {
-      document.body.classList.add('overflow-hidden');
       document.body.addEventListener('click', clickOnBody);
+      document.body.addEventListener('keyup', escKey);
     } else {
-      document.body.classList.remove('overflow-hidden');
       document.body.removeEventListener('click', clickOnBody);
+      document.body.removeEventListener('keyup', escKey);
     }
 
     return () => {
-      document.body.classList.remove('overflow-hidden');
       document.body.removeEventListener('click', clickOnBody);
+      document.body.removeEventListener('keyup', escKey);
     }
   }, [openFilter]);
   return (

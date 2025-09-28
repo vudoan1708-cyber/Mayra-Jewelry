@@ -5,10 +5,17 @@ import Image from 'next/image';
 
 import Grid from './Grid';
 import Filter from './Filter';
+import Variation, { type JewelryVariation } from './Variation';
 
 export default function Jewelry() {
   const pathToImagesDir = path.resolve(__dirname, '..', '..', '..', 'public/images/jewelry');
   const images = fs.readdirSync(pathToImagesDir);
+
+  const variations: Array<JewelryVariation> = [
+    { key: 0, label: 'Bạc', style: 'bg-gray-400' },
+    { key: 1, label: 'Vàng', style: 'bg-amber-300' },
+    { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
+  ];
   return (
     <section className="flex flex-col">
       <Filter />
@@ -27,6 +34,11 @@ export default function Jewelry() {
                 <div>
                   <b>Mayra Collection</b>
                   <p>{img}</p>
+                  <div className="flex gap-2 items-center">
+                    {variations.map((variation) => (
+                      <Variation key={`${img}_${variation.key}`} variation={variation} />
+                    ))}
+                  </div>
                 </div>
                 <b>300,000₫</b>
               </figcaption>

@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
- 
+
+import './page.css';
+
 export const metadata: Metadata = {
   title: 'Mayra Jewelry',
   description: 'A jewelry website',

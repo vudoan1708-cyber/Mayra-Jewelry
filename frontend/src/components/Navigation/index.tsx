@@ -8,7 +8,10 @@ import NavItem from './NavItem';
 export default function Navigation() {
   return (
     <>
-      <nav className="bg-white fixed top-0 left-0 w-full z-50 flex items-center justify-between p-2 sm:border-b-2 sm:border-solid sm:shadow-lg">
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0, transition: { duration: 0.2, delay: 0.6 } }}
+        className="bg-white fixed top-0 left-0 w-full z-50 flex items-center justify-between p-2 sm:border-b-2 sm:border-solid sm:shadow-lg">
         <ul className="hidden sm:w-full sm:flex sm:gap-12 sm:justify-center sm:items-center">
           <NavItem href="/">
             <House />
@@ -19,7 +22,7 @@ export default function Navigation() {
             Search
           </NavItem>
 
-          <NavItem href="/cart">
+          <NavItem href="/cart" withBorder={false}>
             <motion.div className="sm:flex sm:justify-center">
               <motion.div className="sm:absolute sm:top-[50%] bg-white sm:w-lg sm:rounded-full sm:p-2 sm:border-2 sm:border-solid sm:shadow-lg">
                 <ShoppingCart />
@@ -36,7 +39,7 @@ export default function Navigation() {
             My Account
           </NavItem>
         </ul>
-      </nav>
+      </motion.nav>
     </>
   )
 }
