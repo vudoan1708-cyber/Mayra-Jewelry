@@ -8,10 +8,9 @@ export type JewelryVariation = {
   label: string,
 };
 
-export default function Variation({ key, variation }: { key: string, variation: JewelryVariation }) {
+export default function Variation({ variation }: { variation: JewelryVariation }) {
   return (
     <motion.span
-      key={key}
       whileHover={{ scale: 1.05, opacity: .9 }}
       transition={{ type: 'spring', stiffness: 300 }}
       className={`border-2 rounded-full w-4 h-4 cursor-pointer hover:shadow-xl ${variation.style}`}

@@ -47,19 +47,14 @@ export default function Filter() {
   };
 
   useEffect(() => {
-    if (openFilter) {
-      document.body.addEventListener('click', clickOnBody);
-      document.body.addEventListener('keyup', escKey);
-    } else {
-      document.body.removeEventListener('click', clickOnBody);
-      document.body.removeEventListener('keyup', escKey);
-    }
+    document.body.addEventListener('click', clickOnBody);
+    document.body.addEventListener('keyup', escKey);
 
     return () => {
       document.body.removeEventListener('click', clickOnBody);
       document.body.removeEventListener('keyup', escKey);
     }
-  }, [openFilter]);
+  }, []);
   return (
     <>
       <Button variant="tertiary" className="text-left self-start m-4 p-0" onClick={() => { setOpenFilter(!openFilter); }}>
