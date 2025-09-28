@@ -10,14 +10,14 @@ type ButtonProps = {
 export default function Button({ variant, className, onClick, children }: ButtonProps) {
   if (variant === 'primary') {
     return (
-      <button onClick={onClick} className={`bg-brand-500 text-white ${className}`}>
+      <button onClick={onClick} className={`bg-brand-500 text-white transition-all ${className}`}>
         {children}
       </button>
     )
   }
   if (variant === 'tertiary') {
     return (
-      <button onClick={onClick} className={`bg-transparent border-0 active:border-none focus:outline-none hover:text-brand-500 ${className}`}>
+      <button onClick={onClick} className={`bg-transparent border-none outline-none active:border-none focus:outline-none hover:text-brand-500 transition-all ${className}`}>
         {children}
       </button>
     )

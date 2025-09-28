@@ -1,7 +1,38 @@
+'use client'
+
+import Button from '../Button';
+import NavItem from '../Navigation/NavItem';
+
 export default function Footer() {
   return (
-    <footer>
-      <div>BACK TO TOP</div>
+    <footer className="relative w-dvw py-4">
+      <Button
+        variant="tertiary"
+        className="w-full !bg-gray-200 hover:!bg-gray-300"
+        onClick={() => { document?.getElementById('root')?.scrollIntoView({ behavior: 'smooth' }); }}>
+        <div className="text-black">
+          BACK TO TOP
+        </div>
+      </Button>
+
+      <div>
+        <nav className="flex gap-2 justify-evenly p-8">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-semibold text-lg">Help</h3>
+            <ul>
+              <NavItem href="/contact_us" className="!font-light text-xs">Contact Us</NavItem>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2">
+            <h3 className="font-semibold text-lg">Follow Us</h3>
+            <ul>
+              <NavItem href="/" className="!font-light w-4 h-4" withBorder={false}>
+                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Facebook</title><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+              </NavItem>
+            </ul>
+          </div>
+        </nav>
+      </div>
     </footer>
   )
 }
