@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image';
 import { use, useEffect, useState } from 'react';
 import { base64ToArrayBuffer, subtleCrypto } from '../../../helpers';
 
@@ -9,6 +10,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
   const { id } = use(params);
   const encryptedId = decodeURIComponent(id.join('/'));
   const arrayBufferData = base64ToArrayBuffer(encryptedId);
+
   const [imgUrl, setImgUrl] = useState<string>('');
 
   useEffect(() => {
@@ -18,21 +20,27 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
     };
     const getImgUrl = async () => {
       const cryptoKeyPair = await getKeys();
+      if (!cryptoKeyPair) return;
+
       const buffer = await subtleCrypto.decrypt({ key: cryptoKeyPair, data: arrayBufferData });
       const result = dec.decode(buffer);
       setImgUrl(result);
     };
     getImgUrl();
-  }, [arrayBufferData, encryptedId]);
 
-  useEffect(() => {
-    if (!imgUrl && !encryptedId) return;
-    subtleCrypto.clearItemsFromSessionStorage({ encryptedId });
-  }, [imgUrl, encryptedId]);
+    return () => {
+      subtleCrypto.clearItemsFromSessionStorage({ encryptedId });
+    };
+  }, [arrayBufferData, encryptedId]);
 
   return (
     <>
-      <img src={`/images/jewelry/${imgUrl}`} loading="lazy" />
+      <Image
+        src={`/images/jewelry/${imgUrl}`}
+        alt={imgUrl}
+        width="450"
+        height="320"
+        style={{ objectFit: "contain", width: "auto", height: "auto" }} />
       <p>Some item description here...</p>
     </>
   );

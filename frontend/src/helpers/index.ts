@@ -11,7 +11,7 @@ export const subtleCrypto = {
     const pubB64 = sessionStorage.getItem(`rsa_pub_spki_${encryptedId}`);
     const privB64 = sessionStorage.getItem(`rsa_priv_pkcs8_${encryptedId}`);
 
-    if (!pubB64 || !privB64) throw new Error('No saved keys');
+    if (!pubB64 || !privB64) return null;
 
     const pubAb = base64ToArrayBuffer(pubB64);
     const privAb = base64ToArrayBuffer(privB64);

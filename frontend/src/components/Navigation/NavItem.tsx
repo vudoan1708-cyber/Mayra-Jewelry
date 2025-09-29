@@ -8,23 +8,26 @@ import { usePathname } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+
 type NavItemProps = {
   href: string,
   target?: string,
   className?: string,
   withBorder?: boolean,
   withHover?: boolean,
+  externalLink?: boolean,
   onClick?: MouseEventHandler<HTMLAnchorElement>,
   children: ReactNode,
 };
 
-export default function NavItem({ href, target, className, withBorder = true, withHover = true, onClick, children }: NavItemProps) {
+export default function NavItem({ href, target, className, withBorder = true, withHover = true, externalLink = false, onClick, children }: NavItemProps) {
   const pathname = usePathname();
   const isActive = pathname === href;
   const [loading, setLoading] = useState<boolean>(false);
 
   const patchedOnClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
-    if (isActive) return;
+    if (isActive || externalLink) return;
     setLoading(true);
     if (!onClick) return;
     onClick(e);
@@ -50,7 +53,15 @@ export default function NavItem({ href, target, className, withBorder = true, wi
       </li>
 
       {loading && ReactDOM.createPortal(
-        <p className="fixed top-0 left-0 w-dvw h-dvh bg-transparent-white flex justify-center items-center z-50">Loading...</p>,
+        <div className="fixed top-0 left-0 w-dvw h-dvh bg-transparent-white flex justify-center items-center z-50">
+          <DotLottieReact
+            src="https://lottie.host/af84b5a6-74cc-42f5-b6fa-10268ce91ab9/aFWRCbuQ0C.lottie"
+            renderConfig={{ autoResize: true }}
+            className="w-20 h-20"
+            loop
+            autoplay
+          />
+        </div>,
         document.body,
       )}
     </>
