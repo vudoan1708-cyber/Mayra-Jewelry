@@ -8,8 +8,8 @@ import { motion } from 'framer-motion';
 import Variation, { type JewelryVariation } from './Variation';
 import NavItem from '../Navigation/NavItem';
 
-import { arrayBufferToBase64, subtleCrypto } from '../../helpers';
-import { useEffect, useRef, useState, type MouseEventHandler } from 'react';
+import { arrayBufferToBase64 } from '../../helpers';
+import { useEffect, useState, type MouseEventHandler } from 'react';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400' },
@@ -22,22 +22,18 @@ const enc = new TextEncoder();
 export default function GridItem({ index, img }: { index: number, img: string }) {
   const router = useRouter();
   const [encryptedId, setEncryptedId] = useState<string>('');
-  const keyPair = useRef<CryptoKeyPair>(null);
 
   useEffect(() => {
-    const setId = async () => {
-      const data = enc.encode(img);
-      keyPair.current = await subtleCrypto.generateEncryptionKey();
-      const encrypted = await subtleCrypto.encrypt({ key: keyPair.current, data });
-      const base64 = arrayBufferToBase64(encrypted);
+    const setId = () => {
+      const data = enc.encode(img).buffer;
+      const base64 = arrayBufferToBase64(data);
       setEncryptedId(base64);
     };
     setId();
   }, [img]);
 
-  const navigate: MouseEventHandler<HTMLAnchorElement> = async (e) => {
+  const navigate: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.preventDefault();
-    await subtleCrypto.exportKeysToSessionStorage({ key: keyPair.current as CryptoKeyPair, encryptedId });
     router.push(`/product/${encryptedId ?? ''}`);
   };
 

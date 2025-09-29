@@ -1,8 +1,11 @@
 'use client'
 
 import Image from 'next/image';
-import { use, useEffect, useState } from 'react';
-import { base64ToArrayBuffer, subtleCrypto } from '../../../helpers';
+import { use, useState } from 'react';
+
+import { motion } from 'framer-motion';
+
+import { base64ToArrayBuffer } from '../../../helpers';
 
 const dec = new TextDecoder();
 
@@ -11,30 +14,13 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
   const encryptedId = decodeURIComponent(id.join('/'));
   const arrayBufferData = base64ToArrayBuffer(encryptedId);
 
-  const [imgUrl, setImgUrl] = useState<string>('');
-
-  useEffect(() => {
-    const getKeys = async () => {
-      const keyPair = await subtleCrypto.importKeysFromSessionStorage({ encryptedId });
-      return keyPair;
-    };
-    const getImgUrl = async () => {
-      const cryptoKeyPair = await getKeys();
-      if (!cryptoKeyPair) return;
-
-      const buffer = await subtleCrypto.decrypt({ key: cryptoKeyPair, data: arrayBufferData });
-      const result = dec.decode(buffer);
-      setImgUrl(result);
-    };
-    getImgUrl();
-
-    return () => {
-      subtleCrypto.clearItemsFromSessionStorage({ encryptedId });
-    };
-  }, [arrayBufferData, encryptedId]);
+  const [imgUrl] = useState<string>(() => dec.decode(arrayBufferData));
 
   return (
-    <>
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.2 } }}
+    >
       <Image
         src={`/images/jewelry/${imgUrl}`}
         alt={imgUrl}
@@ -42,6 +28,6 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
         height="320"
         style={{ objectFit: "contain", width: "auto", height: "auto" }} />
       <p>Some item description here...</p>
-    </>
+    </motion.section>
   );
 }
