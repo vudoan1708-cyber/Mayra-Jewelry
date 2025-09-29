@@ -9,7 +9,7 @@ export default function Bio() {
     <header>
       <motion.img
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { duration: 0.2 } }}
+        animate={{ opacity: 1, transition: { duration: 0.4 } }}
         src="/images/jewelry/sun.webp"
         className="logo select-none"
         alt="Landing image" />

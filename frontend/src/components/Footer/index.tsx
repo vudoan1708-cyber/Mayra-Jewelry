@@ -7,7 +7,7 @@ import NavItem from '../Navigation/NavItem';
 
 export default function Footer() {
   return (
-    <footer className="relative w-full pt-4">
+    <footer className="relative w-full mt-4">
       <Button
         variant="tertiary"
         className="w-full !bg-gray-200 hover:!bg-gray-300 rounded-b-none"

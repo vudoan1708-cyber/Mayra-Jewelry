@@ -1,21 +1,15 @@
 'use client'
 
+import { useEffect, useState, type MouseEventHandler } from 'react';
+
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
-import Variation, { type JewelryVariation } from './Variation';
 import NavItem from '../Navigation/NavItem';
 
 import { arrayBufferToBase64 } from '../../helpers';
-import { useEffect, useState, type MouseEventHandler } from 'react';
-
-const variations: Array<JewelryVariation> = [
-  { key: 0, label: 'Bạc', style: 'bg-gray-400' },
-  { key: 1, label: 'Vàng', style: 'bg-amber-300' },
-  { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
-];
 
 const enc = new TextEncoder();
 
@@ -57,11 +51,6 @@ export default function GridItem({ index, img }: { index: number, img: string })
             <div>
               <b>Mayra Collection</b>
               <p className="font-light">{img}</p>
-              <div className="flex gap-2 items-center">
-                {variations.map((variation) => (
-                  <Variation key={`${img}_${variation.key}`} variation={variation} />
-                ))}
-              </div>
             </div>
             <b>300,000₫</b>
           </figcaption>

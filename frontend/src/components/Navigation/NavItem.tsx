@@ -43,13 +43,13 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors font-semibold flex gap-1 justify-center items-center ${className}`}
+          className={`${isActive ? 'text-brand-500' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors font-semibold flex gap-1 justify-center items-center ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
         </Link>
 
-        {isActive && withBorder && <motion.hr className="absolute bottom-[-14px] border-b-2 border-solid border-brand-500 w-[calc(100%+4px)]" />}
+        {isActive && withBorder && <motion.hr className="absolute bottom-[-14px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />}
       </li>
 
       {loading && ReactDOM.createPortal(

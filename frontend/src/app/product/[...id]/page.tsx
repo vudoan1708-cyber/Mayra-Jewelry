@@ -5,9 +5,17 @@ import { use, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
+import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
+
 import { base64ToArrayBuffer } from '../../../helpers';
 
 const dec = new TextDecoder();
+
+const variations: Array<JewelryVariation> = [
+  { key: 0, label: 'Bạc', style: 'bg-gray-400' },
+  { key: 1, label: 'Vàng', style: 'bg-amber-300' },
+  { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
+];
 
 export default function Product({ params }: { params: Promise<{ id: Array<string> }> }) {
   const { id } = use(params);
@@ -17,17 +25,38 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
   const [imgUrl] = useState<string>(() => dec.decode(arrayBufferData));
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { duration: 0.2 } }}
-    >
-      <Image
-        src={`/images/jewelry/${imgUrl}`}
-        alt={imgUrl}
-        width="450"
-        height="320"
-        style={{ objectFit: "contain", width: "auto", height: "auto" }} />
-      <p>Some item description here...</p>
-    </motion.section>
+    <div className="w-dvw mt-20 mb-5 grid md:grid md:grid-cols-[1fr_auto_1fr] justify-around gap-2">
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}
+        className="relative flex flex-col items-center !w-[100%]"
+      >
+        <Image
+          src={`/images/jewelry/${imgUrl}`}
+          alt={imgUrl}
+          width="360"
+          height="360"
+          style={{ objectFit: "contain", width: "auto", height: "auto" }}
+          className="border rounded-lg" />
+        <div className="flex gap-2 items-center">
+          {variations.map((variation) => (
+            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} />
+          ))}
+        </div>
+      </motion.section>
+
+      <motion.div
+        initial={{ height: 0 }}
+        animate={{ height: '100%', transition: { delay: 1, duration: 1 } }}
+        className="w-[0.5px] border-0 bg-transparent-black" />
+
+      <motion.section
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
+        className="relative flex flex-col items-center"
+      >
+        Detail
+      </motion.section>
+    </div>
   );
 }
