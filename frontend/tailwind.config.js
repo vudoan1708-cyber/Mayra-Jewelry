@@ -27,6 +27,7 @@ export default {
         'brand-300': 'var(--brand-300)',
         'brand-400': 'var(--brand-400)',
         'brand-500': 'var(--brand-500)',
+        'disabled': 'bg-text-gray-400',
       },
       transitionDuration: {
         DEFAULT: '200ms',

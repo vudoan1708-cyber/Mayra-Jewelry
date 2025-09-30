@@ -6,7 +6,7 @@ import { use, useState } from 'react';
 import { motion } from 'framer-motion';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
-
+import Tabs, { type Tab } from '../../../components/Tabs/Tabs';
 import { base64ToArrayBuffer } from '../../../helpers';
 
 const dec = new TextDecoder();
@@ -15,6 +15,11 @@ const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400' },
   { key: 1, label: 'Vàng', style: 'bg-amber-300' },
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
+];
+const tabs: Array<Tab> = [
+  // { label: 'Thẻ tín dụng', id: 1, active: true, onSelect: () => {} },
+  // API: https://www.vietqr.io/danh-sach-api/link-tao-ma-nhanh/api-tao-ma-qr#operation/generate
+  { label: 'Quét mã QR', id: 2, active: true, onSelect: () => {} },
 ];
 
 export default function Product({ params }: { params: Promise<{ id: Array<string> }> }) {
@@ -38,7 +43,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
           height="360"
           style={{ objectFit: "contain", width: "auto", height: "auto" }}
           className="border rounded-lg" />
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 justify-start items-center mt-2">
           {variations.map((variation) => (
             <Variation key={`${imgUrl}_${variation.key}`} variation={variation} />
           ))}
@@ -48,14 +53,14 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
       <motion.div
         initial={{ height: 0 }}
         animate={{ height: '100%', transition: { delay: 1, duration: 1 } }}
-        className="w-[0.5px] border-0 bg-transparent-black" />
+        className="w-[2px] border-0 bg-transparent-black mr-2" />
 
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
-        className="relative flex flex-col items-center"
+        className="relative flex flex-col items-start"
       >
-        Detail
+        <Tabs items={tabs} />
       </motion.section>
     </div>
   );
