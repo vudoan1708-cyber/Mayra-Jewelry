@@ -4,8 +4,6 @@ RUN mkdir /__tmp
 
 # Set the working directory inside the container
 WORKDIR /app
-#  Download air for live reload in go environment
-RUN go install github.com/air-verse/air@latest
 
 COPY go.mod go.sum ./
 
