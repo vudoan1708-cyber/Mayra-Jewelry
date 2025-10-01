@@ -1,0 +1,9 @@
+services:
+  mayra-jewelry:
+    build: .
+    container_name: mayra-jewelry
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${GOPATH}/pkg/mod:/go/pkg/mod
+      - .:/app
