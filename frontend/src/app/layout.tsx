@@ -20,7 +20,7 @@ export default function RootLayout({
       <body>
         <Navigation />
         
-        <main id="root">{children}</main>
+        <main id="root" className="flex-1">{children}</main>
 
         <Footer />
       </body>

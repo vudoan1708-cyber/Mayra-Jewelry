@@ -8,10 +8,9 @@ export type Tab = {
   label: string,
   active: boolean,
   disabled?: boolean,
-  onSelect: (item: Tab) => void,
 };
 
-export default function Tabs({ items }: { items: Array<Tab> }) {
+export default function Tabs({ items, onSelect }: { items: Array<Tab>, onSelect: (item: Tab) => void }) {
   const [tabItems, setItems] = useState<Array<Tab>>(items);
   const tabClicked = (tab: Tab) => {
     const mapped = items.map((item) => ({
@@ -19,7 +18,7 @@ export default function Tabs({ items }: { items: Array<Tab> }) {
       active: item.id === tab.id,
     }));
     setItems(mapped);
-    tab.onSelect(tab);
+    onSelect(tab);
   };
 
   return (
