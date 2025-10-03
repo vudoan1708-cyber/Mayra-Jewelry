@@ -13,6 +13,6 @@ RUN go mod download
 
 COPY . .
 
-CMD ["air", "-c", ".air.toml"]
+CMD ["go", "run", "."]
 
 # CLI: docker run --rm -it backend-mayra-jewelry /bin/sh || docker compse up --build

@@ -18,26 +18,29 @@ const watcher = chokidar.watch(WATCH_DIR, {
   depth: 99,
 });
 
+const runCommand = (cmd) => {
+  const child = exec(cmd, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Error rebuilding container: ${err.message}`);
+      return;
+    }
+    if (stdout) console.log(stdout);
+    if (stderr) console.error(stderr);
+  });
+
+  child.stdout.pipe(process.stdout);
+  child.stderr.pipe(process.stderr);
+};
+runCommand(DOCKER_COMMAND_UP);
+
 watcher.on('all', (event, path) => {
   if (!path.endsWith('.go')) return;
 
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(() => {
-    const down_command_child = exec(DOCKER_COMMAND_DOWN);
-    down_command_child.stdout.pipe(process.stdout);
-    down_command_child.stderr.pipe(process.stderr);
+    runCommand(DOCKER_COMMAND_DOWN);
 
     console.log(`Detected changes in ${path}, rebuilding Docker container...`);
-    const up_command_child = exec(DOCKER_COMMAND_UP, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Error rebuilding container: ${err.message}`);
-        return;
-      }
-      if (stdout) console.log(stdout);
-      if (stderr) console.error(stderr);
-    });
-
-    up_command_child.stdout.pipe(process.stdout);
-    up_command_child.stderr.pipe(process.stderr);
+    runCommand(DOCKER_COMMAND_UP);
   }, DEBOUNCE_MS);
 });

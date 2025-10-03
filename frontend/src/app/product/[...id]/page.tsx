@@ -1,13 +1,15 @@
 'use client'
 
 import Image from 'next/image';
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Tabs, { type Tab } from '../../../components/Tabs/Tabs';
 import { base64ToArrayBuffer } from '../../../helpers';
+
+import { fetchQRCode } from './data';
 
 const dec = new TextDecoder();
 
@@ -29,7 +31,22 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
 
   const [imgUrl] = useState<string>(() => dec.decode(arrayBufferData));
 
-  const [activeTab, setActiveTab] = useState<Tab>();
+  const [activeTab, setActiveTab] = useState<Tab>(() => tabs.find((tab) => tab.id === 'qr') as Tab);
+
+  const getAndProcessQrCode = async () => {
+    const qrCode = await fetchQRCode();
+    console.info('qrCode', qrCode);
+  };
+  const onTabSelected = async (tab: Tab) => {
+    setActiveTab(tab);
+    if (activeTab.id === 'qr') {
+      await getAndProcessQrCode();
+    }
+  };
+
+  useEffect(() => {
+      getAndProcessQrCode();
+  }, []);
 
   return (
     <div className="w-dvw mt-20 mb-5 grid md:grid md:grid-cols-[1fr_auto_1fr] justify-around gap-2">
@@ -62,7 +79,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
         animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
         className="relative flex flex-col items-start"
       >
-        <Tabs items={tabs} onSelect={setActiveTab} />
+        <Tabs items={tabs} onSelect={onTabSelected} />
 
         {activeTab?.id === 'qr' && <></>}
       </motion.section>

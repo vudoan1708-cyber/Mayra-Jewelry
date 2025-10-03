@@ -24,7 +24,6 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 
 	var urls []types.JewelryItemPayload
 	for _, obj := range objects {
-		log.Printf("*obj.Key is %s", *obj.Key)
 		url, err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
 			FileName:  *obj.Key,
 			Procedure: "GET",
