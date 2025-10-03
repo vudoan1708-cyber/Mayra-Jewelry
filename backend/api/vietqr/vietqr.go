@@ -12,27 +12,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/types"
-)
-
-type Template string
-
-const (
-	Compact  Template = "compact"
-	Compact2 Template = "compact2"
-	QROnly   Template = "qr_only"
-	Print    Template = "print"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/models"
 )
 
 type VietQr struct {
-	Bank      types.VietQRBankResponsePayload
-	Template  Template
+	Bank      models.VietQRBankResponsePayload
+	Template  string
 	QRCodeUrl string
 }
 
 var baseUrl string = "https://api.vietqr.io/v2"
 
-func (vietqr VietQr) GetBanks(specifiedBank *string) (*types.VietQRBankResponsePayload, error) {
+func (vietqr VietQr) GetBanks(specifiedBank *string) (*models.VietQRBankResponsePayload, error) {
 	vietQrUrl := fmt.Sprintf("%s/banks", baseUrl)
 
 	configClient := http.Client{
@@ -57,7 +48,7 @@ func (vietqr VietQr) GetBanks(specifiedBank *string) (*types.VietQRBankResponseP
 		return nil, read_error
 	}
 
-	bankData := types.VietQRBankResponsePayload{}
+	bankData := models.VietQRBankResponsePayload{}
 	if unmarshal_error := json.Unmarshal(bytes, &bankData); unmarshal_error != nil {
 		return nil, unmarshal_error
 	}
@@ -67,21 +58,22 @@ func (vietqr VietQr) GetBanks(specifiedBank *string) (*types.VietQRBankResponseP
 }
 
 type QrRequestPayload struct {
-	AccountNo   string   `json:"accountNo"`
-	AccountName string   `json:"accountName"`
-	Bin         int      `json:"acqId"`
-	Amount      *int     `json:"amount"`
-	AddInfo     *string  `json:"addInfo"`
-	Format      *string  `json:"format"`
-	Template    Template `json:"template"`
+	AccountNo   string  `json:"accountNo"`
+	AccountName string  `json:"accountName"`
+	Bin         int     `json:"acqId"`
+	Amount      *int    `json:"amount"`
+	AddInfo     *string `json:"addInfo"`
+	Format      *string `json:"format"`
+	Template    string  `json:"template"`
 }
 
-func (vietqr *VietQr) GetQRCode(amount int, addInfo *string) (*types.VietQRResponsePayload, error) {
+func (vietqr *VietQr) GetQRCode(amount int, addInfo *string) (*models.VietQRResponsePayload, error) {
 	clientId := os.Getenv("VIETQR_CLIENT_ID")
 	apiKey := os.Getenv("VIETQR_API_KEY")
 	accountName := os.Getenv("VIETQR_ACCOUNT_NAME")
 	accountNo := os.Getenv("VIETQR_ACCOUNT_NO")
 	bin := os.Getenv("VIETQR_BIN")
+	templateId := os.Getenv("VIETQR_TEMPLATE_ID")
 
 	var missingItems []string
 	if clientId == "" {
@@ -119,7 +111,7 @@ func (vietqr *VietQr) GetQRCode(amount int, addInfo *string) (*types.VietQRRespo
 		Bin:         binNo,
 		Amount:      &amount,
 		AddInfo:     addInfo,
-		Template:    "print",
+		Template:    templateId,
 	}
 
 	jsonPayload, marshal_error := json.Marshal(reqPayload)
@@ -151,7 +143,7 @@ func (vietqr *VietQr) GetQRCode(amount int, addInfo *string) (*types.VietQRRespo
 		return nil, read_error
 	}
 
-	vietQrResponse := types.VietQRResponsePayload{}
+	vietQrResponse := models.VietQRResponsePayload{}
 	if unmarshal_error := json.Unmarshal(bytes, &vietQrResponse); unmarshal_error != nil {
 		return nil, unmarshal_error
 	}

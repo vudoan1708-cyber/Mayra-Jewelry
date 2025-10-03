@@ -26,9 +26,12 @@ export default function GridItem({ index, img }: { index: number, img: string })
     setId();
   }, [img]);
 
+  const amount = 12000;
+  const info = 'Test QR code';
+
   const navigate: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.preventDefault();
-    router.push(`/product/${encryptedId ?? ''}`);
+    router.push(`/product/${encryptedId ?? ''}?amount=${amount}&info=${info}`);
   };
 
   return (
@@ -49,7 +52,7 @@ export default function GridItem({ index, img }: { index: number, img: string })
             className="object-cover h-full w-full rounded-lg" />
           <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
             <div>
-              <b>Mayra Collection</b>
+              <b className="text-lg text-gray-800">Mayra Collection</b>
               <p className="font-light">{img}</p>
             </div>
             <b>300,000₫</b>

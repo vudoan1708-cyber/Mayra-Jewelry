@@ -1,4 +1,4 @@
-package types
+package models
 
 type JewelryItemPayload struct {
 	URL      string `json:"url"`

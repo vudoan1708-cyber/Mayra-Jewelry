@@ -1,15 +1,21 @@
 'use client'
 
 import Image from 'next/image';
-import { use, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+import { lazy, Suspense, use, useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Tabs, { type Tab } from '../../../components/Tabs/Tabs';
+import Loading from '../../../components/Loading/Loading';
+
 import { base64ToArrayBuffer } from '../../../helpers';
 
 import { fetchQRCode } from './data';
+
+import { TriangleAlert } from 'lucide-react';
 
 const dec = new TextDecoder();
 
@@ -26,26 +32,42 @@ const tabs: Array<Tab> = [
 
 export default function Product({ params }: { params: Promise<{ id: Array<string> }> }) {
   const { id } = use(params);
+  const searchParams = useSearchParams();
+
   const encryptedId = decodeURIComponent(id.join('/'));
   const arrayBufferData = base64ToArrayBuffer(encryptedId);
 
   const [imgUrl] = useState<string>(() => dec.decode(arrayBufferData));
 
   const [activeTab, setActiveTab] = useState<Tab>(() => tabs.find((tab) => tab.id === 'qr') as Tab);
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [qrCode, setQrCode] = useState<string>('');
+
+  const LazyPaymentSectionComponent = lazy(() => import('./PaymentSection'));
 
   const getAndProcessQrCode = async () => {
-    const qrCode = await fetchQRCode();
-    console.info('qrCode', qrCode);
+    setLoading(true);
+    try {
+      const result = await fetchQRCode({ amount: searchParams.get('amount') as string, info: searchParams.get('info') as string });
+      setQrCode(result?.data?.qrDataURL);
+    } catch (e) {
+      setError(e?.message);
+    } finally {
+      setLoading(false);
+    }
   };
   const onTabSelected = async (tab: Tab) => {
     setActiveTab(tab);
     if (activeTab.id === 'qr') {
+      setError('');
       await getAndProcessQrCode();
     }
   };
 
   useEffect(() => {
-      getAndProcessQrCode();
+    getAndProcessQrCode();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -53,7 +75,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}
-        className="relative flex flex-col items-center !w-[100%]"
+        className="relative flex flex-col justify-center items-center !w-[100%]"
       >
         <Image
           src={`/images/jewelry/${imgUrl}`}
@@ -81,7 +103,13 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
       >
         <Tabs items={tabs} onSelect={onTabSelected} />
 
-        {activeTab?.id === 'qr' && <></>}
+        {activeTab?.id === 'qr' && (
+          <Suspense fallback={<div className="w-full flex justify-center items-center"><Loading /></div>}>
+            {!error
+              ? <LazyPaymentSectionComponent qrCode={qrCode} loading={loading} />
+              : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error || 'Cannot find QR Code'}</div>}
+          </Suspense>
+        )}
       </motion.section>
     </div>
   );

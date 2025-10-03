@@ -23,6 +23,7 @@ func main() {
 	if env_err != nil {
 		log.Fatal(env_err)
 	}
+	allowedOrigin := os.Getenv("FRONTEND_URL")
 	cloudflare.CloudflareInstance.Init()
 
 	r := mux.NewRouter()
@@ -31,7 +32,7 @@ func main() {
 	cors := handlers.CORS(
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}),
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}),
+		handlers.AllowedOrigins([]string{allowedOrigin}),
 	)
 
 	var address string = "0.0.0.0" + ":" + strconv.Itoa(port)

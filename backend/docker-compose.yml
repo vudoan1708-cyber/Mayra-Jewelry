@@ -2,7 +2,7 @@ services:
   mayra-jewelry:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: mayra-jewelry
     ports:
       - "8080:8080"
