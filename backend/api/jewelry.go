@@ -78,7 +78,7 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 
 	response := models.AllJewelryItemsResponsePayload{}
 	for _, item := range *jewelryItems {
-		mapped := helpers.MapFunc(urls[fmt.Sprintf("%s/", item.DirectoryId)], func(value models.ImageMetadata) models.Merged {
+		mapped := helpers.MapFunc(urls[fmt.Sprintf("%s/", item.DirectoryId)], func(value models.ImageMetadata, nil int) models.Merged {
 			mergedObject := models.Merged{
 				ImageMetadata: models.ImageMetadata{
 					URL:      value.URL,
