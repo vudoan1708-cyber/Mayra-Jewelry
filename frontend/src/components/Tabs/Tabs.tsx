@@ -22,7 +22,7 @@ export default function Tabs({ items, onSelect }: { items: Array<Tab>, onSelect:
   };
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex gap-2 items-center font-serif">
       {tabItems.map((item) => (
         <motion.div
           key={item.id}

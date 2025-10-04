@@ -44,7 +44,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6, b {
+h1, h2, h3, h4, h5, h6, b, button {
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;;
 }
 

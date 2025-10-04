@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
-import Loading from '../Loading/Loading';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 type NavItemProps = {
   href: string,
@@ -54,7 +54,13 @@ export default function NavItem({ href, target, className, withBorder = true, wi
 
       {loading && ReactDOM.createPortal(
         <div className="fixed top-0 left-0 w-dvw h-dvh bg-transparent-white flex justify-center items-center z-50">
-          <Loading />
+          <DotLottieReact
+            src="https://lottie.host/af84b5a6-74cc-42f5-b6fa-10268ce91ab9/aFWRCbuQ0C.lottie"
+            renderConfig={{ autoResize: true }}
+            className="w-20} h-20"
+            loop
+            autoplay
+          />
         </div>,
         document.body,
       )}

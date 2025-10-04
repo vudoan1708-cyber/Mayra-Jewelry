@@ -12,8 +12,8 @@ export default function Footer() {
         variant="tertiary"
         className="w-full !bg-gray-200 hover:!bg-gray-300 rounded-b-none"
         onClick={() => { document?.getElementById('root')?.scrollIntoView({ behavior: 'smooth' }); }}>
-        <div className="text-black flex gap-2 justify-center">
-          VỀ ĐẦU TRANG
+        <div className="text-black flex gap-2 justify-center font-serif">
+          NHẢY LÊN TRÊN
           <ChevronUp />
         </div>
       </Button>
