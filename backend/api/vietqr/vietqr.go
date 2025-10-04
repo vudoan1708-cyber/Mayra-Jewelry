@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -52,7 +51,6 @@ func (vietqr VietQr) GetBanks(specifiedBank *string) (*models.VietQRBankResponse
 	if unmarshal_error := json.Unmarshal(bytes, &bankData); unmarshal_error != nil {
 		return nil, unmarshal_error
 	}
-	log.Println(bankData)
 
 	return &bankData, nil
 }

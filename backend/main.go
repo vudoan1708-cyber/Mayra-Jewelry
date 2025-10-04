@@ -14,6 +14,7 @@ import (
 
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/cloudflare"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
 )
 
 func main() {
@@ -24,7 +25,12 @@ func main() {
 		log.Fatal(env_err)
 	}
 	allowedOrigin := os.Getenv("FRONTEND_URL")
+
 	cloudflare.CloudflareInstance.Init()
+	database.DatabaseInstance.Init()
+	if migration_err := database.DatabaseInstance.AutoMigrate(); migration_err != nil {
+		log.Fatal("Cannot auto-migrate database")
+	}
 
 	r := mux.NewRouter()
 
@@ -39,6 +45,7 @@ func main() {
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
+	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
 
@@ -51,7 +58,7 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	fmt.Printf("App is running at http://%s\n", address)
+	fmt.Printf("✅ App is running at http://%s\n", address)
 
 	err := srv.ListenAndServe()
 

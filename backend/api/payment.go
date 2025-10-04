@@ -36,7 +36,8 @@ func GetQRCode(w http.ResponseWriter, r *http.Request) {
 	}
 	qrCode, qrCode_error := vietqr.VietQrInstance.GetQRCode(amount, &queryInfo)
 	if qrCode_error != nil {
-		http.Error(w, qrCode_error.Error(), http.StatusInternalServerError)
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, qrCode_error.Error())
+		return
 	}
 
 	middleware.HandleResponse(w, qrCode)

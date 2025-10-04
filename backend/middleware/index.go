@@ -7,7 +7,8 @@ import (
 
 func HandleResponse(w http.ResponseWriter, response any) {
 	if response == nil {
-		http.Error(w, "response object not provided", http.StatusBadRequest)
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 
