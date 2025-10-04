@@ -1,10 +1,5 @@
 package models
 
-type JewelryItemPayload struct {
-	URL      string `json:"url"`
-	FileName string `json:"fileName"`
-}
-
 type VietQRCodeData struct {
 	Bin         int    `json:"acpId"`
 	AccountName string `json:"accountName"`

@@ -11,7 +11,7 @@ import (
 )
 
 type Database struct {
-	instance *gorm.DB
+	Gorm *gorm.DB
 }
 
 func (db *Database) AutoMigrate() error {
@@ -20,7 +20,7 @@ func (db *Database) AutoMigrate() error {
 		&models.JewelryItemInfo{},
 		&models.JewelryPrice{},
 	}
-	if auto_migrate_err := db.instance.AutoMigrate(allModels...); auto_migrate_err != nil {
+	if auto_migrate_err := db.Gorm.AutoMigrate(allModels...); auto_migrate_err != nil {
 		return auto_migrate_err
 	}
 	log.Println("✅ Database migration complete")
@@ -39,13 +39,13 @@ func (db *Database) Init() (*Database, error) {
 	}
 	log.Println("✅ Database connection complete")
 
-	db.instance = gorm_db
+	db.Gorm = gorm_db.Debug()
 
 	return db, nil
 }
 
 func (db *Database) Create(value interface{}) *gorm.DB {
-	return db.instance.Create(value)
+	return db.Gorm.Create(value)
 }
 
 var DatabaseInstance = &Database{}

@@ -20,13 +20,18 @@ func (JewelryPrice) TableName() string {
 }
 
 type JewelryItemInfo struct {
-	Id       uint           `json:"id" gorm:"primaryKey"`
-	ItemId   string         `json:"itemId" gorm:"column:itemId"`     // base64 representation of the name to the file
-	FileName string         `json:"fileName" gorm:"column:fileName"` // the base64 file's name + extension
-	ItemName string         `json:"itemName" gorm:"column:itemName"` // Name of the jewelry item
-	Prices   []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId"`
+	Id          uint           `json:"id" gorm:"primaryKey"`
+	DirectoryId string         `json:"directoryId" gorm:"column:directoryId"` // base64 representation of the name of a directory containing images
+	ItemName    string         `json:"itemName" gorm:"column:itemName"`       // Name of the jewelry item
+	Prices      []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId"`
 }
 
 func (JewelryItemInfo) TableName() string {
 	return "jewelry_items"
 }
+
+type Merged struct {
+	ImageMetadata
+	JewelryItemInfo
+}
+type AllJewelryItemsResponsePayload map[string][]Merged

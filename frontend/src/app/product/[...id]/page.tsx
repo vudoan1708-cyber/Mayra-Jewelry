@@ -45,6 +45,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
     setLoading(true);
     try {
       const result = await fetchQRCode({ amount: searchParams.get('amount') as string, info: searchParams.get('info') as string });
+      if (!result?.data?.qrDataURL) throw Error('Cannot find QR Code');
       setQrCode(result?.data?.qrDataURL);
     } catch (e) {
       setError(e?.message);
@@ -86,7 +87,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
           <Suspense fallback={<div className="w-full flex justify-center items-center"><Loading /></div>}>
             {!error
               ? <LazyPaymentSectionComponent qrCode={qrCode} loading={loading} />
-              : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error || 'Cannot find QR Code'}</div>}
+              : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error}</div>}
           </Suspense>
         )}
       </motion.section>
