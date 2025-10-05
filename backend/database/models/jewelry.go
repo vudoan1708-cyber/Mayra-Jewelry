@@ -23,6 +23,8 @@ type JewelryItemInfo struct {
 	Id          uint           `json:"id" gorm:"primaryKey"`
 	DirectoryId string         `json:"directoryId" gorm:"column:directoryId"` // base64 representation of the name of a directory containing images
 	ItemName    string         `json:"itemName" gorm:"column:itemName"`       // Name of the jewelry item
+	Description string         `json:"description"`                           // Description of the jewelry item
+	Purchases   uint           `json:"purchases"`                             // Number of purchases
 	Prices      []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId"`
 }
 

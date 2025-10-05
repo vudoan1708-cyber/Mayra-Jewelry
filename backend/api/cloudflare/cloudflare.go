@@ -70,7 +70,7 @@ type PresignedUrlPayload struct {
 
 var actionByProcedure = map[Procedure]func(presignClient *s3.PresignClient, bucketName string, payload PresignedUrlPayload) (*string, error){
 	GET: func(presignClient *s3.PresignClient, bucketName string, payload PresignedUrlPayload) (*string, error) {
-		presignResult, err := presignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
+		presignResult, err := presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(payload.FileName),
 		})
@@ -85,7 +85,6 @@ var actionByProcedure = map[Procedure]func(presignClient *s3.PresignClient, buck
 			Bucket:      aws.String(bucketName),
 			Key:         aws.String(payload.FileName),
 			ContentType: payload.FileType,
-			ACL:         types.ObjectCannedACLPublicRead,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("couldn't get presigned URL for PutObject")

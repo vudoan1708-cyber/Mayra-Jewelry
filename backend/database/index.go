@@ -44,8 +44,4 @@ func (db *Database) Init() (*Database, error) {
 	return db, nil
 }
 
-func (db *Database) Create(value interface{}) *gorm.DB {
-	return db.Gorm.Create(value)
-}
-
 var DatabaseInstance = &Database{}
