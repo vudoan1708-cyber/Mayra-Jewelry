@@ -30,7 +30,7 @@
 }
 
 :root {
-  font-family: Inter, Helvetica Neue, sans-serif;
+  font-family: "Futura PT", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -44,8 +44,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6, b, button {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;;
+h1, h2, h3, h4, h5, h6, b, button, nav {
+  font-family: "Futura PT", sans-serif;
 }
 
 a {

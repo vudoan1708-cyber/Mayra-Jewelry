@@ -91,4 +91,6 @@ export const base64ToArrayBuffer = (base64: string) => {
     bytes[i] = binary.charCodeAt(i);
   }
   return buffer;
-}
+};
+
+export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';

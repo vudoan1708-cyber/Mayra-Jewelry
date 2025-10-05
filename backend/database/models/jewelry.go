@@ -24,6 +24,8 @@ type JewelryItemInfo struct {
 	ItemName    string         `json:"-" gorm:"column:itemName"`               // Name of the jewelry item
 	Description string         `json:"description"`                            // Description of the jewelry item
 	Purchases   uint           `json:"-"`                                      // Number of purchases
+	IsFeatured  bool           `json:"isFeatured"`
+	BestSeller  bool           `json:"bestSeller"`
 	Prices      []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
@@ -35,6 +37,8 @@ type Metadata struct {
 	DirectoryId string         `json:"directoryId"`
 	ItemName    string         `json:"itemName"`
 	Purchases   uint           `json:"purchases"`
+	IsFeatured  bool           `json:"isFeatured"`
+	BestSeller  bool           `json:"bestSeller"`
 	Prices      []JewelryPrice `json:"prices"`
 	Media       []MediaLink    `json:"media"`
 }

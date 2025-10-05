@@ -39,7 +39,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
 
   return (
     <>
-      <li className="relative group font-serif">
+      <li className="relative group">
         <Link
           href={href}
           target={target}
@@ -49,7 +49,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
           {children}
         </Link>
 
-        {isActive && withBorder && <motion.hr className="absolute bottom-[-14px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />}
+        {isActive && withBorder && <motion.hr className="absolute bottom-[-18px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />}
       </li>
 
       {loading && ReactDOM.createPortal(

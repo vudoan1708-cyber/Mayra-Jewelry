@@ -91,6 +91,8 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 			DirectoryId: item.DirectoryId,
 			ItemName:    item.ItemName,
 			Purchases:   item.Purchases,
+			IsFeatured:  item.IsFeatured,
+			BestSeller:  item.BestSeller,
 			Prices:      item.Prices,
 			Media:       urls[item.DirectoryId],
 		}
@@ -178,6 +180,8 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 			DirectoryId: itemNameBase64,
 			ItemName:    data["itemName"][0],
 			Description: data["description"][0],
+			IsFeatured:  false,
+			BestSeller:  false,
 			Purchases:   0, // First time an item is added will have 0 purchase
 		}
 		if infoDb := tx.Save(jewelryInfo); infoDb.Error != nil {
