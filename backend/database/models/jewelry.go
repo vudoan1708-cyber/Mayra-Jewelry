@@ -10,9 +10,9 @@ const (
 
 type JewelryPrice struct {
 	Id                uint             `json:"id" gorm:"primaryKey"`
-	Variation         JewelryVariation `json:"variation"`
+	Variation         JewelryVariation `json:"variation" gorm:"index:idx_item_variation,unique"`
 	Amount            int32            `json:"amount"`
-	JewelryItemInfoId uint             `json:"-" gorm:"column:jewelryItemInfoId"` // foreign key column
+	JewelryItemInfoId string           `json:"-" gorm:"column:jewelryItemInfoId;index:idx_item_variation,unique"` // foreign key column to JewelryItemInfo.DirectoryId
 }
 
 func (JewelryPrice) TableName() string {
@@ -20,12 +20,11 @@ func (JewelryPrice) TableName() string {
 }
 
 type JewelryItemInfo struct {
-	Id          uint           `json:"id" gorm:"primaryKey"`
-	DirectoryId string         `json:"-" gorm:"column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
-	ItemName    string         `json:"-" gorm:"column:itemName"`    // Name of the jewelry item
-	Description string         `json:"description"`                 // Description of the jewelry item
-	Purchases   uint           `json:"-"`                           // Number of purchases
-	Prices      []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId"`
+	DirectoryId string         `json:"-" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
+	ItemName    string         `json:"-" gorm:"column:itemName"`               // Name of the jewelry item
+	Description string         `json:"description"`                            // Description of the jewelry item
+	Purchases   uint           `json:"-"`                                      // Number of purchases
+	Prices      []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
 func (JewelryItemInfo) TableName() string {

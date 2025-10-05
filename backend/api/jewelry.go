@@ -15,6 +15,8 @@ import (
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database/models"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/middleware"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func getJewelryItemInfo() (*[]models.JewelryItemInfo, error) {
@@ -169,16 +171,39 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, cast_err.Error())
 		return
 	}
-
 	itemNameBase64 := base64.StdEncoding.EncodeToString([]byte(data["itemName"][0]))
-	jewelryInfo := &models.JewelryItemInfo{
-		DirectoryId: itemNameBase64,
-		ItemName:    data["itemName"][0],
-		Description: data["description"][0],
-		Purchases:   0, // First time an item is added will have 0 purchase
-		Prices:      convertedPrices,
+
+	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
+		jewelryInfo := &models.JewelryItemInfo{
+			DirectoryId: itemNameBase64,
+			ItemName:    data["itemName"][0],
+			Description: data["description"][0],
+			Purchases:   0, // First time an item is added will have 0 purchase
+		}
+		if infoDb := tx.Save(jewelryInfo); infoDb.Error != nil {
+			log.Printf("Error with saving jewelry info data to Supabase")
+			return infoDb.Error
+		}
+		for i := range convertedPrices {
+			convertedPrices[i].JewelryItemInfoId = jewelryInfo.DirectoryId
+		}
+		if priceDb := tx.Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "jewelryItemInfoId"},
+				{Name: "variation"},
+			}, // key to check for conflict
+			UpdateAll: true, // update all fields if conflict
+		}).Create(convertedPrices); priceDb.Error != nil {
+			log.Printf("Error with saving jewelry prices data to Supabase")
+			return priceDb.Error
+		}
+		return nil
+	})
+
+	if tx_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, tx_err.Error())
+		return
 	}
-	database.DatabaseInstance.Gorm.Save(jewelryInfo)
 
 	// File fields processed and uploaded to Cloudflare
 	if upload_err := handleUploadFiles(itemNameBase64, r.MultipartForm.File); upload_err != nil {
