@@ -21,19 +21,22 @@ func (JewelryPrice) TableName() string {
 
 type JewelryItemInfo struct {
 	Id          uint           `json:"id" gorm:"primaryKey"`
-	DirectoryId string         `json:"directoryId" gorm:"column:directoryId"` // base64 representation of the name of a directory containing images
-	ItemName    string         `json:"itemName" gorm:"column:itemName"`       // Name of the jewelry item
-	Description string         `json:"description"`                           // Description of the jewelry item
-	Purchases   uint           `json:"purchases"`                             // Number of purchases
-	Prices      []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId"`
+	DirectoryId string         `json:"-" gorm:"column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
+	ItemName    string         `json:"-" gorm:"column:itemName"`    // Name of the jewelry item
+	Description string         `json:"description"`                 // Description of the jewelry item
+	Purchases   uint           `json:"-"`                           // Number of purchases
+	Prices      []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId"`
 }
 
 func (JewelryItemInfo) TableName() string {
 	return "jewelry_items"
 }
 
-type Merged struct {
-	ImageMetadata
-	JewelryItemInfo
+type Metadata struct {
+	DirectoryId string         `json:"directoryId"`
+	ItemName    string         `json:"itemName"`
+	Purchases   uint           `json:"purchases"`
+	Prices      []JewelryPrice `json:"prices"`
+	Media       []MediaLink    `json:"media"`
 }
-type AllJewelryItemsResponsePayload map[string][]Merged
+type AllJewelryItemsResponsePayload map[string]Metadata

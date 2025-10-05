@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log"
@@ -44,60 +45,53 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var urls = make(models.CloudflareJewelryItemPayload, 0)
-	var metadata []models.ImageMetadata
-	var currentDir string = ""
+	var mediaLinks []models.MediaLink
+	var currentDir string
 	for idx, obj := range objects {
 		url, err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
 			FileName:  *obj.Key,
 			Procedure: "GET",
 		})
 		if err != nil {
-			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for: %s", *obj.Key))
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, err.Error()))
 			log.Fatal(err)
 			return
 		}
-		// Directories by ending slashes
-		if strings.HasSuffix(*obj.Key, "/") {
-			currentLink := helpers.FalsyFallback(currentDir, *obj.Key)
-			urls[currentLink] = append(urls[currentLink], metadata...)
-			metadata = []models.ImageMetadata{}
-			currentDir = *obj.Key
+
+		// No nested directories so only need to split the path string and grab the first part
+		parts := strings.Split(*obj.Key, "/")
+		var newDirectoryFound bool = currentDir != parts[0]
+		if newDirectoryFound {
+			tempDir := parts[0]
+			urls[currentDir] = append(urls[helpers.FalsyFallback(currentDir, tempDir)], mediaLinks...)
+
+			mediaLinks = []models.MediaLink{}
+			currentDir = tempDir
 			log.Printf("ℹ️  Directory found: %s", currentDir)
-			log.Printf("ℹ️  %s directory contains %d images", currentDir, len(urls[currentLink]))
-			continue
+			log.Printf("ℹ️  %s directory contains %d images", currentDir, len(urls[currentDir]))
 		}
-		metadata = append(metadata, models.ImageMetadata{
+
+		mediaLinks = append(mediaLinks, models.MediaLink{
 			URL:      *url,
 			FileName: *obj.Key,
 		})
 
 		if idx == len(objects)-1 {
-			urls[currentDir] = append(urls[currentDir], metadata...)
-			metadata = []models.ImageMetadata{}
+			urls[currentDir] = append(urls[currentDir], mediaLinks...)
+			mediaLinks = []models.MediaLink{}
 		}
 	}
 
 	response := models.AllJewelryItemsResponsePayload{}
 	for _, item := range *jewelryItems {
 		var key string = fmt.Sprintf("%s/", item.DirectoryId)
-		mapped := helpers.MapFunc(urls[key], func(value models.ImageMetadata, nil int) models.Merged {
-			mergedObject := models.Merged{
-				ImageMetadata: models.ImageMetadata{
-					URL:      value.URL,
-					FileName: value.FileName,
-				},
-				JewelryItemInfo: models.JewelryItemInfo{
-					Id:          item.Id,
-					DirectoryId: item.DirectoryId,
-					ItemName:    item.ItemName,
-					Description: item.Description,
-					Purchases:   item.Purchases,
-					Prices:      item.Prices,
-				},
-			}
-			return mergedObject
-		})
-		response[key] = mapped
+		response[key] = models.Metadata{
+			DirectoryId: item.DirectoryId,
+			ItemName:    item.ItemName,
+			Purchases:   item.Purchases,
+			Prices:      item.Prices,
+			Media:       urls[item.DirectoryId],
+		}
 	}
 	middleware.HandleResponse(w, response)
 }
@@ -110,7 +104,7 @@ func uploadFiles(presignedUrl string, file multipart.File, fileSize int64, conte
 	if err != nil {
 		return err
 	}
-	log.Printf("contentType is %s", contentType)
+
 	request.Header.Set("Content-Type", contentType)
 	request.ContentLength = fileSize
 	response, response_error := configClient.Do(request)
@@ -146,7 +140,7 @@ func handleUploadFiles(directory string, formFiles map[string][]*multipart.FileH
 			if url_err != nil {
 				return url_err
 			}
-			log.Printf("url: %s", *url)
+
 			if upload_err := uploadFiles(*url, file, fileHeader.Size, contentType); upload_err != nil {
 				return upload_err
 			}
@@ -175,8 +169,10 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, cast_err.Error())
 		return
 	}
+
+	itemNameBase64 := base64.StdEncoding.EncodeToString([]byte(data["itemName"][0]))
 	jewelryInfo := &models.JewelryItemInfo{
-		DirectoryId: data["directoryId"][0],
+		DirectoryId: itemNameBase64,
 		ItemName:    data["itemName"][0],
 		Description: data["description"][0],
 		Purchases:   0, // First time an item is added will have 0 purchase
@@ -185,7 +181,7 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 	database.DatabaseInstance.Gorm.Save(jewelryInfo)
 
 	// File fields processed and uploaded to Cloudflare
-	if upload_err := handleUploadFiles(data["directoryId"][0], r.MultipartForm.File); upload_err != nil {
+	if upload_err := handleUploadFiles(itemNameBase64, r.MultipartForm.File); upload_err != nil {
 		log.Printf("Error with handleUploadFiles()")
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, upload_err.Error())
 		return

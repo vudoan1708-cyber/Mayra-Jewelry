@@ -1,7 +1,7 @@
 package models
 
-type ImageMetadata struct {
+type MediaLink struct {
 	URL      string `json:"url"`
 	FileName string `json:"fileName"`
 }
-type CloudflareJewelryItemPayload map[string][]ImageMetadata
+type CloudflareJewelryItemPayload map[string][]MediaLink

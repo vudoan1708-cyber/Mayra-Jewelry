@@ -2,6 +2,7 @@ package cloudflare
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -11,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
 )
 
 type CloudflareProxy interface {
@@ -87,6 +89,12 @@ var actionByProcedure = map[Procedure]func(presignClient *s3.PresignClient, buck
 			ContentType: payload.FileType,
 		})
 		if err != nil {
+			var apiErr smithy.APIError
+			if errors.As(err, &apiErr) && apiErr.ErrorCode() == "EntityTooLarge" {
+				return nil, fmt.Errorf("error while uploading object to %s. The object is too large..."+
+					"To upload objects larger than 5GB, use the S3 console (160GB max)"+
+					"or the multipart upload API (5TB max)", bucketName)
+			}
 			return nil, fmt.Errorf("couldn't get presigned URL for PutObject")
 		}
 
@@ -115,10 +123,10 @@ func (cf *Cloudflare) ListObjectsInBucket(bucketName string) ([]types.Object, er
 		Bucket: aws.String(bucketName),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error: %s | bucket is: %s", err, bucketName)
+		return nil, fmt.Errorf("%s | bucket is: %s", err, bucketName)
 	}
 	if len(objects.Contents) == 0 {
-		return nil, fmt.Errorf("error: bucket %s might be empty", bucketName)
+		return nil, fmt.Errorf("bucket %s might be empty", bucketName)
 	}
 
 	return objects.Contents, nil
