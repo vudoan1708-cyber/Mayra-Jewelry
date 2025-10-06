@@ -15,13 +15,13 @@
     --spacing-1-2: calc(var(--spacing-1) / 2);
     --spacing-1-4: calc(var(--spacing-1) / 4);
 
-    --brand-100: #E6E8F1;
-    --brand-200: #B3B8D4;
-    --brand-300: #8087B7;
-    --brand-400: #4D569A;
-    --brand-500: #0D1643;
-    --brand-600: #080C26;
-    --brand-700: #03040E;
+    --brand-100: #E6ECF3;
+    --brand-200: #B3C2D8;
+    --brand-300: #8098BD;
+    --brand-400: #4D6EA2;
+    --brand-500: #001B3D;
+    --brand-600: #00122A;
+    --brand-700: #000814;
     --backdrop-color: 0, 0, 0;
     --background-color: 250, 250, 250;
     --transparent-white: rgba(var(--background-color), 0.5);
@@ -59,12 +59,12 @@ nav {
 
 a {
   font-weight: 500;
-  color: var(--brand-400);
+  color: var(--brand-500);
   text-decoration: inherit;
   cursor: pointer;
 }
 a:hover {
-  color: var(--brand-500);
+  color: var(--brand-400);
 }
 
 body {

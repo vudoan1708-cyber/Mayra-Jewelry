@@ -61,7 +61,7 @@ export default function Bio() {
           </div>
         </div>
         <ul className="bg-transparent-white rounded p-2 list-disc pl-4 leading-relaxed">
-          <li>Khám phá những mặt hàng nhẫn <b>mới và rẻ nhất</b> thị trường tại đây</li>
+          <li>Khám phá những mặt hàng nhẫn <b>mới và tinh tế nhất</b> thị trường tại đây</li>
           <li><b>Tư vấn 24/7</b>, phục vụ tận tình</li>
           <li>
             Hàng hư hoặc không yêu thích sau khi mua có thể

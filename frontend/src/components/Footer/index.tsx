@@ -11,7 +11,7 @@ export default function Footer() {
       <Button
         variant="tertiary"
         className="w-full !bg-gray-200 hover:!bg-gray-300 rounded-b-none"
-        onClick={() => { document?.getElementById('root')?.scrollIntoView({ behavior: 'smooth' }); }}>
+        onClick={() => { document?.getElementById('extra_nav_info')?.scrollIntoView({ behavior: 'smooth' }); }}>
         <div className="text-black flex gap-2 justify-center font-serif">
           NHẢY LÊN TRÊN
           <ChevronUp />

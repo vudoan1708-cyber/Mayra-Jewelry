@@ -26,8 +26,9 @@ export default function Navigation() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative bg-brand-500 text-white p-1 w-full text-center uppercase">
-        Ship hàng ngay ngày hôm sau - <span className="border-b border-b-1 border-b-brand-200">7 ngày / tuần</span>
+        className="relative bg-brand-500 text-white p-1 w-full text-center uppercase"
+        id="extra_nav_info">
+        Giảm giá 10% các mẫu nhẫn từ ngày <span className="border-b border-b-1 border-b-brand-200">5/10 - 20/10</span>
       </motion.div>
       <motion.nav
         initial={{ y: -120 }}
