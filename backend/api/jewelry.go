@@ -88,13 +88,13 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	for _, item := range *jewelryItems {
 		var key string = fmt.Sprintf("%s/", item.DirectoryId)
 		response[key] = models.Metadata{
-			DirectoryId: item.DirectoryId,
-			ItemName:    item.ItemName,
-			Purchases:   item.Purchases,
-			IsFeatured:  item.IsFeatured,
-			BestSeller:  item.BestSeller,
-			Prices:      item.Prices,
-			Media:       urls[item.DirectoryId],
+			DirectoryId:       item.DirectoryId,
+			ItemName:          item.ItemName,
+			Purchases:         item.Purchases,
+			FeatureCollection: item.FeatureCollection,
+			BestSeller:        item.BestSeller,
+			Prices:            item.Prices,
+			Media:             urls[item.DirectoryId],
 		}
 	}
 	middleware.HandleResponse(w, response)
@@ -177,12 +177,12 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 
 	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		jewelryInfo := &models.JewelryItemInfo{
-			DirectoryId: itemNameBase64,
-			ItemName:    data["itemName"][0],
-			Description: data["description"][0],
-			IsFeatured:  false,
-			BestSeller:  false,
-			Purchases:   0, // First time an item is added will have 0 purchase
+			DirectoryId:       itemNameBase64,
+			ItemName:          data["itemName"][0],
+			Description:       data["description"][0],
+			FeatureCollection: data["featureCollection"][0],
+			BestSeller:        false,
+			Purchases:         0, // First time an item is added will have 0 purchase
 		}
 		if infoDb := tx.Save(jewelryInfo); infoDb.Error != nil {
 			log.Printf("Error with saving jewelry info data to Supabase")

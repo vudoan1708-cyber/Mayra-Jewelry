@@ -8,6 +8,13 @@ const (
 	WhiteGold JewelryVariation = "White Gold"
 )
 
+type JewelryType string
+
+const (
+	Ring     JewelryType = "ring"
+	Bracelet JewelryType = "bracelet"
+)
+
 type JewelryPrice struct {
 	Id                uint             `json:"id" gorm:"primaryKey"`
 	Variation         JewelryVariation `json:"variation" gorm:"index:idx_item_variation,unique"`
@@ -20,13 +27,14 @@ func (JewelryPrice) TableName() string {
 }
 
 type JewelryItemInfo struct {
-	DirectoryId string         `json:"-" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
-	ItemName    string         `json:"-" gorm:"column:itemName"`               // Name of the jewelry item
-	Description string         `json:"description"`                            // Description of the jewelry item
-	Purchases   uint           `json:"-"`                                      // Number of purchases
-	IsFeatured  bool           `json:"isFeatured"`
-	BestSeller  bool           `json:"bestSeller"`
-	Prices      []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
+	DirectoryId       string         `json:"-" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
+	ItemName          string         `json:"-" gorm:"column:itemName"`               // Name of the jewelry item
+	Description       string         `json:"description"`                            // Description of the jewelry item
+	Purchases         uint           `json:"-"`                                      // Number of purchases
+	FeatureCollection string         `json:"featureCollection" gorm:"featureCollection"`
+	BestSeller        bool           `json:"bestSeller" gorm:"bestSeller"`
+	Type              JewelryType    `json:"type"`
+	Prices            []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
 func (JewelryItemInfo) TableName() string {
@@ -34,12 +42,13 @@ func (JewelryItemInfo) TableName() string {
 }
 
 type Metadata struct {
-	DirectoryId string         `json:"directoryId"`
-	ItemName    string         `json:"itemName"`
-	Purchases   uint           `json:"purchases"`
-	IsFeatured  bool           `json:"isFeatured"`
-	BestSeller  bool           `json:"bestSeller"`
-	Prices      []JewelryPrice `json:"prices"`
-	Media       []MediaLink    `json:"media"`
+	DirectoryId       string         `json:"directoryId"`
+	ItemName          string         `json:"itemName"`
+	Purchases         uint           `json:"purchases"`
+	FeatureCollection string         `json:"featureCollection"`
+	BestSeller        bool           `json:"bestSeller"`
+	Type              JewelryType    `json:"type"`
+	Prices            []JewelryPrice `json:"prices"`
+	Media             []MediaLink    `json:"media"`
 }
 type AllJewelryItemsResponsePayload map[string]Metadata
