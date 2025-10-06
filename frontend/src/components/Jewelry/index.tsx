@@ -4,6 +4,7 @@ import path from 'path';
 import Grid from './Grid';
 import Filter from './Filter';
 import GridItem from './GridItem';
+import WeddingRingSection from './WeddingRingSection';
 
 const pathToImagesDir = path.resolve(__dirname, '..', '..', '..', 'public/images/jewelry');
 const images = fs.readdirSync(pathToImagesDir);
@@ -15,16 +16,18 @@ export default function Jewelry() {
     <section className="flex flex-col">
       <Filter />
       <div className="mt-3 text-3xl">
-        <h3 className="p-6">Bộ sưu tập nổi bật trong năm</h3>
+        <h3 className="p-6 text-brand-700">Bộ sưu tập nổi bật trong năm</h3>
         <Grid>
-          {isFeatured.map((img, idx) => <GridItem key={`featured-${idx}`} idx={idx} img={img} />)}
+          {isFeatured.map((img, idx) => <GridItem key={`featured-${idx}`} img={img} />)}
         </Grid>
       </div>
 
+      <WeddingRingSection />
+
       <div className="mt-3 text-3xl">
-        <h3 className="p-6">Hàng bán chạy nhất</h3>
+        <h3 className="p-6 text-brand-700">Hàng bán chạy nhất</h3>
         <Grid>
-          {bestSeller.map((img, idx) => <GridItem key={`best-seller-${idx}`} idx={idx} img={img} />)}
+          {bestSeller.map((img, idx) => <GridItem key={`best-seller-${idx}`} img={img} />)}
         </Grid>
       </div>
       {/* <Grid>

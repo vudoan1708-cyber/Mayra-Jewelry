@@ -24,18 +24,18 @@ export default function Navigation() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative bg-gray-200 p-1 w-full text-center">
-        Ship hàng ngay ngày hôm sau - <span className="border-b border-b-1 border-b-brand-400">7 ngày / tuần</span>
+        className="relative bg-brand-500 text-white p-1 w-full text-center uppercase">
+        Ship hàng ngay ngày hôm sau - <span className="border-b border-b-1 border-b-brand-200">7 ngày / tuần</span>
       </motion.div>
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-white sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 sm:border-b-2 sm:border-solid sm:shadow-lg">
+        className="bg-white sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
         {logoIntersected && <motion.img
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           src="images/logo.webp"
-          className="absolute top-0 left-0 w-[57px] h- select-none cursor-pointer hover:filter"
+          className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
           onClick={() => { router.push('/'); }} />}
         <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_120px] sm:gap-2 sm:justify-center sm:items-center">
           <NavItem href="/">

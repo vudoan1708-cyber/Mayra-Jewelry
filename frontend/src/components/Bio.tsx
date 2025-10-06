@@ -60,7 +60,14 @@ export default function Bio() {
         <ul className="bg-transparent-white rounded p-2 list-disc pl-4 leading-relaxed">
           <li>Khám phá những mặt hàng nhẫn <b>mới và rẻ nhất</b> thị trường tại đây</li>
           <li><b>Tư vấn 24/7</b>, phục vụ tận tình</li>
-          <li>Hàng hư hoặc không yêu thích sau khi mua có thể <b>hoàn trả miễn phí</b> <i>(xin vui lòng <u>liên hệ shop</u> để thêm thông tin chi tiết về những mặt hàng sẽ được hoàn trả miễn phí trước khi mua sắm ạ)</i></li>
+          <li>
+            Hàng hư hoặc không yêu thích sau khi mua có thể
+            <b> hoàn trả miễn phí </b> 
+            <i>(xin vui lòng
+              <a href="https://www.facebook.com/mayrajewelry.insaigon" target="_blank"> <u>liên hệ shop</u> </a>
+              để thêm thông tin chi tiết về những mặt hàng sẽ được hoàn trả miễn phí trước khi mua sắm ạ)
+            </i>
+          </li>
         </ul>
         <Button variant="primary" onClick={() => {}}>Sign up for perks</Button>
       </motion.aside>

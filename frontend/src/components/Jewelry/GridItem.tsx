@@ -40,7 +40,7 @@ export default function GridItem({ key, img }: { key: string, img: string }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       whileInView={{ opacity: 1 }}
-      whileHover={{ scale: 1.05, opacity: .9 }}
+      whileHover={{ opacity: .9 }}
       transition={{ type: 'spring', stiffness: 300 }}
       className="relative cursor-pointer">
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
@@ -51,7 +51,7 @@ export default function GridItem({ key, img }: { key: string, img: string }) {
             width="450"
             height="320"
             style={{ objectFit: "contain", width: "auto", height: "auto" }}
-            className="object-cover h-full w-full rounded-lg" />
+            className="object-cover h-full w-full rounded-md" />
           <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
             <div>
               <b className="text-lg text-gray-800">Mayra Collection</b>

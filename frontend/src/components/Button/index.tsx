@@ -10,7 +10,7 @@ type ButtonProps = {
 export default function Button({ variant, className, onClick, children }: ButtonProps) {
   if (variant === 'primary') {
     return (
-      <button onClick={onClick} className={`flex justify-center gap-1 bg-brand-500 text-white transition-all ${className}`}>
+      <button onClick={onClick} className={`flex justify-center gap-1 bg-brand-500 text-white transition-all hover:shadow-[2px_2px_5px_var(--brand-400)] ${className}`}>
         {children}
       </button>
     )
