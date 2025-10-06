@@ -28,14 +28,14 @@ func (JewelryPrice) TableName() string {
 
 type JewelryItemInfo struct {
 	DirectoryId       string         `json:"directoryId" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
-	ItemName          string         `json:"-" gorm:"column:itemName"`                         // Name of the jewelry item
+	ItemName          string         `json:"itemName" gorm:"column:itemName"`                  // Name of the jewelry item
 	Description       string         `json:"description"`                                      // Description of the jewelry item
-	Purchases         uint           `json:"-"`                                                // Number of purchases
+	Purchases         uint           `json:"purchases"`                                        // Number of purchases
 	FeatureCollection string         `json:"featureCollection" gorm:"column:featureCollection"`
 	BestSeller        bool           `json:"bestSeller" gorm:"column:bestSeller"`
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views" gorm:"column:views"`
-	Prices            []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
+	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
 func (JewelryItemInfo) TableName() string {

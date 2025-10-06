@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/cloudflare"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database/models"
@@ -70,7 +71,6 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 			mediaLinks = []models.MediaLink{}
 			currentDir = tempDir
 			log.Printf("ℹ️  Directory found: %s", currentDir)
-			log.Printf("ℹ️  %s directory contains %d images", currentDir, len(urls[currentDir]))
 		}
 
 		mediaLinks = append(mediaLinks, models.MediaLink{
@@ -98,6 +98,27 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 			Prices:            item.Prices,
 			Media:             urls[item.DirectoryId],
 		}
+	}
+	middleware.HandleResponse(w, response)
+}
+
+func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+	vars := mux.Vars(r)
+	directoryId := vars["directoryId"]
+	if directoryId == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "directoryId not found in the requested URL but is required")
+		return
+	}
+
+	response := models.JewelryItemInfo{}
+
+	if err := database.DatabaseInstance.Gorm.Preload("Prices").Model(models.JewelryItemInfo{}).Where(models.JewelryItemInfo{DirectoryId: directoryId}).First(&response).Error; err != nil {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
+		return
 	}
 	middleware.HandleResponse(w, response)
 }
@@ -247,14 +268,9 @@ func UpdateJewelryInfo(w http.ResponseWriter, r *http.Request) {
 	var selectedFields []string
 	updatedData := map[string]interface{}{}
 	for key, value := range data {
-		if key == "directoryId" {
-			continue
-		}
 		selectedFields = append(selectedFields, key)
 		updatedData[key] = value[0]
 	}
-	log.Printf("updatedData: %+v", updatedData)
-	log.Printf("selectedFields: %+v", selectedFields)
 	if transaction_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		if update_err := tx.Model(&models.JewelryItemInfo{}).Where(&models.JewelryItemInfo{DirectoryId: directoryId}).Select(selectedFields).Updates(updatedData).Error; update_err != nil {
 			return update_err
