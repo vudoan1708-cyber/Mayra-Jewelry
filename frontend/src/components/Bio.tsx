@@ -8,23 +8,26 @@ import { LOGO_SCROLLED_PASSED_EVENT } from '../helpers';
 
 export default function Bio() {
   const triggerRef = useRef<HTMLImageElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!triggerRef.current) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) {
         window.postMessage({
           event: LOGO_SCROLLED_PASSED_EVENT,
+          target: entry?.target?.tagName,
           value: true,
         }, '*');
       } else {
         window.postMessage({
           event: LOGO_SCROLLED_PASSED_EVENT,
+          target: entry?.target?.tagName,
           value: false,
         }, '*');
       }
     }, { threshold: 0 });
-    observer.observe(triggerRef.current);
+    if (triggerRef.current) observer.observe(triggerRef.current);
+    if (buttonRef.current) observer.observe(buttonRef.current);
 
     return () => {
       observer.disconnect();
@@ -69,7 +72,7 @@ export default function Bio() {
             </i>
           </li>
         </ul>
-        <Button variant="primary" onClick={() => {}}>Sign up for perks</Button>
+        <Button ref={buttonRef} variant="primary" onClick={() => {}}>Đăng nhập nhận quà</Button>
       </motion.aside>
     </header>
   )

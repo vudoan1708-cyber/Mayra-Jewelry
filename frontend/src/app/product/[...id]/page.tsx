@@ -96,7 +96,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
         className="col-span-1 md:col-span-2">
-        <h2 className="text-lg text-brand-500 font-semibold mt-6 self-start">Những món hàng được view thường xuyên</h2>
+        <h2 className="text-2xl text-brand-500 font-semibold mt-6 self-start">Những món hàng được view thường xuyên</h2>
         <div className="flex gap-2 overflow-auto">
           {Array.from({ length: 4 }).map((_, idx) => (
             <Image

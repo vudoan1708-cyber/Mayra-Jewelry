@@ -53,6 +53,10 @@ button, nav {
   font-weight: lighter;
 }
 
+nav {
+  position: -webkit-sticky;
+}
+
 a {
   font-weight: 500;
   color: var(--brand-400);

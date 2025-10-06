@@ -29,7 +29,7 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
       </div>
 
       <div className="self-start grid gap-2">
-        <h2 className="text-lg text-brand-500 font-semibold">Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)</h2>
+        <h2 className="text-3xl text-brand-500 font-semibold">Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)</h2>
         <small>
           <b className="font-bold text-brand-500">{numberOfPurchases} lượt</b> mua món hàng này
           <motion.hr

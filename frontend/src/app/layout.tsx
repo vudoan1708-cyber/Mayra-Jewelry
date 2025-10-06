@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import Floating from './Floating';
 
 import './page.css';
 
@@ -21,6 +22,8 @@ export default function RootLayout({
         <Navigation />
         
         <main id="root" className="flex-1">{children}</main>
+
+        <Floating />
 
         <Footer />
       </body>

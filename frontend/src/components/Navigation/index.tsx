@@ -16,7 +16,9 @@ export default function Navigation() {
 
   useEffect(() => {
     window.addEventListener('message', (e) => {
-      setLogoIntersected(e.data?.event === LOGO_SCROLLED_PASSED_EVENT && e.data?.value);
+      if (e.data?.target === 'IMG') {
+        setLogoIntersected(e.data?.event === LOGO_SCROLLED_PASSED_EVENT && e.data?.value);
+      }
     });
   }, []);
   return (

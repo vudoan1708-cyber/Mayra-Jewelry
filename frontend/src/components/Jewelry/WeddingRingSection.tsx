@@ -7,7 +7,7 @@ export default function WeddingRingSection() {
     <div className="mt-3 p-6 flex gap-4 flex-wrap items-start">
       <img
         alt="ring on someone's finger"
-        src="https://pixabay.com/get/g501286bbe73700547dd862dd7c9896010c94895bbcc596947161eb0087a8ab96339f2eff1cc5ef54cbbf4f2d3530ce89b12bbd30bd72d794aecc76db592ded0da2a9ca759e4625cd28ea13f3180bcb0b_640.jpg"
+        src="images/wedding-ring.webp"
         width="640"
         height="426"
         className="rounded-md object-contain" />
