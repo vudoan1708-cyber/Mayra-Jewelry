@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func getJewelryItemInfo() (*[]models.JewelryItemInfo, error) {
+func getAllJewelryItemInfo() (*[]models.JewelryItemInfo, error) {
 	jewelryInfo := []models.JewelryItemInfo{}
 	if err := database.DatabaseInstance.Gorm.Preload("Prices").Find(&jewelryInfo).Error; err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch all jewelry items from Supabase
-	jewelryItems, query_err := getJewelryItemInfo()
+	jewelryItems, query_err := getAllJewelryItemInfo()
 	if query_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, query_err.Error())
 		return
@@ -93,6 +93,8 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 			Purchases:         item.Purchases,
 			FeatureCollection: item.FeatureCollection,
 			BestSeller:        item.BestSeller,
+			Type:              item.Type,
+			ViewCount:         item.ViewCount,
 			Prices:            item.Prices,
 			Media:             urls[item.DirectoryId],
 		}
@@ -175,6 +177,7 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 	}
 	itemNameBase64 := base64.StdEncoding.EncodeToString([]byte(data["itemName"][0]))
 
+	jewelryType := models.JewelryType(data["type"][0])
 	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		jewelryInfo := &models.JewelryItemInfo{
 			DirectoryId:       itemNameBase64,
@@ -182,6 +185,8 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 			Description:       data["description"][0],
 			FeatureCollection: data["featureCollection"][0],
 			BestSeller:        false,
+			Type:              jewelryType,
+			ViewCount:         0, // First time an item is added will have 0 view count
 			Purchases:         0, // First time an item is added will have 0 purchase
 		}
 		if infoDb := tx.Save(jewelryInfo); infoDb.Error != nil {
@@ -216,5 +221,48 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	middleware.HandleResponse(w, nil)
+}
+
+func UpdateJewelryInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "method must be PATCH")
+		return
+	}
+
+	// 10MB data
+	if parse_err := r.ParseMultipartForm(10 << 20); parse_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Parsing error: %s", parse_err))
+		return
+	}
+
+	data := r.MultipartForm.Value
+	directoryId := data["directoryId"][0]
+
+	if directoryId == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "directoryId is not found in the request payload and is required")
+		return
+	}
+
+	var selectedFields []string
+	updatedData := map[string]interface{}{}
+	for key, value := range data {
+		if key == "directoryId" {
+			continue
+		}
+		selectedFields = append(selectedFields, key)
+		updatedData[key] = value[0]
+	}
+	log.Printf("updatedData: %+v", updatedData)
+	log.Printf("selectedFields: %+v", selectedFields)
+	if transaction_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
+		if update_err := tx.Model(&models.JewelryItemInfo{}).Where(&models.JewelryItemInfo{DirectoryId: directoryId}).Select(selectedFields).Updates(updatedData).Error; update_err != nil {
+			return update_err
+		}
+		return nil
+	}); transaction_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Transaction failed: %s", transaction_err.Error()))
+		return
+	}
 	middleware.HandleResponse(w, nil)
 }

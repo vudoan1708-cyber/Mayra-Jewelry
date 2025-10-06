@@ -46,6 +46,7 @@ func main() {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")
+	apiRouter.HandleFunc("/jewelry", api.UpdateJewelryInfo).Methods("PATCH")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
 

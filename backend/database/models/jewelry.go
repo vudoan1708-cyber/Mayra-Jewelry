@@ -27,13 +27,14 @@ func (JewelryPrice) TableName() string {
 }
 
 type JewelryItemInfo struct {
-	DirectoryId       string         `json:"-" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
-	ItemName          string         `json:"-" gorm:"column:itemName"`               // Name of the jewelry item
-	Description       string         `json:"description"`                            // Description of the jewelry item
-	Purchases         uint           `json:"-"`                                      // Number of purchases
-	FeatureCollection string         `json:"featureCollection" gorm:"featureCollection"`
-	BestSeller        bool           `json:"bestSeller" gorm:"bestSeller"`
+	DirectoryId       string         `json:"directoryId" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
+	ItemName          string         `json:"-" gorm:"column:itemName"`                         // Name of the jewelry item
+	Description       string         `json:"description"`                                      // Description of the jewelry item
+	Purchases         uint           `json:"-"`                                                // Number of purchases
+	FeatureCollection string         `json:"featureCollection" gorm:"column:featureCollection"`
+	BestSeller        bool           `json:"bestSeller" gorm:"column:bestSeller"`
 	Type              JewelryType    `json:"type"`
+	ViewCount         uint           `json:"views" gorm:"column:views"`
 	Prices            []JewelryPrice `json:"-" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
@@ -48,6 +49,7 @@ type Metadata struct {
 	FeatureCollection string         `json:"featureCollection"`
 	BestSeller        bool           `json:"bestSeller"`
 	Type              JewelryType    `json:"type"`
+	ViewCount         uint           `json:"views"`
 	Prices            []JewelryPrice `json:"prices"`
 	Media             []MediaLink    `json:"media"`
 }
