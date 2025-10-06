@@ -9,14 +9,29 @@ const pathToImagesDir = path.resolve(__dirname, '..', '..', '..', 'public/images
 const images = fs.readdirSync(pathToImagesDir);
 
 export default function Jewelry() {
+  const isFeatured = images.slice(1, 4);
+  const bestSeller = images.slice(images.length - 4, images.length - 2);
   return (
     <section className="flex flex-col">
       <Filter />
-      <Grid>
+      <div className="mt-3 text-3xl">
+        <h3 className="p-6">Bộ sưu tập nổi bật trong năm</h3>
+        <Grid>
+          {isFeatured.map((img, idx) => <GridItem key={`featured-${idx}`} idx={idx} img={img} />)}
+        </Grid>
+      </div>
+
+      <div className="mt-3 text-3xl">
+        <h3 className="p-6">Hàng bán chạy nhất</h3>
+        <Grid>
+          {bestSeller.map((img, idx) => <GridItem key={`best-seller-${idx}`} idx={idx} img={img} />)}
+        </Grid>
+      </div>
+      {/* <Grid>
         {images.map((img, idx) => (
-          <GridItem key={idx} index={idx} img={img} />
+          <GridItem key={idx.toString()} idx={idx} img={img} />
         ))}
-      </Grid>
+      </Grid> */}
     </section>
   );
 }

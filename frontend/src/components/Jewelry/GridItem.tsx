@@ -13,7 +13,7 @@ import { arrayBufferToBase64 } from '../../helpers';
 
 const enc = new TextEncoder();
 
-export default function GridItem({ index, img }: { index: number, img: string }) {
+export default function GridItem({ key, img }: { key: string, img: string }) {
   const router = useRouter();
   const [encryptedId, setEncryptedId] = useState<string>('');
 
@@ -36,8 +36,10 @@ export default function GridItem({ index, img }: { index: number, img: string })
 
   return (
     <motion.div
+      key={key}
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { delay: 0.2 * (index + 1) } }}
+      animate={{ opacity: 1 }}
+      whileInView={{ opacity: 1 }}
       whileHover={{ scale: 1.05, opacity: .9 }}
       transition={{ type: 'spring', stiffness: 300 }}
       className="relative cursor-pointer">

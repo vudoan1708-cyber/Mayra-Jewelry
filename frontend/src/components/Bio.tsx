@@ -36,7 +36,7 @@ export default function Bio() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { duration: 0.4, delay: 0.5 } }}
         src="/images/jewelry/sun.webp"
-        className="logo select-none"
+        className="logo select-none object-cover"
         alt="Landing image" />
       <motion.aside
         initial={{ opacity: 0 }}

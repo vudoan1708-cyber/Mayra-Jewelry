@@ -46,6 +46,11 @@
 
 h1, h2, h3, h4, h5, h6, b, button, nav {
   font-family: "Futura PT", sans-serif;
+  font-weight: 700;
+}
+button, nav {
+  text-transform: uppercase;
+  font-weight: lighter;
 }
 
 a {

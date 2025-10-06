@@ -43,7 +43,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors font-semibold flex gap-1 justify-center items-center ${className ?? ''}`}
+          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors flex gap-1 justify-center items-center ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
