@@ -1,3 +1,5 @@
+'use client'
+
 import type { HTMLAttributeAnchorTarget } from 'react';
 import { motion } from 'framer-motion';
 

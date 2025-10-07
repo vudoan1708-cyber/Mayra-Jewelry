@@ -18,7 +18,7 @@ export default function Button({ ref, variant, className, onClick, children }: B
   }
   if (variant === 'tertiary') {
     return (
-      <button ref={ref} onClick={onClick} className={`flex justify-center gap-1 bg-transparent border-none outline-none active:border-none focus:outline-none hover:text-brand-500 transition-all ${className}`}>
+      <button ref={ref} onClick={onClick} className={`flex justify-center gap-1 bg-transparent border-none outline-none active:border-none focus:outline-none hover:text-brand-400 transition-all ${className}`}>
         {children}
       </button>
     )

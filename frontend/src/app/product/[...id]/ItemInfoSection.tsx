@@ -2,8 +2,11 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
-import { ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import Button from '../../../components/Button';
+import { useCartCount } from '../../../stores/CartCountProvider';
+import { useEffect } from 'react';
+import { CART_COUNT } from '../../../helpers';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400' },
@@ -11,6 +14,12 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
 ];
 export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
+  const { carts, increment } = useCartCount();
+
+  useEffect(() => {
+    localStorage.setItem(CART_COUNT, carts.toString());
+  }, [carts]);
+
   const numberOfPurchases = 7;
   return (
     <>
@@ -41,10 +50,16 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
           <li>Tượng trưng cho sự may mắn và độc đáo, làm tôn lên vẻ đẹp giản dị không quá cầu kì.</li>
         </ul>
 
-        <Button variant="tertiary" className="justify-self-start" onClick={() => {}}>
-          <ShoppingCart />
-          Thêm vào giỏ đồ
-        </Button>
+        <div>
+          <Button variant="tertiary" className="justify-self-start" onClick={increment}>
+            <ShoppingCart />
+            Thêm vào giỏ đồ
+          </Button>
+          <Button variant="tertiary" className="justify-self-start" onClick={() => {}}>
+            <Heart />
+            Thêm vào danh sách yêu thích
+          </Button>
+        </div>
       </div>
     </>
   )

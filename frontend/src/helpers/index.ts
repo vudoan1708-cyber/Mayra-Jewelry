@@ -94,3 +94,4 @@ export const base64ToArrayBuffer = (base64: string) => {
 };
 
 export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';
+export const CART_COUNT = 'cart_count';
