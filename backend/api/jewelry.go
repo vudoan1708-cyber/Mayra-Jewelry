@@ -7,6 +7,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -34,7 +35,7 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	}
 	bucketName := cloudflare.CloudflareInstance.BucketName
 
-	objects, err := cloudflare.CloudflareInstance.ListObjectsInBucket(bucketName)
+	objects, err := cloudflare.CloudflareInstance.ListObjectsInBucket(bucketName, nil)
 	if err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -84,7 +85,7 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	response := models.AllJewelryItemsResponsePayload{}
+	response := models.JewelryItemsResponsePayload{}
 	for _, item := range *jewelryItems {
 		var key string = fmt.Sprintf("%s/", item.DirectoryId)
 		response[key] = models.Metadata{
@@ -102,8 +103,112 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, response)
 }
 
+func getMediaFilesAndUpdateResponsePayload(w http.ResponseWriter, jewelryItems []models.JewelryItemInfo, response *[]models.Metadata) {
+	bucketName := cloudflare.CloudflareInstance.BucketName
+	for _, item := range jewelryItems {
+		responsePlaceholder := models.Metadata{
+			DirectoryId:       item.DirectoryId,
+			ItemName:          item.ItemName,
+			Purchases:         item.Purchases,
+			FeatureCollection: item.FeatureCollection,
+			BestSeller:        item.BestSeller,
+			Type:              item.Type,
+			ViewCount:         item.ViewCount,
+			Prices:            item.Prices,
+		}
+
+		// Fetch media
+		objects, s3_err := cloudflare.CloudflareInstance.ListObjectsInBucket(bucketName, &item.DirectoryId)
+		if s3_err != nil {
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, s3_err.Error())
+			return
+		}
+		if len(objects) == 0 {
+			log.Printf("No object found with directoryId of: %s", item.DirectoryId)
+			continue
+		}
+		for _, obj := range objects {
+			url, url_err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
+				FileName:  *obj.Key,
+				Procedure: "GET",
+			})
+			if url_err != nil {
+				middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, url_err.Error()))
+				log.Fatal(url_err)
+				return
+			}
+
+			responsePlaceholder.Media = append(responsePlaceholder.Media, models.MediaLink{
+				URL:      *url,
+				FileName: *obj.Key,
+			})
+		}
+
+		*response = append(*response, responsePlaceholder)
+	}
+}
+func GetUniqueFeatureCollections(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	jewelryItems := []models.JewelryItemInfo{}
+	if err := database.DatabaseInstance.Gorm.
+		Model(&models.JewelryItemInfo{}).
+		Where("\"featureCollection\" IS NOT NULL").
+		Where("\"featureCollection\" <> ''").
+		Select("DISTINCT ON (\"featureCollection\") *").
+		Order("\"featureCollection\" ASC").
+		Find(&jewelryItems).Error; err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var response []models.Metadata
+
+	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
+
+	middleware.HandleResponse(w, response)
+}
+func GetJewelryItemsByCollectionId(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	vars := mux.Vars(r)
+	escapedCollectionName := vars["collectionName"]
+	if escapedCollectionName == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Please provide a valid collectionName value")
+		return
+	}
+
+	collectionName, err := url.PathUnescape(escapedCollectionName)
+	if err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Could not decode collectionName: %s", collectionName))
+		return
+	}
+
+	var response []models.Metadata
+
+	jewelryItems := []models.JewelryItemInfo{}
+	if err := database.DatabaseInstance.Gorm.
+		Preload("Prices").Model(&models.JewelryItemInfo{}).
+		Where(&models.JewelryItemInfo{FeatureCollection: collectionName}).
+		Select("*").
+		Find(&jewelryItems).Error; err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Could not find items per collectionName: %s because %s", collectionName, err.Error()))
+		return
+	}
+
+	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
+
+	middleware.HandleResponse(w, response)
+}
+
 func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
 		return
 	}
@@ -272,7 +377,10 @@ func UpdateJewelryInfo(w http.ResponseWriter, r *http.Request) {
 		updatedData[key] = value[0]
 	}
 	if transaction_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
-		if update_err := tx.Model(&models.JewelryItemInfo{}).Where(&models.JewelryItemInfo{DirectoryId: directoryId}).Select(selectedFields).Updates(updatedData).Error; update_err != nil {
+		if update_err := tx.Model(&models.JewelryItemInfo{}).
+			Where(&models.JewelryItemInfo{DirectoryId: directoryId}).
+			Select(selectedFields).
+			Updates(updatedData).Error; update_err != nil {
 			return update_err
 		}
 		return nil

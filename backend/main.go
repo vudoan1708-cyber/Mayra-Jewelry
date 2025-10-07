@@ -44,6 +44,8 @@ func main() {
 	var address string = "0.0.0.0" + ":" + strconv.Itoa(port)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/jewelry/collection/{collectionName}", api.GetJewelryItemsByCollectionId).Methods("GET")
+	apiRouter.HandleFunc("/jewelry/collections", api.GetUniqueFeatureCollections).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/{directoryId}", api.GetJewelryItemInfoByDirectoryId).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")

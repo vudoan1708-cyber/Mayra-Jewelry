@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
 )
 
 type CloudflareProxy interface {
@@ -118,9 +119,10 @@ func (cf *Cloudflare) GetPresignedUrl(bucketName string, payload PresignedUrlPay
 	return presignedUrl, nil
 }
 
-func (cf *Cloudflare) ListObjectsInBucket(bucketName string) ([]types.Object, error) {
+func (cf *Cloudflare) ListObjectsInBucket(bucketName string, prefix *string) ([]types.Object, error) {
 	objects, err := cf.__s3.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),
+		Prefix: helpers.FalsyFallback(prefix, nil),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%s | bucket is: %s", err, bucketName)

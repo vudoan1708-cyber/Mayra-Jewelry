@@ -45,6 +45,7 @@ func (JewelryItemInfo) TableName() string {
 type Metadata struct {
 	DirectoryId       string         `json:"directoryId"`
 	ItemName          string         `json:"itemName"`
+	Description       string         `json:"description"`
 	Purchases         uint           `json:"purchases"`
 	FeatureCollection string         `json:"featureCollection"`
 	BestSeller        bool           `json:"bestSeller"`
@@ -53,4 +54,4 @@ type Metadata struct {
 	Prices            []JewelryPrice `json:"prices"`
 	Media             []MediaLink    `json:"media"`
 }
-type AllJewelryItemsResponsePayload map[string]Metadata
+type JewelryItemsResponsePayload map[string]Metadata
