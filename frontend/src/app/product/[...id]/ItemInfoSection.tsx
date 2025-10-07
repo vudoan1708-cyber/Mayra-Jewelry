@@ -1,11 +1,12 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
-import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import { Heart, ShoppingCart } from 'lucide-react';
+
+import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Button from '../../../components/Button';
+
 import { useCartCount } from '../../../stores/CartCountProvider';
-import { useEffect } from 'react';
 import { CART_COUNT } from '../../../helpers';
 
 const variations: Array<JewelryVariation> = [
@@ -16,9 +17,10 @@ const variations: Array<JewelryVariation> = [
 export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
   const { carts, increment } = useCartCount();
 
-  useEffect(() => {
+  const shoppingCartClicked = () => {
+    increment();
     localStorage.setItem(CART_COUNT, carts.toString());
-  }, [carts]);
+  };
 
   const numberOfPurchases = 7;
   return (
@@ -51,7 +53,7 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
         </ul>
 
         <div>
-          <Button variant="tertiary" className="justify-self-start" onClick={increment}>
+          <Button variant="tertiary" className="justify-self-start" onClick={() => { shoppingCartClicked(); }}>
             <ShoppingCart />
             Thêm vào giỏ đồ
           </Button>

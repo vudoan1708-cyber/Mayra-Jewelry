@@ -22,7 +22,7 @@ export default function Navigation() {
       behavior: 'smooth',
     });
     const result = localStorage.getItem(CART_COUNT);
-    setTo(parseInt(result ?? ''));
+    setTo(parseInt(result ?? carts.toString()));
     window.addEventListener('message', (e) => {
       if (e.data?.target === 'IMG') {
         setLogoIntersected(e.data?.event === LOGO_SCROLLED_PASSED_EVENT && e.data?.value);
