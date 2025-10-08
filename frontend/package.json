@@ -11,13 +11,16 @@
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.17.1",
     "framer-motion": "^12.23.22",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.544.0",
     "next": "^15.5.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@types/lodash": "^4.17.20",
     "@types/node": "24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",

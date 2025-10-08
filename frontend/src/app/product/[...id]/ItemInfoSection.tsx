@@ -1,13 +1,18 @@
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+
 import { motion } from 'framer-motion';
 
 import { Heart, ShoppingCart } from 'lucide-react';
+
+import throttle from 'lodash/throttle';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Button from '../../../components/Button';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
-import { CART_COUNT } from '../../../helpers';
+import { SAVE_TO_CART } from '../../../helpers';
+import { useMemo } from 'react';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400' },
@@ -15,14 +20,34 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
 ];
 export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
-  const { carts, increment } = useCartCount();
+  const params = useSearchParams();
+  const amount = parseInt(params.get('amount') ?? '0');
 
-  const shoppingCartClicked = () => {
-    increment();
-    localStorage.setItem(CART_COUNT, carts.toString());
+  let [selectedVariation] = variations;
+  const numberOfPurchases = 7;
+  const itemName = 'Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)';
+
+  const { addItem } = useCartCount();
+
+  const selectVariation = (__variation: JewelryVariation) => {
+    selectedVariation = __variation;
   };
 
-  const numberOfPurchases = 7;
+  const shoppingCartClicked = () => {
+    addItem({
+      itemName,
+      imgUrl,
+      variation: selectedVariation,
+      amount,
+    });
+    const currentState = {
+      count: useCartCount.getState().count,
+      items: useCartCount.getState().items,
+    };
+    localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
+  };
+
+  const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, 1000), []);
   return (
     <>
       <div className="relative flex flex-col justify-center items-center !w-[100%]">
@@ -34,13 +59,13 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
           className="border rounded-lg min-w-[320px] min-h-[320px]" />
         <div className="flex gap-2 justify-start items-center mt-2">
           {variations.map((variation) => (
-            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} />
+            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} onSelect={() => { selectVariation(variation); }} />
           ))}
         </div>
       </div>
 
       <div className="self-start grid gap-2">
-        <h2 className="text-3xl text-brand-500 font-semibold">Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)</h2>
+        <h2 className="text-3xl text-brand-500 font-semibold">{itemName}</h2>
         <small>
           <b className="font-bold text-brand-500">{numberOfPurchases} lượt</b> mua món hàng này
           <motion.hr
@@ -53,13 +78,13 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
         </ul>
 
         <div>
-          <Button variant="tertiary" className="justify-self-start" onClick={() => { shoppingCartClicked(); }}>
+          <Button variant="tertiary" className="justify-self-start" onClick={throttleIncrement}>
             <ShoppingCart />
             Thêm vào giỏ đồ
           </Button>
           <Button variant="tertiary" className="justify-self-start" onClick={() => {}}>
             <Heart />
-            Thêm vào danh sách yêu thích
+            Thêm vào Wishlist
           </Button>
         </div>
       </div>

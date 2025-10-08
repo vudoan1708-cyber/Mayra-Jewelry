@@ -171,7 +171,7 @@ func GetUniqueFeatureCollections(w http.ResponseWriter, r *http.Request) {
 
 	middleware.HandleResponse(w, response)
 }
-func GetJewelryItemsByCollectionId(w http.ResponseWriter, r *http.Request) {
+func GetJewelryItemsByCollectionName(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
 		return

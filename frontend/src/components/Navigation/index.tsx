@@ -5,24 +5,34 @@ import { useRouter } from 'next/navigation';
 import { Heart, House, Search, ShoppingCart, CircleUser } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { motion } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 
 import NavItem from './NavItem';
-import { CART_COUNT, LOGO_SCROLLED_PASSED_EVENT } from '../../helpers';
+import { SAVE_TO_CART, LOGO_SCROLLED_PASSED_EVENT } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
 
 export default function Navigation() {
   const router = useRouter();
   const [logoIntersected, setLogoIntersected] = useState<boolean>(false);
-  const { carts, setTo } = useCartCount();
+  const { count, setTo } = useCartCount();
+
+  const shadowX = useSpring(0);
+  const shadowY = useMotionValue(0);
+  const shadow = useMotionTemplate`drop-shadow(${shadowX}px ${shadowY}px 20px rgba(0,0,0,0.3))`;
 
   useEffect(() => {
     document.body.scrollTo({
       top: 0,
       behavior: 'smooth',
     });
-    const result = localStorage.getItem(CART_COUNT);
-    setTo(parseInt(result ?? carts.toString()));
+    const result = localStorage.getItem(SAVE_TO_CART);
+    try {
+      const parsed = JSON.parse(result || '{}');
+      setTo(parsed);
+    } catch (e) {
+      console.error(e);
+      alert(e);
+    }
     window.addEventListener('message', (e) => {
       if (e.data?.target === 'IMG') {
         setLogoIntersected(e.data?.event === LOGO_SCROLLED_PASSED_EVENT && e.data?.value);
@@ -41,7 +51,7 @@ export default function Navigation() {
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-white sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
+        className="bg-transparent-white backdrop-blur-sm sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
         {logoIntersected && <motion.img
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -60,11 +70,21 @@ export default function Navigation() {
 
           <NavItem href="/cart" withBorder={false}>
             <motion.div className="flex justify-center">
-              <motion.div className="absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid shadow-lg">
+              <motion.div
+                key={count}
+                animate={{
+                  rotate: [0, -10, 10, -10, 10, 0],
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: 'easeInOut',
+                }}
+                style={{ filter: shadow }}
+                className="absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid shadow-lg">
                 <ShoppingCart />
-                {carts > 0 && (
+                {count > 0 && (
                   <motion.aside className="absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white">
-                    {carts}
+                    {count}
                   </motion.aside>
                 )}
               </motion.div>

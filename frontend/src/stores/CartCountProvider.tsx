@@ -1,14 +1,34 @@
 'use client'
 
 import { create } from 'zustand';
+import type { JewelryVariation } from '../components/Jewelry/Variation';
 
+type CartItem = {
+  itemName: string;
+  imgUrl: string;
+  variation: JewelryVariation;
+  amount: number;
+};
 type CartStore = {
-  carts: number;
-  increment: () => void;
-  setTo: (value: number) => void;
+  count: number;
+  items: Array<CartItem>;
+  addItem: (item: CartItem) => void;
+  setTo: (wholeStore: { count: CartStore['count'], items: CartStore['items'] }) => void;
+  removeItem: (idx: number) => void;
 };
 export const useCartCount = create<CartStore>((set) => ({
-  carts: 0,
-  increment: () => set((state) => ({ carts: state.carts + 1 })),
-  setTo: (value: number) => set(() => ({ carts: value  })),
+  count: 0,
+  items: [],
+  addItem: (item) => set((state) => ({
+    count: state.count + 1,
+    items: [ ...state.items, item ],
+  })),
+  setTo: (wholeStore) => set(() => ({
+    count: wholeStore.count ?? 0,
+    items: wholeStore.items ?? [],
+  })),
+  removeItem: (idx) => set((state) => ({
+    count: state.count - 1,
+    items: state.items.filter((_, i) => i !== idx),
+  })),
 }));
