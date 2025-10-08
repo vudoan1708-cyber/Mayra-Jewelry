@@ -2,36 +2,37 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
+import throttle from 'lodash/throttle';
+
+import Button from '../../components/Button';
+import Variation from '../../components/Jewelry/Variation';
 
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
-import Button from '../../components/Button';
 import { SAVE_TO_CART } from '../../helpers';
-import { Trash2 } from 'lucide-react';
-import Variation from '../../components/Jewelry/Variation';
 
 export default function Cart() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  const { addItem } = useCartCount();
+  const { addItem, removeItem } = useCartCount();
 
   const reorderAndMergeDuplicate = (items: CartItem[]) => {
     let newItems: CartItem[] = [];
     let mostRecent: CartItem;
-    items.sort((a, b) => b.itemName.localeCompare(a.itemName)).forEach((currentValue, idx) => {
-      if (mostRecent?.itemName !== currentValue.itemName) {
+    items.sort((a, b) => b.variation.label.localeCompare(a.variation.label)).sort((a, b) => b.itemName.localeCompare(a.itemName)).forEach((currentValue, idx) => {
+      if (mostRecent?.itemName !== currentValue.itemName || mostRecent?.variation.key !== currentValue.variation.key) {
         if (mostRecent) {
           newItems = [ ...newItems, mostRecent ];
         }
         mostRecent = {
           ...currentValue,
-          sum: currentValue.amount,
-          count: 1,
+          sum: 0,
+          count: 0,
         };
-        return;
       }
       (mostRecent.count as number)++;
       (mostRecent.sum as number) += mostRecent.amount;
@@ -42,21 +43,45 @@ export default function Cart() {
     });
     return newItems;
   };
-  useEffect(() => {
+  const getTheLatestCartItems = () => {
     const {items} = useCartCount.getState();
     setCartItems(() => reorderAndMergeDuplicate(items));
+  };
+
+  useEffect(() => {
+    getTheLatestCartItems();
   }, []);
 
-  const incrementCart = (item: CartItem) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { count, sum, ...rest  } = item;
-    addItem(rest);
+  const updateCart = (item: CartItem, action: 'decrease' | 'increase' = 'increase') => {
+    const listOfActions = {
+      increase: () => { addItem(item) },
+      decrease: () => { removeItem(item) },
+    };
+    listOfActions[action]();
     const currentState = {
       count: useCartCount.getState().count,
       items: useCartCount.getState().items,
     };
+    item.count = currentState.items.reduce((acc, prev) => {
+      if (prev.variation.key === item.variation.key && prev.itemName === item.itemName) {
+        return acc + 1;
+      }
+      return acc;
+    }, 0);
+    item.sum = currentState.items.reduce((acc, prev) => {
+      if ((prev.variation.key === item.variation.key && prev.itemName === item.itemName)) {
+        return acc + prev.amount;
+      }
+      return acc;
+    }, 0);
     localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
+
+    if (!item.sum) {
+      getTheLatestCartItems();
+    }
   };
+  const throttleIncrement = useMemo(() => throttle(updateCart, 1000), []);
+  const throttleDecrement = useMemo(() => throttle((item) => updateCart(item, 'decrease'), 1000), []);
 
   if (cartItems?.length > 0) {
     return (
@@ -66,9 +91,13 @@ export default function Cart() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-20"
       >
       {cartItems.map((item, idx) => (
+        <AnimatePresence>
           <motion.div
             key={idx}
-            className="flex items-center gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer">
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0, transition: { delay: (idx + 1) * 0.2 } }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex justify-between items-center gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer">
             <div className="flex flex-col gap-1">
               <Image
                 alt={`image is shown with a name of ${item.itemName}`}
@@ -78,9 +107,9 @@ export default function Cart() {
                 className="rounded-md"
               />
               <span className="self-center flex gap-3 items-center">
-                <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-400 hover:border-red-400" onClick={() => {}}>-</Button>
+                <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
                 <span className="">{item.count}</span>
-                <Button variant="circle" tooltip="Thêm 1" className="p-1 border-1 border-brand-500 bg-white !text-brand-500" onClick={() => { incrementCart(item); }}>+</Button>
+                <Button variant="circle" tooltip="Thêm 1" className="p-1 border-1 border-brand-500 bg-white !text-brand-600" onClick={() => { throttleIncrement(item); }}>+</Button>
               </span>
             </div>
             <div className="relative flex flex-col gap-1 items-end h-full">
@@ -96,6 +125,7 @@ export default function Cart() {
               </Button>
             </div>
           </motion.div>
+        </AnimatePresence>
         ))
         }
       </motion.div>

@@ -60,7 +60,7 @@ export default function Bio() {
               className="border-0 border-t border-t-brand-400" />
           </div>
         </header>
-        <ul className="bg-transparent-white md:bg-transparent rounded [list-style-type:'💎'] p-2 list-inside leading-relaxed">
+        <ul className="bg-transparent-white md:bg-transparent rounded [list-style-type:'🔖'] p-2 list-inside leading-relaxed">
           <motion.li
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 1.4 } }}>

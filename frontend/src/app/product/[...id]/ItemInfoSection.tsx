@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
@@ -12,7 +14,7 @@ import Button from '../../../components/Button';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART } from '../../../helpers';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400' },
@@ -23,21 +25,24 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
   const params = useSearchParams();
   const amount = parseInt(params.get('amount') ?? '0');
 
-  let [selectedVariation] = variations;
+  const [selectedVariation, setSelectedVariation] = useState<JewelryVariation>(variations[0]);
+  const variationRef = useRef(variations[0]);
+
   const numberOfPurchases = 7;
   const itemName = 'Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)';
 
   const { addItem } = useCartCount();
 
   const selectVariation = (__variation: JewelryVariation) => {
-    selectedVariation = __variation;
+    setSelectedVariation(__variation);
+    variationRef.current = __variation;
   };
 
   const shoppingCartClicked = () => {
     addItem({
       itemName,
       imgUrl,
-      variation: selectedVariation,
+      variation: variationRef.current,
       amount,
     });
     const currentState = {
@@ -48,6 +53,13 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
   };
 
   const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, 1000), []);
+
+  useEffect(()  => {
+    return () => {
+      throttleIncrement.cancel();
+    }
+  }, [throttleIncrement]);
+
   return (
     <>
       <div className="relative flex flex-col justify-center items-center !w-[100%]">
@@ -59,7 +71,7 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
           className="border rounded-lg min-w-[320px] min-h-[320px]" />
         <div className="flex gap-2 justify-start items-center mt-2">
           {variations.map((variation) => (
-            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} onSelect={() => { selectVariation(variation); }} />
+            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
           ))}
         </div>
       </div>

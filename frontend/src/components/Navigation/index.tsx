@@ -46,6 +46,7 @@ export default function Navigation() {
         animate={{ opacity: 1 }}
         className="relative bg-brand-500 text-white p-1 w-full text-center uppercase"
         id="extra_nav_info">
+        <span className="font-semibold text-lg">📢 </span>
         Giảm giá 10% các mẫu nhẫn từ ngày <span className="border-b border-b-1 border-b-brand-200">5/10 - 20/10</span>
       </motion.div>
       <motion.nav

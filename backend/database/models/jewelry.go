@@ -19,6 +19,8 @@ type JewelryPrice struct {
 	Id                uint             `json:"id" gorm:"primaryKey"`
 	Variation         JewelryVariation `json:"variation" gorm:"index:idx_item_variation,unique"`
 	Amount            int32            `json:"amount"`
+	Currency          string           `json:"currency"`
+	Discount          float32          `json:"discount"`
 	JewelryItemInfoId string           `json:"-" gorm:"column:jewelryItemInfoId;index:idx_item_variation,unique"` // foreign key column to JewelryItemInfo.DirectoryId
 }
 
@@ -51,6 +53,7 @@ type Metadata struct {
 	BestSeller        bool           `json:"bestSeller"`
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views"`
+	Currency          string         `json:"currency"`
 	Prices            []JewelryPrice `json:"prices"`
 	Media             []MediaLink    `json:"media"`
 }
