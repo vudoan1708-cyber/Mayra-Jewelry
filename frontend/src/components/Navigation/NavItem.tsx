@@ -43,7 +43,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors flex gap-1 justify-center items-center ${className ?? ''}`}
+          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
@@ -57,7 +57,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
           <DotLottieReact
             src="https://lottie.host/af84b5a6-74cc-42f5-b6fa-10268ce91ab9/aFWRCbuQ0C.lottie"
             renderConfig={{ autoResize: true }}
-            className="w-20} h-20"
+            className="w-20 h-20"
             loop
             autoplay
           />

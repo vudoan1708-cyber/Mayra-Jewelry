@@ -3,11 +3,13 @@
 import { create } from 'zustand';
 import type { JewelryVariation } from '../components/Jewelry/Variation';
 
-type CartItem = {
+export type CartItem = {
   itemName: string;
   imgUrl: string;
   variation: JewelryVariation;
   amount: number;
+  count?: number; // Different to store count, which counts every item, this only counts per item name
+  sum?: number;
 };
 type CartStore = {
   count: number;
