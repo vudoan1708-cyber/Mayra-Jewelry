@@ -12,7 +12,7 @@ import Loading from '../../../components/Loading/Loading';
 
 import { base64ToArrayBuffer } from '../../../helpers';
 
-import { fetchQRCode } from './data';
+import { fetchQRCode } from '../../../server/data';
 
 import { TriangleAlert } from 'lucide-react';
 import ItemInfoSection from './ItemInfoSection';
@@ -73,7 +73,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
         animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}
         className="relative grid grid-cols-1 md:[grid-template-columns:repeat(2,1fr)] gap-1 items-start mt-8"
       >
-        <ItemInfoSection imgUrl={imgUrl} />
+        <ItemInfoSection imgUrl={imgUrl} preselectedVariation={searchParams.get('variation') ?? ''} />
       </motion.section>
 
       <motion.section

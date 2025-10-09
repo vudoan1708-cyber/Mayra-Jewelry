@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 
 import NavItem from '../Navigation/NavItem';
 
-import { arrayBufferToBase64 } from '../../helpers';
+import { arrayBufferToBase64, PAYMENT_INFO } from '../../helpers';
 
 const enc = new TextEncoder();
 
@@ -27,7 +27,7 @@ export default function GridItem({ key, img }: { key: string, img: string }) {
   }, [img]);
 
   const amount = 12000;
-  const info = 'Test QR code';
+  const info = PAYMENT_INFO;
 
   const navigate: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.preventDefault();

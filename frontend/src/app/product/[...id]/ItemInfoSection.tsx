@@ -6,14 +6,16 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 import { Heart, ShoppingCart } from 'lucide-react';
-
 import throttle from 'lodash/throttle';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Button from '../../../components/Button';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
-import { SAVE_TO_CART } from '../../../helpers';
+import { SAVE_TO_CART, WAIT } from '../../../helpers';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 const variations: Array<JewelryVariation> = [
@@ -21,11 +23,11 @@ const variations: Array<JewelryVariation> = [
   { key: 1, label: 'Vàng', style: 'bg-amber-300' },
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
 ];
-export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
+export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: { imgUrl: string, preselectedVariation?: string }) {
   const params = useSearchParams();
   const amount = parseInt(params.get('amount') ?? '0');
 
-  const [selectedVariation, setSelectedVariation] = useState<JewelryVariation>(variations[0]);
+  const [selectedVariation, setSelectedVariation] = useState<JewelryVariation>(variations.find((variation) => variation.label === preselectedVariation) ?? variations[0]);
   const variationRef = useRef(variations[0]);
 
   const numberOfPurchases = 7;
@@ -50,9 +52,10 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
       items: useCartCount.getState().items,
     };
     localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
+    toast.success('Món đồ đã được đưa vào giỏ đồ điện tử! 🎉');
   };
 
-  const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, 1000), []);
+  const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, WAIT), []);
 
   useEffect(()  => {
     return () => {
@@ -90,6 +93,10 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
         </ul>
 
         <div>
+          <div className="flex gap-1 items-center my-2">
+            <Variation key={`${imgUrl}_slected_${selectedVariation.key}`} variation={selectedVariation} />
+            Bạn đã chọn chất liệu {selectedVariation.label}
+          </div>
           <Button variant="tertiary" className="justify-self-start" onClick={throttleIncrement}>
             <ShoppingCart />
             Thêm vào giỏ đồ
@@ -100,6 +107,8 @@ export default function ItemInfoSection({ imgUrl }: { imgUrl: string }) {
           </Button>
         </div>
       </div>
+      {/* Toast container for message feedback */}
+      <ToastContainer aria-label="Added to cart" position="bottom-left" autoClose={3000} />
     </>
   )
 }
