@@ -13,7 +13,7 @@ import { arrayBufferToBase64, PAYMENT_INFO } from '../../helpers';
 
 const enc = new TextEncoder();
 
-export default function GridItem({ key, img }: { key: string, img: string }) {
+export default function GridItem({ key, img, children }: { key: string, img: string, children: React.ReactNode }) {
   const router = useRouter();
   const [encryptedId, setEncryptedId] = useState<string>('');
 
@@ -53,11 +53,7 @@ export default function GridItem({ key, img }: { key: string, img: string }) {
             style={{ objectFit: "contain", width: "auto", height: "auto" }}
             className="object-cover h-full w-full rounded-md" />
           <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
-            <div>
-              <b className="text-lg text-gray-800">Mayra Collection</b>
-              <p className="font-light">{img}</p>
-            </div>
-            <b>300,000₫</b>
+            {children}
           </figcaption>
         </figure>
       </NavItem>

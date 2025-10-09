@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Card from './Card';
+import PaymentView from '../../components/PaymentView/PaymentView';
 
 export default function Cart() {
   const router = useRouter();
@@ -47,18 +48,22 @@ export default function Cart() {
 
   if (cartItems?.length > 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-20"
-      >
-      {cartItems.map((item, idx) => (
-        <AnimatePresence key={`${item.itemName}_${item.variation.label.toLowerCase()}_${idx}`}>
-          <Card item={item} idx={idx} getTheLatestCartItems={getTheLatestCartItems} router={router} />
-        </AnimatePresence>
-        ))
-        }
-      </motion.div>
+      <div className="w-dvw mt-20 mb-5 grid grid-cols-1 md:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
+        <motion.section
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-3 justify-start"
+        >
+          <AnimatePresence>
+            {cartItems.map((item, idx) => (
+                <Card item={item} idx={idx} key={`${item.itemName}_${item.variation.label.toLowerCase()}_${idx}`} getTheLatestCartItems={getTheLatestCartItems} router={router} />
+              ))
+            }
+          </AnimatePresence>
+        </motion.section>
+
+        <PaymentView amount="1000" info="" />
+      </div>
     )
   }
   return (

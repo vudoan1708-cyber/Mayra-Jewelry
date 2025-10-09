@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-export default function PaymentSection({ qrCode, loading }: { qrCode: string, loading: boolean }) {
+export default function QRCodeImage({ qrCode, loading }: { qrCode: string, loading: boolean }) {
   if (loading) return null;
   if (!qrCode) return null;
   return (

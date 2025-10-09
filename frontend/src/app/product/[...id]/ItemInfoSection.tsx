@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
@@ -24,6 +24,7 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
 ];
 export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: { imgUrl: string, preselectedVariation?: string }) {
+  const router = useRouter();
   const params = useSearchParams();
   const amount = parseInt(params.get('amount') ?? '0');
 
@@ -108,7 +109,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
         </div>
       </div>
       {/* Toast container for message feedback */}
-      <ToastContainer aria-label="Added to cart" position="bottom-left" autoClose={3000} />
+      <ToastContainer aria-label="Added to cart" position="bottom-left" className="cursor-pointer" autoClose={3000} onClick={() => { router.push('/cart'); }} />
     </>
   )
 }
