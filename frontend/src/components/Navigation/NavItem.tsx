@@ -39,7 +39,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
 
   return (
     <>
-      <li className="relative group">
+      <li className="relative group list-none">
         <Link
           href={href}
           target={target}

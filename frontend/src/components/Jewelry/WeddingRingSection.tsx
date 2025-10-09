@@ -1,6 +1,7 @@
 'use client'
 
 import Button from '../Button';
+import NavItem from '../Navigation/NavItem';
 
 export default function WeddingRingSection() {
   return (
@@ -18,7 +19,9 @@ export default function WeddingRingSection() {
           <p><a href="https://www.facebook.com/mayrajewelry.insaigon" target="_blank"><u>Liên lạc trực tiếp với shop</u></a> để được tư vấn cụ thể về nhẫn trùng với sở thích màu sắc, và cá tính của bạn ạ.</p>
           <p className="mt-1">Nếu bạn đã biết được loại nhẫn mà bản thân muốn sở hữu, hãy nhấp vào nút bên dưới để khám phá ạ.</p>
         </div>
-        <Button variant="primary" onClick={() => {}}>Tham khảo thêm các loại nhẫn cưới</Button>
+        <Button variant="primary" onClick={(e) => { e.preventDefault(); }}>
+          <NavItem href="/wedding-rings" withBorder={false} withHover={false} className="text[1em] text-white !text-sm hover:text-white">Tham khảo thêm các loại nhẫn cưới</NavItem>
+        </Button>
       </div>
     </div>
   )
