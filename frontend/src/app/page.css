@@ -44,8 +44,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  font-family: "Cormorant Garamond", serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
 h1, h2, h3, h4, h5, h6, b, button, nav {
-  font-family: "Futura PT", sans-serif;
+  font-family: "Playfair Display", serif;
   font-weight: 700;
 }
 button, nav {
@@ -65,15 +75,6 @@ a {
 }
 a:hover {
   color: var(--brand-400);
-}
-
-body {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -104,11 +105,6 @@ button {
   button {
     background-color: #f9f9f9;
   }
-}
-
-.logo {
-  width: 100dvw;
-  height: 100dvh;
 }
 
 @media (prefers-reduced-motion: no-preference) {

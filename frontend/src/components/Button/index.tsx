@@ -1,7 +1,7 @@
 import type { HTMLAttributes, MouseEventHandler, Ref } from 'react';
 
 type ButtonProps = {
-  variant: 'primary' | 'tertiary' | 'circle',
+  variant: 'primary' | 'tertiary' | 'secondary' | 'circle',
   ref?: Ref<HTMLButtonElement>,
   className?: HTMLAttributes<HTMLButtonElement>['className'],
   tooltip?: string,
@@ -24,6 +24,13 @@ export default function Button({ ref, variant, className, tooltip, onClick, chil
   if (variant === 'tertiary') {
     return (
       <button ref={ref} title={tooltip} onClick={patchOnClick} className={`flex justify-center gap-1 bg-transparent border-none outline-none active:border-none focus:outline-none hover:text-brand-400 transition-all ${className}`}>
+        {children}
+      </button>
+    )
+  }
+  if (variant === 'secondary') {
+    return (
+      <button ref={ref} title={tooltip} onClick={patchOnClick} className={`flex justify-center gap-1 bg-transparent border border-brand-500 outline-none active:border-1 focus:outline-1 hover:text-brand-400 hover:border-brand-400 transition-all ${className}`}>
         {children}
       </button>
     )
