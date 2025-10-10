@@ -24,7 +24,7 @@ export default function Filter() {
           animate={{ opacity: 1, scaleX: 1 }}
           style={{ transformOrigin: 'left' }}
           ref={ref}
-          className="absolute w-full md:w-96 top-0 md:top-[48px] h-dvh bg-white">
+          className="absolute w-full md:w-96 top-0 md:top-[57px] h-dvh bg-white">
           <header className="uppercase p-4 flex justify-between items-center">
             Filter
             <Button variant="tertiary" onClick={() => { setOpenFilter(false); }}><X /></Button>

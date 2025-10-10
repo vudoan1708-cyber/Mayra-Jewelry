@@ -13,17 +13,13 @@ import { useCartCount } from '../../stores/CartCountProvider';
 
 export default function Navigation() {
   const router = useRouter();
-  const { count, setTo } = useCartCount();
+  const { items, setTo } = useCartCount();
 
   const shadowX = useSpring(0);
   const shadowY = useMotionValue(0);
   const shadow = useMotionTemplate`drop-shadow(${shadowX}px ${shadowY}px 20px rgba(0,0,0,0.3))`;
 
   useEffect(() => {
-    document.body.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
     const result = localStorage.getItem(SAVE_TO_CART);
     try {
       const parsed = JSON.parse(result || '{}');
@@ -50,7 +46,8 @@ export default function Navigation() {
         <motion.img
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          src="images/logo.webp"
+          alt="Mayra logo"
+          src="/images/logo.webp"
           className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
           onClick={() => { router.push('/'); }} />
         <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_120px] sm:gap-2 sm:justify-center sm:items-center">
@@ -66,7 +63,7 @@ export default function Navigation() {
           <NavItem href="/cart" withBorder={false}>
             <motion.div className="flex justify-center">
               <motion.div
-                key={count}
+                key={items.length}
                 animate={{
                   rotate: [0, -10, 10, -10, 10, 0],
                 }}
@@ -77,9 +74,9 @@ export default function Navigation() {
                 style={{ filter: shadow }}
                 className="absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid shadow-lg">
                 <ShoppingCart />
-                {count > 0 && (
+                {items.length > 0 && (
                   <motion.aside className="absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white">
-                    {count}
+                    {items.length}
                   </motion.aside>
                 )}
               </motion.div>

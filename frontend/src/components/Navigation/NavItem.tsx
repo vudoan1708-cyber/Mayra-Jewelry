@@ -34,6 +34,10 @@ export default function NavItem({ href, target, className, withBorder = true, wi
   };
 
   useEffect(() => {
+    document.body.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
     setLoading(false);
   }, [pathname]);
 

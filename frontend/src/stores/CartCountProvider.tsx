@@ -12,28 +12,30 @@ export type CartItem = {
   sum?: number;
 };
 type CartStore = {
-  count: number;
   items: Array<CartItem>;
   addItem: (item: CartItem) => void;
-  setTo: (wholeStore: { count: CartStore['count'], items: CartStore['items'] }) => void;
+  setTo: (wholeStore: { items: CartStore['items'] }) => void;
   removeItem: (item: CartItem) => void;
+  removeAllByItemName: (item: CartItem) => void;
 };
 export const useCartCount = create<CartStore>((set) => ({
   count: 0,
   items: [],
   addItem: (item) => set((state) => ({
-    count: state.count + 1,
     items: [ ...state.items, item ],
   })),
   setTo: (wholeStore) => set(() => ({
-    count: wholeStore.count ?? 0,
     items: wholeStore.items ?? [],
   })),
   removeItem: (item) => set((state) => ({
-    count: state.count - 1,
     items: state.items.filter((_, idx) => {
       const foundIdx = state.items.findIndex((stateItem) => stateItem.itemName === item.itemName && stateItem.variation.key === item.variation.key);
       return foundIdx !== idx;
     }),
   })),
+  removeAllByItemName: (item) => set((state) => ({
+    items: state.items.filter((stateItem) => {
+      return stateItem.itemName !== item.itemName || stateItem.variation.key !== item.variation.key;
+    }),
+  }))
 }));

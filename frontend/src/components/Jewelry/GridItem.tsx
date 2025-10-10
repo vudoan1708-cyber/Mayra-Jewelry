@@ -13,7 +13,7 @@ import { arrayBufferToBase64, PAYMENT_INFO } from '../../helpers';
 
 const enc = new TextEncoder();
 
-export default function GridItem({ key, img, children }: { key: string, img: string, children: React.ReactNode }) {
+export default function GridItem({ key, img, children }: { key: string, img: string, children?: React.ReactNode }) {
   const router = useRouter();
   const [encryptedId, setEncryptedId] = useState<string>('');
 
@@ -52,9 +52,11 @@ export default function GridItem({ key, img, children }: { key: string, img: str
             height="320"
             style={{ objectFit: "contain", width: "auto", height: "auto" }}
             className="object-cover h-full w-full rounded-md" />
-          <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
-            {children}
-          </figcaption>
+          {children && (
+            <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
+              {children}
+            </figcaption>
+          )}
         </figure>
       </NavItem>
     </motion.div>

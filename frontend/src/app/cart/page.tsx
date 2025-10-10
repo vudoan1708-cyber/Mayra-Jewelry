@@ -48,15 +48,20 @@ export default function Cart() {
 
   if (cartItems?.length > 0) {
     return (
-      <div className="w-dvw mt-20 mb-5 grid grid-cols-1 md:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
+      <div className={`w-dvw mt-20 mb-5 grid grid-cols-1 ${cartItems.length === 1 ? 'md:grid-cols-[40%_1fr]' : 'md:grid-cols-[1fr_1fr]'} justify-around gap-2 p-2`}>
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-3 justify-start"
+          className={`grid grid-cols-1 ${cartItems.length === 1 ? 'md:grid-cols-1' : 'md:grid-cols-2'} gap-3 justify-start`}
         >
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {cartItems.map((item, idx) => (
-                <Card item={item} idx={idx} key={`${item.itemName}_${item.variation.label.toLowerCase()}_${idx}`} getTheLatestCartItems={getTheLatestCartItems} router={router} />
+              <Card
+                item={item}
+                idx={idx}
+                key={`${item.itemName}_${item.variation.label.toLowerCase()}_${idx}`}
+                getTheLatestCartItems={getTheLatestCartItems}
+                router={router} />
               ))
             }
           </AnimatePresence>

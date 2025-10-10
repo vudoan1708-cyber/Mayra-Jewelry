@@ -4,6 +4,8 @@ import Image from 'next/image';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { useEffect, useMemo, useState } from 'react';
+import ReactDOM from 'react-dom';
+
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -22,7 +24,7 @@ const enc = new TextEncoder();
 
 export default function Card({ item, idx, key, getTheLatestCartItems, router }: { item: CartItem, idx: number, key: string, getTheLatestCartItems: () => void, router: AppRouterInstance }) {
   const [encryptedId, setEncryptedId] = useState<string>('');
-  const { addItem, removeItem } = useCartCount();
+  const { addItem, removeItem, removeAllByItemName } = useCartCount();
 
   useEffect(() => {
     const setId = () => {
@@ -33,7 +35,7 @@ export default function Card({ item, idx, key, getTheLatestCartItems, router }: 
     setId();
   }, [item.imgUrl]);
 
-  const updateCart = (item: CartItem, action: 'decrease' | 'increase' = 'increase') => {
+  const updateCart = (item: CartItem, action: 'decrease' | 'increase' | 'removeAll' = 'increase') => {
     const listOfActions = {
       increase: () => {
         addItem(item);
@@ -41,12 +43,15 @@ export default function Card({ item, idx, key, getTheLatestCartItems, router }: 
       },
       decrease: () => {
         removeItem(item);
-        toast.warning('Món đồ đã được bỏ đi!')
+        toast.warning('Món đồ đã được bỏ đi!');
       },
+      removeAll: () => {
+        removeAllByItemName(item);
+        toast.warning('Món đồ đã được bỏ đi!');
+      }
     };
     listOfActions[action]();
     const currentState = {
-      count: useCartCount.getState().count,
       items: useCartCount.getState().items,
     };
     item.count = currentState.items.reduce((acc, prev) => {
@@ -69,6 +74,7 @@ export default function Card({ item, idx, key, getTheLatestCartItems, router }: 
   };
   const throttleIncrement = useMemo(() => throttle(updateCart, WAIT), []);
   const throttleDecrement = useMemo(() => throttle((item) => updateCart(item, 'decrease'), WAIT), []);
+  const throttleRemoveAll = useMemo(() => throttle((item) => updateCart(item, 'removeAll'), WAIT), []);
 
   const info = PAYMENT_INFO;
   return (
@@ -81,38 +87,47 @@ export default function Card({ item, idx, key, getTheLatestCartItems, router }: 
         className="flex justify-between items-center gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer"
         title="Xem thông tin món đồ"
         onClick={() => { router.push(`/product/${encryptedId ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 h-full justify-between items-center">
           <Image
             alt={`image is shown with a name of ${item.itemName}`}
             src={`/images/jewelry/${item.imgUrl}`}
-            width="120"
-            height="120"
+            width="140"
+            height="140"
             className="rounded-md"
           />
-          <span className="self-center flex gap-3 items-center">
+          <span className="flex gap-3 items-center">
             <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
             <span className="">{item.count}</span>
             <Button variant="circle" tooltip="Thêm 1" className="p-1 border-1 border-brand-500 bg-white !text-brand-600" onClick={() => { throttleIncrement(item); }}>+</Button>
           </span>
         </div>
-        <div className="relative flex flex-col gap-1 items-end h-full">
-          <h3 className="text-md text-brand-500 font-semibold">{item.itemName}</h3>
-          {item.variation && (
-            <span className="flex items-center gap-0.5">
-              <Variation variation={item.variation} onSelect={() => {}} />
-                <p className="text-sm">{item.variation.label}</p>
-            </span>
-          )}
-          <small>{item.sum}₫</small>
+        <div className="relative flex flex-col gap-1 justify-between items-end h-full">
+          <div className="flex flex-col gap-2 items-end">
+            <h3 className="text-lg text-brand-500 font-semibold">{item.itemName}</h3>
+            {item.variation && (
+              <span className="flex items-center gap-0.5">
+                <Variation variation={item.variation} onSelect={() => {}} />
+                  <p className="text-sm">{item.variation.label}</p>
+              </span>
+            )}
+            <small>{item.sum}₫</small>
+          </div>
 
-          <Button variant="circle" tooltip="Bỏ hết" className="absolute bottom-0 right-0 mb-[1px] mr-[1px] p-1 border-1 border-brand-500 bg-white !text-brand-500" onClick={() => {}}>
+          <Button
+            variant="circle"
+            tooltip="Bỏ hết"
+            className="relative bottom-0 right-0 mb-[1px] mr-[1px] p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400"
+            onClick={() => { throttleRemoveAll(item); }}>
             <Trash2 />
           </Button>
         </div>
       </motion.div>
       
       {/* Toast container for message feedback */}
-      <ToastContainer aria-label="Added to cart" position="bottom-left" autoClose={3000} />
+      {ReactDOM.createPortal(
+        <ToastContainer aria-label="Added to cart" position="bottom-left" autoClose={3000} />,
+        document.body,
+      )}
     </>
   )
 }
