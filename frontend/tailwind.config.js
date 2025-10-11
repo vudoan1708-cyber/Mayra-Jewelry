@@ -24,6 +24,7 @@ export default {
         'brand-700': 'var(--brand-700)',
         'transparent-white': 'var(--transparent-white)',
         'transparent-black': 'var(--transparent-black)',
+        'facebook': 'var(--facebook)',
       },
       colors: {
         'brand-100': 'var(--brand-100)',
@@ -34,6 +35,7 @@ export default {
         'brand-600': 'var(--brand-600)',
         'brand-700': 'var(--brand-700)',
         'disabled': 'bg-text-gray-400',
+        'facebook': 'var(--facebook)',
       },
       transitionDuration: {
         DEFAULT: '200ms',

@@ -207,6 +207,13 @@ func GetJewelryItemsByCollectionName(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, response)
 }
 
+func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+}
+
 func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")

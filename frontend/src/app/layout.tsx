@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
@@ -19,17 +20,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link href="https://fonts.cdnfonts.com/css/cocobiker" rel="stylesheet" />
-      </head>
       <body>
-        <Navigation />
-        
-        <main id="root" className="flex-1">{children}</main>
+        <SessionProvider>
+          <Navigation />
+          
+          <main id="root" className="grid flex-1">{children}</main>
 
-        <Floating />
+          <Floating />
 
-        <Footer />
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   )

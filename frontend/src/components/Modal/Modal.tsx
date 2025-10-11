@@ -33,7 +33,7 @@ export default function Modal({ children, title, className, onClose }: { childre
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             ref={backgroundRef}
-            className="fixed top-0 left-0 w-dvw h-dvh flex justify-center place-items-center bg-transparent-black backdrop-blur-sm z-50"
+            className="fixed top-0 left-0 w-dvw h-dvh flex justify-center place-items-center bg-transparent-black backdrop-blur-sm z-[100]"
             onClick={(e) => { e.stopPropagation(); patchedClose(e); }}>
             <motion.div
               initial={{ opacity: 0, y: -20 }}

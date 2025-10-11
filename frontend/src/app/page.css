@@ -26,6 +26,8 @@
     --background-color: 250, 250, 250;
     --transparent-white: rgba(var(--background-color), 0.5);
     --transparent-black: rgba(var(--backdrop-color), 0.5);
+
+    --facebook: #1877F2;
   }
 }
 

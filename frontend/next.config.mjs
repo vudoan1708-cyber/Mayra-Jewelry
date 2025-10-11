@@ -3,7 +3,14 @@ const nextConfig = {
   distDir: './build',
   devIndicators: false,
   images: {
-    remotePatterns: [new URL('https://pixabay.com/**')],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'platform-lookaside.fbsbx.com',
+        port: '',
+        pathname: '/platform/**',
+      },
+    ],
   },
 };
  

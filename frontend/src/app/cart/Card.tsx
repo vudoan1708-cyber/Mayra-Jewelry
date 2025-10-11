@@ -93,8 +93,8 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
             src={`/images/jewelry/${item.imgUrl}`}
             width="240"
             height="240"
-            className="rounded-md"
-            style={{ objectFit: 'contain' }}
+            className="rounded-md md:max-h-[240px] self-start justify-self-start"
+            style={{ objectFit: 'cover' }}
           />
           <span className="flex gap-3 items-center">
             <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>

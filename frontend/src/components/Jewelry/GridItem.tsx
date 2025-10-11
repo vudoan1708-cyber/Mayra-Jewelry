@@ -45,13 +45,14 @@ export default function GridItem({ key, img, children }: { key: string, img: str
       className="relative cursor-pointer">
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
         <figure className="text-sm h-80 overflow-hidden">
+          {/* 1080 - 1280 */}
           <Image
             src={`/images/jewelry/${img}`}
             alt={img}
             width="450"
             height="320"
-            style={{ objectFit: "contain", width: "auto", height: "auto" }}
-            className="object-cover h-full w-full rounded-md" />
+            style={{ width: "auto", height: "auto" }}
+            className="object-contain h-full w-full rounded-md" />
           {children && (
             <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
               {children}

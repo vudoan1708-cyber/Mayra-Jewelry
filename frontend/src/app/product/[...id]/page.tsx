@@ -24,7 +24,7 @@ export default function Product({ params }: { params: Promise<{ id: Array<string
   const [imgUrl] = useState<string>(() => dec.decode(arrayBufferData));
 
   return (
-    <div className="w-full mt-20 mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
+    <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}

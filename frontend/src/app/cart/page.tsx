@@ -51,7 +51,7 @@ export default function Cart() {
 
   if (cartItems?.length > 0) {
     return (
-      <div className={`w-dvw mt-20 mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2`}>
+      <div className={`w-dvw mt-4 mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2`}>
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -76,7 +76,7 @@ export default function Cart() {
     )
   }
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 justify-center items-center h-full mt-20">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col justify-center items-center h-full">
       <p className="text-[100px] text-center select-none">🛒</p>
       <p>Giỏ đồ của bạn đang trống. <a onClick={() => { router.push('/'); }}>Quay về trang chủ</a> để chọn thêm các món đồ vào giỏ đồ điện tử của bạn</p>
     </motion.div>

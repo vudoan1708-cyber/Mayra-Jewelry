@@ -1,6 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+import { useSession } from 'next-auth/react';
 
 import { Heart, House, Search, ShoppingCart, CircleUser } from 'lucide-react';
 import { useEffect } from 'react';
@@ -12,6 +15,7 @@ import { SAVE_TO_CART } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
 
 export default function Navigation() {
+  const session = useSession();
   const router = useRouter();
   const { items, setTo } = useCartCount();
 
@@ -88,8 +92,26 @@ export default function Navigation() {
             Wishlist
           </NavItem>
           <NavItem href="/account">
-            <CircleUser/>
-            My Account
+            {session.status === 'authenticated'
+              ? (
+              <>
+                <Image
+                  alt="user profile image"
+                  src={session.data.user?.image ?? ''}
+                  width="30"
+                  height="30"
+                  className="rounded-md"
+                />
+                {session.data.user?.name ?? 'My Account'}
+              </>
+              )
+              : (
+                <>
+                  <CircleUser/>
+                  My Account
+                </>
+              )
+            }
           </NavItem>
         </ul>
       </motion.nav>

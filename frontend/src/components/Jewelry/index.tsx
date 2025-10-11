@@ -10,8 +10,8 @@ const pathToImagesDir = path.resolve(__dirname, '..', '..', '..', 'public/images
 const images = fs.readdirSync(pathToImagesDir);
 
 export default function Jewelry() {
-  const isFeatured = images.slice(1, 4);
-  const bestSeller = images.slice(images.length - 4, images.length - 2);
+  const isFeatured = images.filter((img) => img.endsWith('jpg'));
+  const bestSeller = images.filter((img) => /boxed_ring.webp/.test(img));
   return (
     <section className="flex flex-col">
       {/* <Filter /> */}
