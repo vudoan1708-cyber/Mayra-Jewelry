@@ -6,20 +6,21 @@ import { signIn } from 'next-auth/react';
 
 import { motion } from 'framer-motion';
 
-import Button from '../../components/Button';
+import Button from '../Button';
 
-export default function LoginForm() {
+export default function LoginForm({ title, redirectTo = '/' }: { title: string, redirectTo?: string }) {
   const [clicked, setClicked] = useState<boolean>(false);
   return (
     <motion.form
+      key="scale-and-fade"
       initial={{ opacity: 0, scale: 1.09 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col gap-4 h-max self-center text-brand-100 rounded-md shadow-lg p-3 max-w-[400px]"
       action={async () => {
-        await signIn('facebook', { redirectTo: '/' });
+        await signIn('facebook', { redirectTo });
       }}
     >
-      <h2 className="text-2xl text-center text-gray-600">Hãy lưu trữ<br /> các món đồ yêu thích của bạn</h2>
+      <h2 className="text-2xl text-center text-gray-600" dangerouslySetInnerHTML={{ __html: title }}></h2>
       <Button
         variant="secondary"
         className="items-center justify-center text-facebook border-facebook py-1"

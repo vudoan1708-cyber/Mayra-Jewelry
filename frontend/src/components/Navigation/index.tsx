@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 import { useSession } from 'next-auth/react';
@@ -17,6 +17,7 @@ import { useCartCount } from '../../stores/CartCountProvider';
 export default function Navigation() {
   const session = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const { items, setTo } = useCartCount();
 
   const shadowX = useSpring(0);
@@ -76,10 +77,11 @@ export default function Navigation() {
                   ease: 'easeInOut',
                 }}
                 style={{ filter: shadow }}
-                className="absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid shadow-lg">
+                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid ${pathname === '/cart' && 'border-brand-500'} shadow-lg`}>
                 <ShoppingCart />
                 {items.length > 0 && (
-                  <motion.aside className="absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white">
+                  <motion.aside
+                    className={`absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white ${pathname === '/cart' && 'text-brand-500'}`}>
                     {items.length}
                   </motion.aside>
                 )}
@@ -98,8 +100,8 @@ export default function Navigation() {
                 <Image
                   alt="user profile image"
                   src={session.data.user?.image ?? ''}
-                  width="30"
-                  height="30"
+                  width="24"
+                  height="24"
                   className="rounded-md"
                 />
                 {session.data.user?.name ?? 'My Account'}

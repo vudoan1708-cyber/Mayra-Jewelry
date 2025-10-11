@@ -84,7 +84,7 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0, transition: { delay: (idx + 1) * 0.2 } }}
         exit={{ opacity: 0, y: -10 }}
-        className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer"
+        className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer md:max-h-[300px]"
         title="Xem thông tin món đồ"
         onClick={() => { router.push(`/product/${encryptedId ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
         <div className="flex flex-col gap-1 h-full justify-between items-center col-start-1">

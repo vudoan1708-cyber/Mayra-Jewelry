@@ -33,6 +33,14 @@ export default function NavItem({ href, target, className, withBorder = true, wi
     onClick(e);
   };
 
+  const onHoverStyling = () => {
+    if (withHover) {
+      if (isActive) return 'hover:text-brand-500 hover:cursor-default';
+      return 'hover:text-brand-400';
+    }
+    return 'hover:text-black';
+  }
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -47,13 +55,18 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${withHover ? `hover:text-brand-400` : 'hover:text-black'} text-xs transition-colors flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
+          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${onHoverStyling()} text-xs transition-colors flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
         </Link>
 
-        {isActive && withBorder && <motion.hr className="absolute bottom-[-18px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />}
+        {isActive && withBorder && (
+          <motion.hr
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            className="absolute left-[50%] translate-x-[-50%] bottom-[-18px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />
+        )}
       </li>
 
       {loading && ReactDOM.createPortal(

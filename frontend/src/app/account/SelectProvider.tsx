@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'framer-motion';
 
 import { auth } from '../auth';
-import LoginForm from './LoginForm';
+import LoginForm from '../../components/LoginForm/LoginForm';
 import AlreadySignedIn from './AlreadySignedIn';
 
 export default async function SelectProvider() {
@@ -10,7 +10,7 @@ export default async function SelectProvider() {
   if (!session) {
     return (
       <AnimatePresence mode="wait">
-        <LoginForm />
+        <LoginForm title="Hãy lưu trữ<br /> các món đồ yêu thích của bạn" />
       </AnimatePresence>
     )
   }

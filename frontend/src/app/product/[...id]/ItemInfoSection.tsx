@@ -72,7 +72,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
           alt={imgUrl}
           width="520"
           height="520"
-          className="border rounded-lg min-w-[320px] min-h-[320px]" />
+          className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover" />
         <div className="flex gap-2 justify-start items-center mt-2">
           {variations.map((variation) => (
             <Variation key={`${imgUrl}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
