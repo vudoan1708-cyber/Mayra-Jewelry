@@ -37,6 +37,9 @@ type JewelryItemInfo struct {
 	BestSeller        bool           `json:"bestSeller" gorm:"column:bestSeller"`
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views" gorm:"column:views"`
+	Currency          string         `json:"currency"`
+	InStock           bool           `json:"inStock" gorm:"inStock"`
+	Giftable          bool           `json:"giftable" gorm:"giftable"`
 	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 }
 
@@ -54,6 +57,8 @@ type Metadata struct {
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views"`
 	Currency          string         `json:"currency"`
+	InStock           bool           `json:"inStock" gorm:"inStock"`
+	Giftable          bool           `json:"giftable" gorm:"giftable"`
 	Prices            []JewelryPrice `json:"prices"`
 	Media             []MediaLink    `json:"media"`
 }

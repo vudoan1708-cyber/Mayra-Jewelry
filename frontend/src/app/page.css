@@ -94,6 +94,17 @@ button {
   transition: border-color 0.25s;
 }
 
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+
+label {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

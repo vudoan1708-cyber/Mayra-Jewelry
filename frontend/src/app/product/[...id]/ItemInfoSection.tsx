@@ -33,6 +33,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
 
   const numberOfPurchases = 7;
   const itemName = 'Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)';
+  const description = 'Tượng trưng cho sự may mắn và độc đáo, làm tôn lên vẻ đẹp giản dị không quá cầu kì.';
 
   const { addItem } = useCartCount();
 
@@ -49,7 +50,6 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
       amount,
     });
     const currentState = {
-      count: useCartCount.getState().count,
       items: useCartCount.getState().items,
     };
     localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
@@ -70,8 +70,8 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
         <Image
           src={`/images/jewelry/${imgUrl}`}
           alt={imgUrl}
-          width="450"
-          height="450"
+          width="520"
+          height="520"
           className="border rounded-lg min-w-[320px] min-h-[320px]" />
         <div className="flex gap-2 justify-start items-center mt-2">
           {variations.map((variation) => (
@@ -90,7 +90,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
             className="border-0 border-b border-b-transparent-black mt-1" />
         </small>
         <ul className="flex flex-1 flex-col">
-          <li>Tượng trưng cho sự may mắn và độc đáo, làm tôn lên vẻ đẹp giản dị không quá cầu kì.</li>
+          <li>{description}</li>
         </ul>
 
         <div>
@@ -109,7 +109,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
         </div>
       </div>
       {/* Toast container for message feedback */}
-      <ToastContainer aria-label="Added to cart" position="bottom-left" className="cursor-pointer" autoClose={3000} onClick={() => { router.push('/cart'); }} />
+      <ToastContainer aria-label="Added to cart" position="bottom-left" className="cursor-pointer" onClick={() => { router.push('/cart'); }} />
     </>
   )
 }

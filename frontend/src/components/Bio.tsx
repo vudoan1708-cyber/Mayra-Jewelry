@@ -46,7 +46,7 @@ export default function Bio() {
         className="absolute bottom-0 md:bottom-auto md:top-[25%] left-[0] md:left-[10%] max-w-screen-sm md:max-w-lg p-2 grid grid-rows-1 gap-2">
         <header className="flex gap-2 items-end w-full">
           <div className="w-full">
-            <h3 className="text-5xl md:text-6xl font-medium text-brand-500">Mayra Jewelry</h3>
+            <h3 className="text-5xl md:text-6xl font-medium text-brand-500 [font-family:'CocoBikeR',sans-serif]">Mayra Jewelry</h3>
             {/* <motion.hr
               initial={{ width: 0 }}
               animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
@@ -57,8 +57,8 @@ export default function Bio() {
           <motion.li
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 1.4 } }}
-            className="text-2xl">
-            Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra.
+            className="text-2xl text-brand-600">
+            Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại <span className="[font-family:'CocoBikeR',sans-serif]">Mayra</span>.
           </motion.li>
 
           <motion.li

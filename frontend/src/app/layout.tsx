@@ -9,6 +9,7 @@ import './page.css';
 export const metadata: Metadata = {
   title: 'Mayra Jewelry',
   description: 'A jewelry website',
+  icons: '/images/logo.webp',
 };
 
 export default function RootLayout({
@@ -18,6 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.cdnfonts.com/css/cocobiker" rel="stylesheet" />
+      </head>
       <body>
         <Navigation />
         

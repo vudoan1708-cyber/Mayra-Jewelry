@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Card from './Card';
 import PaymentView from '../../components/PaymentView/PaymentView';
+import { PAYMENT_INFO } from '../../helpers';
 
 export default function Cart() {
   const router = useRouter();
@@ -46,28 +47,31 @@ export default function Cart() {
     getTheLatestCartItems();
   }, []);
 
+  const info = PAYMENT_INFO;
+
   if (cartItems?.length > 0) {
     return (
-      <div className={`w-dvw mt-20 mb-5 grid grid-cols-1 ${cartItems.length === 1 ? 'md:grid-cols-[40%_1fr]' : 'md:grid-cols-[1fr_1fr]'} justify-around gap-2 p-2`}>
+      <div className={`w-dvw mt-20 mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2`}>
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className={`grid grid-cols-1 ${cartItems.length === 1 ? 'md:grid-cols-1' : 'md:grid-cols-2'} gap-3 justify-start`}
+          className={`grid grid-cols-1 [grid-template-rows:min-content] gap-3 justify-start items-start`}
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             {cartItems.map((item, idx) => (
-              <Card
-                item={item}
-                idx={idx}
-                key={`${item.itemName}_${item.variation.label.toLowerCase()}_${idx}`}
-                getTheLatestCartItems={getTheLatestCartItems}
-                router={router} />
+              <span key={`${item.itemName.split(' ').join('_').toLowerCase()}_${item.variation.label.toLowerCase()}_${idx}`}>
+                <Card
+                  item={item}
+                  idx={idx}
+                  getTheLatestCartItems={getTheLatestCartItems}
+                  router={router} />
+              </span>
               ))
             }
           </AnimatePresence>
         </motion.section>
 
-        <PaymentView amount="1000" info="" />
+        <PaymentView amount="1000" info={info} />
       </div>
     )
   }
