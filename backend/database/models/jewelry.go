@@ -38,10 +38,11 @@ type JewelryItemInfo struct {
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views" gorm:"column:views"`
 	Currency          string         `json:"currency"`
-	InStock           bool           `json:"inStock" gorm:"inStock"`
-	Giftable          bool           `json:"giftable" gorm:"giftable"`
+	InStock           bool           `json:"inStock" gorm:"column:inStock"`
+	Giftable          bool           `json:"giftable" gorm:"column:giftable"`
 	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
-	BuyerId           string         `json:"-" gorm:"column:buyerId"`
+	WishlistBuyerId   *string        `json:"-" gorm:"column:wishlistBuyerId"`
+	OrderBuyerId      *string        `json:"-" gorm:"column:orderBuyerId"`
 }
 
 func (JewelryItemInfo) TableName() string {
@@ -58,8 +59,8 @@ type Metadata struct {
 	Type              JewelryType    `json:"type"`
 	ViewCount         uint           `json:"views"`
 	Currency          string         `json:"currency"`
-	InStock           bool           `json:"inStock" gorm:"inStock"`
-	Giftable          bool           `json:"giftable" gorm:"giftable"`
+	InStock           bool           `json:"inStock"`
+	Giftable          bool           `json:"giftable"`
 	Prices            []JewelryPrice `json:"prices"`
 	Media             []MediaLink    `json:"media"`
 }

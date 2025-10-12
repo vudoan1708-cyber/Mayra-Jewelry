@@ -9,12 +9,13 @@ const (
 )
 
 type Buyer struct {
-	Id         uint              `json:"id" gorm:"primaryKey"` // Social media platform provided IDs (e.g. Facebook user id)
-	Wishlist   []JewelryItemInfo `json:"wishlist" gorm:"foreignKey:BuyerId;references:DirectoryId"`
-	Tier       Tier              `json:"tier" gorm:"tier"`
-	MayraPoint uint              `json:"mayraPoint" gorm:"mayraPoint"`
+	Id           string            `json:"id" gorm:"primaryKey"` // Social media platform provided IDs (e.g. Facebook user id)
+	Wishlist     []JewelryItemInfo `json:"wishlist" gorm:"foreignKey:WishlistBuyerId;references:Id"`
+	OrderHistory []JewelryItemInfo `json:"orderHistory" gorm:"foreignKey:OrderBuyerId;references:Id"`
+	Tier         Tier              `json:"tier" gorm:"column:tier"`
+	MayraPoint   uint              `json:"mayraPoint" gorm:"column:mayraPoint"`
 }
 
 func (Buyer) TableName() string {
-	return "buyer"
+	return "buyers"
 }

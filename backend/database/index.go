@@ -17,6 +17,7 @@ type Database struct {
 func (db *Database) AutoMigrate() error {
 	log.Println("Database auto-migrating...")
 	var allModels = []interface{}{
+		&models.Buyer{},
 		&models.JewelryItemInfo{},
 		&models.JewelryPrice{},
 	}
