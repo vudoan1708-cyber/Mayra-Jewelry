@@ -97,3 +97,4 @@ export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';
 export const SAVE_TO_CART = 'save_to_cart';
 export const PAYMENT_INFO = '[Mayra Jewelry] Nhận chuyển khoản tiền trang sức';
 export const WAIT = 750;
+export const DEFAULT_LOCALE = navigator.language ?? 'vi-VN';

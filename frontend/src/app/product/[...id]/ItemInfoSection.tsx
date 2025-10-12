@@ -12,6 +12,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
+import Money from '../../../components/Money/Money';
 import Button from '../../../components/Button';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
@@ -89,6 +90,10 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
             animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
             className="border-0 border-b border-b-transparent-black mt-1" />
         </small>
+
+        <h2 className="text-xl"><Money amount={amount} /></h2>
+
+        {/* Item Description */}
         <ul className="flex flex-1 flex-col">
           <li>{description}</li>
         </ul>
@@ -96,7 +101,7 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
         <div>
           <div className="flex gap-1 items-center my-2">
             <Variation key={`${imgUrl}_slected_${selectedVariation.key}`} variation={selectedVariation} />
-            Bạn đã chọn chất liệu {selectedVariation.label}
+            Bạn đã chọn chất liệu <b>{selectedVariation.label}</b>
           </div>
           <Button variant="tertiary" className="justify-self-start" onClick={throttleIncrement}>
             <ShoppingCart />

@@ -20,6 +20,7 @@ import Variation from '../../components/Jewelry/Variation';
 import { arrayBufferToBase64, PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../helpers';
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Share from './Share';
+import Money from '../../components/Money/Money';
 
 const enc = new TextEncoder();
 
@@ -125,7 +126,9 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
         </div>
 
         <div className="relative flex flex-col gap-1 justify-between items-end text-right h-full col-start-2 row-start-1 md:col-start-3">
-          <h3 className="text-lg md:text-xl">{item.sum}₫</h3>
+          <h3 className="text-lg md:text-xl">
+            <Money amount={item.sum ?? 0} currency="VND" />
+          </h3>
 
           <Button
             variant="circle"

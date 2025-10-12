@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -109,11 +110,15 @@ func getMediaFilesAndUpdateResponsePayload(w http.ResponseWriter, jewelryItems [
 		responsePlaceholder := models.Metadata{
 			DirectoryId:       item.DirectoryId,
 			ItemName:          item.ItemName,
+			Description:       item.Description,
 			Purchases:         item.Purchases,
 			FeatureCollection: item.FeatureCollection,
 			BestSeller:        item.BestSeller,
 			Type:              item.Type,
 			ViewCount:         item.ViewCount,
+			Currency:          item.Currency,
+			InStock:           item.InStock,
+			Giftable:          item.Giftable,
 			Prices:            item.Prices,
 		}
 
@@ -212,6 +217,18 @@ func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
 		return
 	}
+
+	var response []models.Metadata
+
+	jewelryItems := []models.JewelryItemInfo{}
+	database.DatabaseInstance.Gorm.
+		Preload("Prices").Model(&models.JewelryItemInfo{}).
+		Where("\"purchases\" > 3").
+		Select("*").
+		Find(&jewelryItems)
+	log.Printf("jewelryItems is: %+v", jewelryItems)
+	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
+	middleware.HandleResponse(w, response)
 }
 
 func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +245,10 @@ func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 
 	response := models.JewelryItemInfo{}
 
-	if err := database.DatabaseInstance.Gorm.Preload("Prices").Model(models.JewelryItemInfo{}).Where(models.JewelryItemInfo{DirectoryId: directoryId}).First(&response).Error; err != nil {
+	if err := database.DatabaseInstance.Gorm.
+		Preload("Prices").Model(models.JewelryItemInfo{}).
+		Where(models.JewelryItemInfo{DirectoryId: directoryId}).
+		First(&response).Error; err != nil {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
 		return
 	}
@@ -311,6 +331,10 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 	itemNameBase64 := base64.StdEncoding.EncodeToString([]byte(data["itemName"][0]))
 
 	jewelryType := models.JewelryType(data["type"][0])
+	giftable, bool_parse_err := strconv.ParseBool(helpers.FalsyFallback(data["giftable"][0], "true"))
+	if bool_parse_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, bool_parse_err.Error())
+	}
 	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		jewelryInfo := &models.JewelryItemInfo{
 			DirectoryId:       itemNameBase64,
@@ -321,6 +345,9 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 			Type:              jewelryType,
 			ViewCount:         0, // First time an item is added will have 0 view count
 			Purchases:         0, // First time an item is added will have 0 purchase
+			Currency:          helpers.FalsyFallback(data["currency"][0], "VND"),
+			InStock:           true, // First time an item is added will be in stock by default
+			Giftable:          giftable,
 		}
 		if infoDb := tx.Save(jewelryInfo); infoDb.Error != nil {
 			log.Printf("Error with saving jewelry info data to Supabase")

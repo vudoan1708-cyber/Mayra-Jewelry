@@ -5,8 +5,10 @@ import Button from '../components/Button';
 import FloatingButton from '../components/FloatingButton/FloatingButton';
 import { LOGO_SCROLLED_PASSED_EVENT } from '../helpers';
 import TawkChat from '../components/TawkChat/TawkChat';
+import { useRouter } from 'next/navigation';
 
 export default function Floating() {
+  const router = useRouter();
   const [logoIntersected, setLogoIntersected] = useState<boolean>(false);
 
   useEffect(() => {
@@ -23,8 +25,8 @@ export default function Floating() {
         <TawkChat />
       </FloatingButton>
       {logoIntersected && (
-        <FloatingButton anchorBottom anchorLeft width="auto">
-          <Button variant="primary" onClick={() => {}}>Đăng nhập nhận quà</Button>
+        <FloatingButton type="division" anchorBottom anchorLeft width="auto">
+          <Button variant="primary" onClick={() => { router.push('/account'); }}>Đăng nhập để nhận ưu đãi</Button>
         </FloatingButton>
       )}
     </>

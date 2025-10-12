@@ -5,6 +5,7 @@ import Grid from './Grid';
 import Filter from './Filter';
 import GridItem from './GridItem';
 import WeddingRingSection from './WeddingRingSection';
+import Money from '../Money/Money';
 
 const pathToImagesDir = path.resolve(__dirname, '..', '..', '..', 'public/images/jewelry');
 const images = fs.readdirSync(pathToImagesDir);
@@ -25,7 +26,7 @@ export default function Jewelry() {
                 <b className="text-lg text-gray-800">Mayra Collection</b>
                 <p className="font-light">{img}</p>
               </div>
-              <b>300,000₫</b>
+              <b><Money amount={300000} /></b>
             </GridItem>
           ))}
         </Grid>
