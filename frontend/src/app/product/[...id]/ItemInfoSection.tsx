@@ -91,9 +91,16 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
             className="border-0 border-b border-b-transparent-black mt-1" />
         </small>
 
-        <h2 className="text-xl"><Money amount={amount} /></h2>
+        <h2 className="text-xl">
+          <Money amount={amount} />
+        </h2>
+        <motion.hr
+          initial={{ width: 0 }}
+          animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
+          className="border-0 border-b border-b-transparent-black" />
 
         {/* Item Description */}
+        <h2 className="text-2xl">Thông tin sản phẩm</h2>
         <ul className="flex flex-1 flex-col">
           <li>{description}</li>
         </ul>

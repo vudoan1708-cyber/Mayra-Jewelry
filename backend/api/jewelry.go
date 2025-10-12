@@ -218,15 +218,22 @@ func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response []models.Metadata
+	response := []models.Metadata{}
 
 	jewelryItems := []models.JewelryItemInfo{}
-	database.DatabaseInstance.Gorm.
-		Preload("Prices").Model(&models.JewelryItemInfo{}).
-		Where("\"purchases\" > 3").
-		Select("*").
-		Find(&jewelryItems)
-	log.Printf("jewelryItems is: %+v", jewelryItems)
+	if txn_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
+		percentRankSubQuery := tx.Model(&models.JewelryItemInfo{}).
+			Select("*, PERCENT_RANK() OVER ( ORDER BY \"purchases\" ) as percent_rank")
+
+		return tx.Preload("Prices").
+			Table("(?) as ranked", percentRankSubQuery).
+			Where("percent_rank > 0.5").
+			Order("purchases DESC").
+			Find(&jewelryItems).Error
+	}); txn_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, txn_err.Error())
+		return
+	}
 	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
 	middleware.HandleResponse(w, response)
 }

@@ -57,18 +57,16 @@ export default function Cart() {
           animate={{ opacity: 1 }}
           className={`grid grid-cols-1 [grid-template-rows:min-content] gap-3 justify-start items-start`}
         >
-          <AnimatePresence mode="wait">
-            {cartItems.map((item, idx) => (
-              <span key={`${item.itemName.split(' ').join('_').toLowerCase()}_${item.variation.label.toLowerCase()}_${idx}`}>
-                <Card
-                  item={item}
-                  idx={idx}
-                  getTheLatestCartItems={getTheLatestCartItems}
-                  router={router} />
-              </span>
-              ))
-            }
-          </AnimatePresence>
+          {cartItems.map((item, idx) => (
+            <span key={`${item.itemName.split(' ').join('_').toLowerCase()}_${item.variation.label.toLowerCase()}_${idx}`}>
+              <Card
+                item={item}
+                idx={idx}
+                getTheLatestCartItems={getTheLatestCartItems}
+                router={router} />
+            </span>
+            ))
+          }
         </motion.section>
 
         <PaymentView amount="1000" info={info} />
