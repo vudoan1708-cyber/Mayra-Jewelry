@@ -4,10 +4,7 @@ import Image from 'next/image';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { useMemo } from 'react';
-import ReactDOM from 'react-dom';
-
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 import { Trash2 } from 'lucide-react';
 
@@ -22,7 +19,11 @@ import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Share from './Share';
 import Money from '../../components/Money/Money';
 
-export default function Card({ item, idx, getTheLatestCartItems, router }: { item: CartItem, idx: number, getTheLatestCartItems: () => void, router: AppRouterInstance }) {
+export default function Card({
+  item, idx, getTheLatestCartItems, router,
+}: {
+  item: CartItem; idx: number; getTheLatestCartItems: () => void; router: AppRouterInstance;
+}) {
   const { addItem, removeItem, removeAllByItemName } = useCartCount();
 
   const updateCart = (item: CartItem, action: 'decrease' | 'increase' | 'removeAll' = 'increase') => {
@@ -128,12 +129,6 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
           </Button>
         </div>
       </motion.div>
-      
-      {/* Toast container for message feedback */}
-      {ReactDOM.createPortal(
-        <ToastContainer aria-label="Added to cart" position="bottom-left" />,
-        document.body,
-      )}
     </>
   )
 }

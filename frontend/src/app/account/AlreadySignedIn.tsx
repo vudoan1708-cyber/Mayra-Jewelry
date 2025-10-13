@@ -10,7 +10,7 @@ import { signOut } from 'next-auth/react';
 
 export default function AlreadySignedIn({ userName, userImage }: { userName: string, userImage: string }) {
   return (
-    <div className="w-full h-full flex items-center justfy-center">
+    <div className="w-full max-w-[540px] h-full flex items-center justfy-center">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -32,7 +32,7 @@ export default function AlreadySignedIn({ userName, userImage }: { userName: str
                 <h3 className="text-2xl">{userName}</h3>
               </div>
               <div>
-                <p>Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{userName}</b></p>
+                <p>Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{userName}</b> và đang tích điểm Mayra Point.</p>
                 <p>Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.</p>
               </div>
               <Button

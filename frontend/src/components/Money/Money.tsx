@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_LOCALE } from '../../helpers';
 
 const getCurrencyFormatter = (currency: string, locale: string) => {
@@ -29,15 +29,22 @@ const numberPartMapToClassName: NumberPart = {
 };
 
 export default function Money({ amount, currency = 'VND' }: { amount: number | string, currency?: string }) {
+  const updateNumberPart = () => {
+    return !formatter.current.formatToParts
+      ? [{ value: formatter.current.format(parseFloat(amount.toString())), type: 'integer' }]
+      : formatter.current.formatToParts(parseFloat(amount.toString()))
+  };
   const formatter = useRef(getCurrencyFormatter(currency, DEFAULT_LOCALE));
-  const parts = useRef(!formatter.current.formatToParts
-    ? [{ value: formatter.current.format(parseFloat(amount.toString())), type: 'integer' }]
-    : formatter.current.formatToParts(parseFloat(amount.toString())));
+  const [parts, setParts] = useState(updateNumberPart());
+
+  useEffect(() => {
+    setParts(updateNumberPart());
+  }, [amount]);
 
   return (
     <span className="flex items-baseline flex-nowrap break-keep">
       {
-        parts.current.map((part, idx) => (
+        parts.map((part, idx) => (
           <span key={idx} className={`${numberPartMapToClassName[part.type as keyof NumberPart]}`}>{part.value}</span>
         ))
       }
