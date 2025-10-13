@@ -11,6 +11,8 @@ import { fetchQRCode } from '../../server/data';
 import Tabs, { type Tab } from '../Tabs/Tabs';
 import Loading from '../Loading/Loading';
 
+import { PAYMENT_INFO } from '../../helpers';
+
 const tabs: Array<Tab> = [
   // { label: 'Thẻ tín dụng', id: 1, active: true },
   // API: https://www.vietqr.io/danh-sach-api/link-tao-ma-nhanh/api-tao-ma-qr#operation/generate
@@ -28,11 +30,11 @@ export default function PaymentView({ amount, info }: { amount: string, info: st
   const getAndProcessQrCode = async () => {
     setLoading(true);
     try {
-      const result = await fetchQRCode({ amount, info });
+      const result = await fetchQRCode({ amount, info: info ?? PAYMENT_INFO });
       if (!result?.data?.qrDataURL) throw Error('Cannot find QR Code');
       setQrCode(result?.data?.qrDataURL);
-    } catch (e) {
-      setError(e?.message);
+    } catch (e: any) {
+      setError(e?.message as Error['message']);
     } finally {
       setLoading(false);
     }

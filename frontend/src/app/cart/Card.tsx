@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import ReactDOM from 'react-dom';
 
 import { toast, ToastContainer } from 'react-toastify';
@@ -17,25 +17,13 @@ import throttle from 'lodash/throttle';
 import Button from '../../components/Button';
 import Variation from '../../components/Jewelry/Variation';
 
-import { arrayBufferToBase64, PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../helpers';
+import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../helpers';
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Share from './Share';
 import Money from '../../components/Money/Money';
 
-const enc = new TextEncoder();
-
 export default function Card({ item, idx, getTheLatestCartItems, router }: { item: CartItem, idx: number, getTheLatestCartItems: () => void, router: AppRouterInstance }) {
-  const [encryptedId, setEncryptedId] = useState<string>('');
   const { addItem, removeItem, removeAllByItemName } = useCartCount();
-
-  useEffect(() => {
-    const setId = () => {
-      const data = enc.encode(item.imgUrl).buffer;
-      const base64 = arrayBufferToBase64(data);
-      setEncryptedId(base64);
-    };
-    setId();
-  }, [item.imgUrl]);
 
   const updateCart = (item: CartItem, action: 'decrease' | 'increase' | 'removeAll' = 'increase') => {
     const listOfActions = {
@@ -87,11 +75,12 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
         exit={{ opacity: 0, y: -10 }}
         className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer md:max-h-[300px]"
         title="Xem thông tin món đồ"
-        onClick={() => { router.push(`/product/${encryptedId ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
+        onClick={() => { router.push(`/product/${item.id ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
         <div className="flex flex-col gap-1 h-full justify-between items-center col-start-1">
           <Image
+            priority
             alt={`image is shown with a name of ${item.itemName}`}
-            src={`/images/jewelry/${item.imgUrl}`}
+            src={item.imgUrl}
             width="240"
             height="240"
             className="rounded-md md:max-h-[240px] self-start justify-self-start"
@@ -121,7 +110,7 @@ export default function Card({ item, idx, getTheLatestCartItems, router }: { ite
           </label>
 
           <span>
-            <Share encryptedId={encryptedId} itemAmount={item.amount} itemVariation={item.variation.label} />
+            <Share encodedId={item.id} itemAmount={item.amount} itemVariation={item.variation.label} />
           </span>
         </div>
 

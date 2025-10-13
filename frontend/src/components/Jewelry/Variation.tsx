@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 import { type MouseEventHandler } from 'react';
 
 export type JewelryVariation = {
-  key: number,
-  style: string,
-  label: string,
+  key: number;
+  style: string;
+  label: string;
+  amount: number;
+  currency?: string;
 };
 
 export default function Variation({ variation, selected, onSelect }: { variation: JewelryVariation, selected?: number, onSelect?: MouseEventHandler<HTMLSpanElement> | undefined

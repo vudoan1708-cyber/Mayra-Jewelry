@@ -3,51 +3,53 @@
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import { motion } from 'framer-motion';
 
 import { Heart, ShoppingCart } from 'lucide-react';
-import throttle from 'lodash/throttle';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import throttle from 'lodash/throttle';
 
 import Variation, { type JewelryVariation } from '../../../components/Jewelry/Variation';
 import Money from '../../../components/Money/Money';
 import Button from '../../../components/Button';
+import Loading from '../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART, WAIT } from '../../../helpers';
-import { useEffect, useMemo, useRef, useState } from 'react';
 
-const variations: Array<JewelryVariation> = [
-  { key: 0, label: 'Bạc', style: 'bg-gray-400' },
-  { key: 1, label: 'Vàng', style: 'bg-amber-300' },
-  { key: 2, label: 'Vàng trắng', style: 'bg-slate-100' },
-];
-export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: { imgUrl: string, preselectedVariation?: string }) {
+export default function ItemInfoSection({
+  id, itemName, amount, description, imgUrls, availableVariations, selectedVariation,
+}: {
+  id: string; itemName: string; amount: number, description: string; imgUrls: string[]; availableVariations: Array<JewelryVariation>; selectedVariation: JewelryVariation;
+}) {
   const router = useRouter();
-  const params = useSearchParams();
-  const amount = parseInt(params.get('amount') ?? '0');
+  const [variation, setSelectedVariation] = useState<JewelryVariation>(selectedVariation);
 
-  const [selectedVariation, setSelectedVariation] = useState<JewelryVariation>(variations.find((variation) => variation.label === preselectedVariation) ?? variations[0]);
-  const variationRef = useRef(variations[0]);
+  const [loadingImg, setLoadingImg] = useState<boolean>(true);
+  const imgUrlRef = useRef<Array<string>>(imgUrls);
+  useEffect(() => {
+    setLoadingImg(!imgUrls);
+    imgUrlRef.current = imgUrls;
+  }, [imgUrls]);
 
   const numberOfPurchases = 7;
-  const itemName = 'Nhẫn Bạc Với 4 Cánh Hoa (4 Leaf Clover)';
-  const description = 'Tượng trưng cho sự may mắn và độc đáo, làm tôn lên vẻ đẹp giản dị không quá cầu kì.';
 
   const { addItem } = useCartCount();
 
   const selectVariation = (__variation: JewelryVariation) => {
     setSelectedVariation(__variation);
-    variationRef.current = __variation;
   };
 
   const shoppingCartClicked = () => {
     addItem({
+      id,
       itemName,
-      imgUrl,
-      variation: variationRef.current,
+      imgUrl: imgUrlRef.current[0],
+      variation,
       amount,
     });
     const currentState = {
@@ -68,15 +70,20 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
   return (
     <>
       <div className="relative flex flex-col justify-center items-center !w-[100%]">
-        <Image
-          src={`/images/jewelry/${imgUrl}`}
-          alt={imgUrl}
-          width="520"
-          height="520"
-          className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover" />
+        {loadingImg
+          ? <Loading />
+          : (
+            <Image
+              src={imgUrls[0]}
+              alt={itemName}
+              width="520"
+              height="520"
+              className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover" />
+          )
+        }
         <div className="flex gap-2 justify-start items-center mt-2">
-          {variations.map((variation) => (
-            <Variation key={`${imgUrl}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
+          {availableVariations.map((variation) => (
+            <Variation key={`${imgUrls[0]}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
           ))}
         </div>
       </div>
@@ -101,13 +108,15 @@ export default function ItemInfoSection({ imgUrl, preselectedVariation = '' }: {
 
         {/* Item Description */}
         <h2 className="text-2xl">Thông tin sản phẩm</h2>
-        <ul className="flex flex-1 flex-col">
-          <li>{description}</li>
+        <ul className="flex flex-1 flex-col list-none">
+          {description.split('\n').map((line, idx) => (
+            <li key={idx}>{line}</li>
+          ))}
         </ul>
 
         <div>
           <div className="flex gap-1 items-center my-2">
-            <Variation key={`${imgUrl}_slected_${selectedVariation.key}`} variation={selectedVariation} />
+            <Variation key={`${imgUrls[0]}_slected_${selectedVariation.key}`} variation={selectedVariation} />
             Bạn đã chọn chất liệu <b>{selectedVariation.label}</b>
           </div>
           <Button variant="tertiary" className="justify-self-start" onClick={throttleIncrement}>

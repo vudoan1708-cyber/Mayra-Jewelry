@@ -93,6 +93,12 @@ export const base64ToArrayBuffer = (base64: string) => {
   return buffer;
 };
 
+export const ENGLISH_TO_VIETNAMESE = {
+  Silver: 'Bạc',
+  Gold: 'Vàng',
+  'White Gold': 'Vàng trắng',
+};
+
 export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';
 export const SAVE_TO_CART = 'save_to_cart';
 export const PAYMENT_INFO = '[Mayra Jewelry] Nhận chuyển khoản tiền trang sức';

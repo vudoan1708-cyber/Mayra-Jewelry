@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type { JewelryVariation } from '../components/Jewelry/Variation';
 
 export type CartItem = {
+  id: string;
   itemName: string;
   imgUrl: string;
   variation: JewelryVariation;

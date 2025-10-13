@@ -13,10 +13,10 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func getOneBuyer(db *gorm.DB, buyerId string, buyerModel *models.Buyer) error {
+func getOneBuyer(db *gorm.DB, buyerId string, buyerModel *models.Buyer, selector string) error {
 	return db.Model(&models.Buyer{}).
 		Where(&models.Buyer{Id: buyerId}).
-		Select("*").
+		Select(selector).
 		First(&buyerModel).Error
 }
 
@@ -31,7 +31,32 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 
 	buyer := models.Buyer{}
 
-	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer); err != nil {
+	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "*"); err != nil {
+		err_string := err.Error()
+		var statusCode int = http.StatusInternalServerError
+		if strings.Contains(err_string, "not found") {
+			statusCode = http.StatusBadRequest
+			err_string = fmt.Sprintf("buyer Id: %s might not exist. %s", buyerId, err_string)
+		}
+		middleware.HandleErrorResponse(w, statusCode, err_string)
+		return
+	}
+
+	middleware.HandleResponse(w, buyer)
+}
+
+func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	vars := mux.Vars(r)
+
+	buyerId := vars["buyerId"]
+
+	buyer := models.Buyer{}
+	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "wishlist"); err != nil {
 		err_string := err.Error()
 		var statusCode int = http.StatusInternalServerError
 		if strings.Contains(err_string, "not found") {
@@ -72,7 +97,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	var buyer models.Buyer
 
 	if txn_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
-		if query_err := getOneBuyer(tx, buyerId, &buyer); query_err != nil {
+		if query_err := getOneBuyer(tx, buyerId, &buyer, "*"); query_err != nil {
 			// If not found, create
 			if strings.Contains(query_err.Error(), "not found") {
 				buyer = models.Buyer{

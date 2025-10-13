@@ -40,7 +40,7 @@ export default function Bio() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { duration: 0.4, delay: 0.5 } }}
         src="/images/pixabay-landing-img.webp"
-        className="w-full h-dvh select-none object-cover"
+        className="w-dvw h-dvh select-none object-cover"
         alt="Landing image" />
       <motion.aside
         initial={{ opacity: 0 }}

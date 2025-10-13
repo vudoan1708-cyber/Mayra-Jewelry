@@ -158,19 +158,21 @@ func GetUniqueFeatureCollections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	response := []models.Metadata{}
+
 	jewelryItems := []models.JewelryItemInfo{}
 	if err := database.DatabaseInstance.Gorm.
+		Preload("Prices").
 		Model(&models.JewelryItemInfo{}).
 		Where("\"featureCollection\" IS NOT NULL").
 		Where("\"featureCollection\" <> ''").
 		Select("DISTINCT ON (\"featureCollection\") *").
 		Order("\"featureCollection\" ASC").
+		Limit(5).
 		Find(&jewelryItems).Error; err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	var response []models.Metadata
 
 	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
 
@@ -227,7 +229,7 @@ func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
 
 		return tx.Preload("Prices").
 			Table("(?) as ranked", percentRankSubQuery).
-			Where("percent_rank > 0.5").
+			Where("percent_rank > 0.5 OR purchases > 0").
 			Order("purchases DESC").
 			Find(&jewelryItems).Error
 	}); txn_err != nil {
@@ -342,6 +344,7 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 	if bool_parse_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, bool_parse_err.Error())
 	}
+	log.Printf("data is %+v", data)
 	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		jewelryInfo := &models.JewelryItemInfo{
 			DirectoryId:       itemNameBase64,

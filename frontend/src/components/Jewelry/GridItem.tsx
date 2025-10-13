@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type MouseEventHandler } from 'react';
+import { type MouseEventHandler } from 'react';
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -9,29 +9,27 @@ import { motion } from 'framer-motion';
 
 import NavItem from '../Navigation/NavItem';
 
-import { arrayBufferToBase64, PAYMENT_INFO } from '../../helpers';
+import { PAYMENT_INFO } from '../../helpers';
 
-const enc = new TextEncoder();
+import type { Media } from '../../../types';
 
-export default function GridItem({ key, img, children }: { key: string, img: string, children?: React.ReactNode }) {
+export default function GridItem({
+  key, encodedId, media, alt, children,
+}: {
+  key: string; encodedId: string, media: Media[]; alt: string; children?: React.ReactNode,
+}) {
   const router = useRouter();
-  const [encryptedId, setEncryptedId] = useState<string>('');
-
-  useEffect(() => {
-    const setId = () => {
-      const data = enc.encode(img).buffer;
-      const base64 = arrayBufferToBase64(data);
-      setEncryptedId(base64);
-    };
-    setId();
-  }, [img]);
-
-  const amount = 12000;
-  const info = PAYMENT_INFO;
+  const thumbnail = media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url ?? '';
+  
+  try {
+    localStorage.setItem(encodedId, JSON.stringify(media));
+  } catch (e) {
+    console.error(e);
+  }
 
   const navigate: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.preventDefault();
-    router.push(`/product/${encryptedId ?? ''}?amount=${amount}&info=${info}`);
+    router.push(`/product/${encodedId ?? ''}`);
   };
 
   return (
@@ -45,10 +43,10 @@ export default function GridItem({ key, img, children }: { key: string, img: str
       className="relative cursor-pointer">
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
         <figure className="text-sm h-80 overflow-hidden">
-          {/* 1080 - 1280 */}
+          {/* Original ratio: 1080 - 1280 */}
           <Image
-            src={`/images/jewelry/${img}`}
-            alt={img}
+            src={thumbnail}
+            alt={alt}
             width="450"
             height="320"
             style={{ width: "auto", height: "auto" }}

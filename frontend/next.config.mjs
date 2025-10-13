@@ -10,6 +10,10 @@ const nextConfig = {
         port: '',
         pathname: '/platform/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.r2.cloudflarestorage.com',
+      },
     ],
   },
 };
