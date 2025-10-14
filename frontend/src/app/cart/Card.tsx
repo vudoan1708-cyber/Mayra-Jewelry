@@ -59,9 +59,7 @@ export default function Card({
     }, 0);
     localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
 
-    if (!item.sum) {
-      getTheLatestCartItems();
-    }
+    getTheLatestCartItems();
   };
   const throttleIncrement = useMemo(() => throttle(updateCart, WAIT), []);
   const throttleDecrement = useMemo(() => throttle((item) => updateCart(item, 'decrease'), WAIT), []);
@@ -105,8 +103,8 @@ export default function Card({
               </span>
             )}
           </div>
-          <label onClick={(e) => { e.stopPropagation(); }}>
-            <input type="checkbox" onChange={(e) => {}} />
+          <label htmlFor="gift" onClick={(e) => { e.stopPropagation(); }}>
+            <input name="gift" type="checkbox" onChange={(e) => {}} />
             Gói quà lại giúp mình
           </label>
 

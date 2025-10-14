@@ -69,7 +69,7 @@ export default function Cart() {
           }
         </motion.section>
 
-        <PaymentView amount="1000" info={info} />
+        <PaymentView amount={String(cartItems.reduce((acc, prev) => acc + (prev?.sum ?? 0), 0))} info={info} />
       </div>
     )
   }

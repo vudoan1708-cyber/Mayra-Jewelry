@@ -178,6 +178,38 @@ func GetUniqueFeatureCollections(w http.ResponseWriter, r *http.Request) {
 
 	middleware.HandleResponse(w, response)
 }
+
+func GetJewelryMostViews(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	vars := mux.Vars(r)
+	directoryId := vars["directoryId"]
+
+	if directoryId == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "directoryId is missing from payload")
+		return
+	}
+
+	response := []models.JewelryItemInfo{}
+
+	subQuery := database.DatabaseInstance.Gorm.Model(&models.JewelryItemInfo{}).Select("SUM(views)")
+
+	if err := database.DatabaseInstance.Gorm.
+		Preload("Prices").
+		Model(&models.JewelryItemInfo{}).
+		Where("views * 100.0 / (?) > ?", subQuery, 30).
+		Where("\"directoryId\" <> ?", directoryId).
+		Select("*").
+		Find(&response).Error; err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	middleware.HandleResponse(w, response)
+}
 func GetJewelryItemsByCollectionName(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
@@ -197,7 +229,7 @@ func GetJewelryItemsByCollectionName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response []models.Metadata
+	response := []models.Metadata{}
 
 	jewelryItems := []models.JewelryItemInfo{}
 	if err := database.DatabaseInstance.Gorm.

@@ -42,7 +42,7 @@ type JewelryItemInfo struct {
 	Giftable          bool           `json:"giftable" gorm:"column:giftable"`
 	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
 	WishlistBuyerId   *string        `json:"-" gorm:"column:wishlistBuyerId"`
-	OrderBuyerId      *string        `json:"-" gorm:"column:orderBuyerId"`
+	OrderId           *string        `json:"-" gorm:"column:orderId"`
 }
 
 func (JewelryItemInfo) TableName() string {

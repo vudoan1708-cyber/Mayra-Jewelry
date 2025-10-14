@@ -35,7 +35,7 @@ export default function Bio() {
     };
   }, []);
   return (
-    <header className="w-full">
+    <div className="w-full">
       <motion.img
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { duration: 0.4, delay: 0.5 } }}
@@ -90,6 +90,6 @@ export default function Bio() {
         </ul>
         <Button ref={buttonRef} variant="secondary" className="mt-2" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>Đăng nhập ngay để nhận ưu đãi</Button>
       </motion.aside>
-    </header>
+    </div>
   )
 }

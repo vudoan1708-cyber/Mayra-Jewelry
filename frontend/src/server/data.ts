@@ -28,7 +28,7 @@ export const useFetch = async ({ url, method = 'GET', body }: UseFetchRequest) =
   }
 };
 
-export const fetchQRCode = async ({ amount, info }: { amount: string, info: string }) => {
+export const fetchQRCode = async ({ amount, info }: { amount: string | number, info: string }) => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/qr?amount=${amount}&info=${info ?? ''}`;
   return useFetch({
     url,

@@ -47,6 +47,7 @@ func main() {
 	apiRouter.HandleFunc("/jewelry/collection/best", api.GetJewelryItemsByBestSeller).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/feature", api.GetUniqueFeatureCollections).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/{collectionName}", api.GetJewelryItemsByCollectionName).Methods("GET")
+	apiRouter.HandleFunc("/jewelry/{directoryId}/collection/most-views", api.GetJewelryMostViews).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/{directoryId}", api.GetJewelryItemInfoByDirectoryId).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")

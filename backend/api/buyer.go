@@ -103,7 +103,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 				buyer = models.Buyer{
 					Id:           data["id"][0],
 					Wishlist:     []models.JewelryItemInfo{},
-					OrderHistory: []models.JewelryItemInfo{},
+					OrderHistory: []models.Order{},
 					Tier:         "Silver",
 					MayraPoint:   0,
 				}
