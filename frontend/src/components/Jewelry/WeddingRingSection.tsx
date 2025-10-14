@@ -6,13 +6,13 @@ import Button from '../Button';
 export default function WeddingRingSection() {
   const router = useRouter();
   return (
-    <div className="mt-3 p-6 flex gap-4 flex-wrap items-start">
+    <div className="bg-gray-100 mt-3 p-6 flex gap-4 flex-wrap items-start">
       <img
         alt="ring on someone's finger"
         src="images/wedding-ring.webp"
         width="640"
         height="426"
-        className="rounded-md object-contain" />
+        className="rounded-md object-contain shadow-sm" />
       <div className="flex-1 flex flex-col gap-4">
         <h3 className="text-3xl font-medium">Đám cưới sắp tới rồi, mình phải làm sao?</h3>
         <div>

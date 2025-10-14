@@ -18,6 +18,7 @@ import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../helpers';
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Share from './Share';
 import Money from '../../components/Money/Money';
+import NavItem from '../../components/Navigation/NavItem';
 
 export default function Card({
   item, idx, getTheLatestCartItems, router,
@@ -94,6 +95,11 @@ export default function Card({
 
         <div className="relative flex flex-col gap-1 h-full col-start-1 md:col-start-2 md:row-start-1">
           <h3 className="text-lg md:text-xl text-brand-500 font-semibold">{item.itemName}</h3>
+          {item.featureCollection && (
+            <span className="flex gap-[4px] items-center">
+              <b>Bộ sưu tập: </b><NavItem href={`/collections/${item.featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{item.featureCollection}</NavItem>
+            </span>
+          )}
           <p className="text-gray-500">Miễn phí ship hàng</p>
           <div>
             {item.variation && (

@@ -57,3 +57,10 @@ export const getFeatureCollectionThumbnails = (): Promise<Array<JewelryItemInfo>
     method: 'GET',
   });
 };
+export const getMostViewedJewelryItems = (id: string): Promise<Array<JewelryItemInfo>> => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/${id}/collection/most-views`;
+  return useFetch({
+    url,
+    method: 'GET',
+  });
+}

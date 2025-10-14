@@ -193,7 +193,9 @@ func GetJewelryMostViews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := []models.JewelryItemInfo{}
+	response := []models.Metadata{}
+
+	jewelryItems := []models.JewelryItemInfo{}
 
 	subQuery := database.DatabaseInstance.Gorm.Model(&models.JewelryItemInfo{}).Select("SUM(views)")
 
@@ -203,10 +205,12 @@ func GetJewelryMostViews(w http.ResponseWriter, r *http.Request) {
 		Where("views * 100.0 / (?) > ?", subQuery, 30).
 		Where("\"directoryId\" <> ?", directoryId).
 		Select("*").
-		Find(&response).Error; err != nil {
+		Find(&jewelryItems).Error; err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	getMediaFilesAndUpdateResponsePayload(w, jewelryItems, &response)
 
 	middleware.HandleResponse(w, response)
 }

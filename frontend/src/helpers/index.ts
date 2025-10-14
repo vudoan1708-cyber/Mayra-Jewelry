@@ -1,3 +1,5 @@
+import type { Prices } from "../../types";
+
 export const subtleCrypto = {
   identifier: 'scrypto_key',
   algorithmName: 'RSA-OAEP',
@@ -91,6 +93,14 @@ export const base64ToArrayBuffer = (base64: string) => {
     bytes[i] = binary.charCodeAt(i);
   }
   return buffer;
+};
+
+export const minPrice = (prices: Prices[]) => {
+  let currentPrice = prices[0].amount;
+  prices.forEach((item) => {
+    currentPrice = Math.min(item.amount, currentPrice);
+  });
+  return currentPrice;
 };
 
 export const ENGLISH_TO_VIETNAMESE = {

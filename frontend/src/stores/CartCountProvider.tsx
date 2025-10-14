@@ -7,6 +7,8 @@ export type CartItem = {
   id: string;
   itemName: string;
   imgUrl: string;
+  featureCollection?: string;
+  type?: string;
   variation: JewelryVariation;
   amount: number;
   count?: number; // Different to store count, which counts every item, this only counts per item name

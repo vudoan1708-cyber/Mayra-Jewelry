@@ -1,19 +1,19 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
 import ItemInfoSection from './ItemInfoSection';
-import PaymentView from '../../../components/PaymentView/PaymentView';
-import type { JewelryVariation } from '../../../components/Jewelry/Variation';
-
-import { ENGLISH_TO_VIETNAMESE, PAYMENT_INFO } from '../../../helpers';
 
 import type { Media, Prices } from '../../../../types';
+import { ENGLISH_TO_VIETNAMESE, PAYMENT_INFO } from '../../../helpers';
+
+import Loading from '../../../components/Loading/Loading';
+import PaymentView from '../../../components/PaymentView/PaymentView';
+import type { JewelryVariation } from '../../../components/Jewelry/Variation';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400', amount: 0 },
@@ -21,9 +21,9 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100', amount: 0 },
 ];
 export default function Wrapper({
-  id, itemName, description, prices,
+  id, itemName, featureCollection, type, description, prices,
 }: {
-  id: string; itemName: string; description: string; prices: Prices[]
+  id: string; itemName: string; featureCollection: string; type: 'ring' | 'bracelet'; description: string; prices: Prices[]
 }) {
   const searchParams = useSearchParams();
   const [imgUrls, setImgUrls] = useState<Array<string>>([]);
@@ -57,7 +57,7 @@ export default function Wrapper({
   }, [decodedId]);
 
   return (
-    <>
+    <Suspense fallback={<Loading />}>
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}
@@ -66,33 +66,16 @@ export default function Wrapper({
         <ItemInfoSection
           id={id}
           itemName={itemName}
-          amount={parseInt(searchParams.get('amount') ?? amount.toString())}
           description={description}
+          featureCollection={featureCollection}
+          type={type}
+          amount={parseInt(searchParams.get('amount') ?? amount.toString())}
           imgUrls={imgUrls}
           availableVariations={availableVariations}
           selectedVariation={selectedVariation} />
       </motion.section>
 
       <PaymentView amount={searchParams.get('amount') ?? amount.toString()} info={searchParams.get('info') ?? PAYMENT_INFO} />
-
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
-        className="col-span-1 md:col-span-2">
-        <h2 className="text-2xl text-brand-500 font-semibold mt-6 self-start">Những món hàng được view thường xuyên</h2>
-        <div className="flex gap-2 overflow-auto">
-          {/* {Array.from({ length: 4 }).map((_, idx) => (
-            <Image
-              key={idx}
-              src={imgUrl}
-              alt={imgUrl}
-              width="360"
-              height="360"
-              style={{ objectFit: "contain", width: "auto", height: "auto" }}
-              className="border rounded-lg max-w-[360px] max-h-[360px]" />
-          ))} */}
-        </div>
-      </motion.section>
-    </>
+    </Suspense>
   )
 }

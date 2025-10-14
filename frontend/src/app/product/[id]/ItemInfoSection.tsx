@@ -1,14 +1,14 @@
 'use client'
 
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
 import { Heart, ShoppingCart } from 'lucide-react';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import throttle from 'lodash/throttle';
@@ -22,9 +22,25 @@ import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART, WAIT } from '../../../helpers';
 
 export default function ItemInfoSection({
-  id, itemName, amount, description, imgUrls, availableVariations, selectedVariation,
+  id,
+  itemName,
+  amount,
+  description,
+  featureCollection,
+  type,
+  imgUrls,
+  availableVariations,
+  selectedVariation,
 }: {
-  id: string; itemName: string; amount: number, description: string; imgUrls: string[]; availableVariations: Array<JewelryVariation>; selectedVariation: JewelryVariation;
+  id: string;
+  itemName: string;
+  amount: number,
+  description: string;
+  featureCollection: string;
+  type: 'ring' | 'bracelet';
+  imgUrls: string[];
+  availableVariations: Array<JewelryVariation>;
+  selectedVariation: JewelryVariation;
 }) {
   const router = useRouter();
   const [variation, setSelectedVariation] = useState<JewelryVariation>(selectedVariation);
@@ -48,6 +64,8 @@ export default function ItemInfoSection({
     addItem({
       id,
       itemName,
+      featureCollection,
+      type,
       imgUrl: imgUrlRef.current[0],
       variation,
       amount,
@@ -56,7 +74,9 @@ export default function ItemInfoSection({
       items: useCartCount.getState().items,
     };
     localStorage.setItem(SAVE_TO_CART, JSON.stringify(currentState));
-    toast.success('Món đồ đã được đưa vào giỏ đồ điện tử! 🎉');
+    setTimeout(() => {
+      router.push('/cart');
+    }, WAIT - 250);
   };
 
   const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, WAIT), []);

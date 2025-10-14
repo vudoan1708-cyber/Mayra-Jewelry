@@ -3,18 +3,10 @@ import Grid from './Grid';
 import GridItem from './GridItem';
 
 import { getBestSellers } from '../../server/data';
-import type { Prices } from '../../../types';
+import { minPrice } from '../../helpers';
 
 export default async function BestSeller() {
   const bestSellerItems = await getBestSellers();
-
-  const minPrice = (prices: Prices[]) => {
-    let currentPrice = prices[0].amount;
-    prices.forEach((item) => {
-      currentPrice = Math.min(item.amount, currentPrice);
-    });
-    return currentPrice;
-  };
 
   return (
     <>
