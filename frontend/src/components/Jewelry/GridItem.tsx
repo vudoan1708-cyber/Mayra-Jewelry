@@ -9,8 +9,6 @@ import { motion } from 'framer-motion';
 
 import NavItem from '../Navigation/NavItem';
 
-import { PAYMENT_INFO } from '../../helpers';
-
 import type { Media } from '../../../types';
 
 export default function GridItem({
@@ -42,13 +40,13 @@ export default function GridItem({
       transition={{ type: 'spring', stiffness: 300 }}
       className="relative cursor-pointer">
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
-        <figure className="text-sm h-80 overflow-hidden">
+        <figure className="text-sm h-96 overflow-hidden">
           {/* Original ratio: 1080 - 1280 */}
           <Image
             src={thumbnail}
             alt={alt}
-            width="450"
-            height="320"
+            width="520"
+            height="520"
             style={{ width: "auto", height: "auto" }}
             className="object-contain h-full w-full rounded-md" />
           {children && (

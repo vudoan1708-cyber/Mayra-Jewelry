@@ -56,7 +56,7 @@ export default function Button({ ref, variant, disabled, className, tooltip, tra
         title={tooltip}
         onClick={patchOnClick}
         disabled={disabled}
-        className={`flex justify-center gap-1 bg-transparent outline-none ${disabled ? 'bg-gray-300 text-white' : 'hover:text-brand-400 hover:border-brand-400 border border-brand-500 active:border-1 focus:outline-1'} transition-all ${className}`}>
+        className={`flex justify-center gap-1 outline-none ${disabled ? 'bg-gray-300 text-white' : 'hover:text-brand-400 hover:border-brand-400 border border-brand-500 active:border-1 focus:outline-1 bg-transparent'} transition-all ${className}`}>
         {children}
       </motion.button>
     )

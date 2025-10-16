@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/session"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database/models"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
@@ -110,6 +113,20 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var buyer models.Buyer
+	var tier models.Tier = ""
+	if data["tier"] != nil {
+		helpers.CastStringToAnyType(data["tier"][0], &tier)
+	}
+
+	var mayraPoint float64
+	var conv_err error
+	if data["mayraPoint"] != nil {
+		mayraPoint, conv_err = strconv.ParseFloat(data["mayraPoint"][0], 32)
+		if conv_err != nil {
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, conv_err.Error())
+			return
+		}
+	}
 
 	if txn_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		if query_err := getOneBuyer(tx, buyerId, &buyer, "*"); query_err != nil {
@@ -119,8 +136,8 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 					Id:           data["id"][0],
 					Wishlist:     []models.JewelryItemInfo{},
 					OrderHistory: []models.Order{},
-					Tier:         "Silver",
-					MayraPoint:   0,
+					Tier:         helpers.FalsyFallback(tier, models.SilverTier),
+					MayraPoint:   helpers.FalsyFallback(float32(mayraPoint), 0),
 				}
 				if create_err := tx.Model(models.Buyer{}).
 					Clauses(clause.OnConflict{
@@ -155,6 +172,24 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, nil)
 }
 
+func sendEmail(buyerName string, lastFourDigits string, productName string, amount string) error {
+	encryptedId := ""
+	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encryptedId)
+	payload := fmt.Sprintf(`{
+		"from": "Payments <onboarding@resend.dev>",
+		"to": ["%s"],
+		"subject": "Confirm payment for %s from %s with their last 4 digits on their account as %s - %s",
+		"html": "<p><a href='%s'>Confirm here</a></p>"
+	}`, productName, buyerName, lastFourDigits, os.Getenv("MERCHANT_EMAIL"), amount, confirmUrl)
+
+	req, _ := http.NewRequest("POST", "https://api.resend.com/emails", strings.NewReader(payload))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("RESEND_API_KEY"))
+	req.Header.Set("Content-Type", "application/json")
+
+	_, err := http.DefaultClient.Do(req)
+	return err
+}
+
 func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
@@ -171,6 +206,11 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if data["buyerName"][0] == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerName is missing from the payload")
+		return
+	}
+
 	if data["digits"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "digits is missing from the payload")
 		return
@@ -178,6 +218,12 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 
 	if data["jewelryItems"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "jewelryItems is missing from the payload")
+		return
+	}
+
+	// Prevent abusing the endpoint for confirming payments (5 seconds)
+	if session_err := session.UserSessionFactory.Add(data["buyerId"][0]); session_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusForbidden, session_err.Error())
 		return
 	}
 
@@ -224,6 +270,16 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, tx_err.Error())
 		return
 	}
+
+	// Create an encryption session ID to send an email to an admin
+	productNames := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
+		return item.ItemName
+	})
+	producePrices := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
+		amount := strconv.Itoa(int(item.Prices[0].Amount))
+		return fmt.Sprintf("%s₫", amount)
+	})
+	sendEmail(data["buyerName"][0], data["digits"][0], strings.Join(productNames, ", "), strings.Join(producePrices, ", "))
 
 	middleware.HandleResponse(w, nil)
 }

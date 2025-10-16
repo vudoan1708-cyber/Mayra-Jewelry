@@ -32,8 +32,8 @@ type Order struct {
 
 type Buyer struct {
 	Id           string            `json:"id" gorm:"primaryKey"` // Social media platform provided IDs (e.g. Facebook user id)
-	Wishlist     []JewelryItemInfo `json:"wishlist" gorm:"foreignKey:WishlistBuyerId;references:Id;column:wishlist"`
-	OrderHistory []Order           `json:"orderHistory" gorm:"foreignKey:BuyerId;references:Id;column:orderHistory"`
+	Wishlist     []JewelryItemInfo `json:"wishlist" gorm:"foreignKey:WishlistBuyerId;references:Id"`
+	OrderHistory []Order           `json:"orderHistory" gorm:"foreignKey:BuyerId;references:Id"`
 	Tier         Tier              `json:"tier" gorm:"column:tier"`
 	MayraPoint   float32           `json:"mayraPoint" gorm:"column:mayraPoint"`
 }
