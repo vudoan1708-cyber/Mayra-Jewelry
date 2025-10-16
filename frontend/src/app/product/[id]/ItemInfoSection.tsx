@@ -8,8 +8,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 import { Heart, ShoppingCart } from 'lucide-react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 import throttle from 'lodash/throttle';
 
@@ -20,6 +18,7 @@ import Loading from '../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART, WAIT } from '../../../helpers';
+import NavItem from '../../../components/Navigation/NavItem';
 
 export default function ItemInfoSection({
   id,
@@ -126,6 +125,11 @@ export default function ItemInfoSection({
           animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
           className="border-0 border-b border-b-transparent-black" />
 
+        <div className="flex gap-1 items-center">
+          <h2>Bộ sưu tập: </h2>
+          <NavItem href={`/collections/${featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{featureCollection}</NavItem>
+        </div>
+
         {/* Item Description */}
         <h2 className="text-2xl">Thông tin sản phẩm</h2>
         <ul className="flex flex-1 flex-col list-none">
@@ -149,8 +153,6 @@ export default function ItemInfoSection({
           </Button>
         </div>
       </div>
-      {/* Toast container for message feedback */}
-      <ToastContainer aria-label="Added to cart" position="bottom-left" className="cursor-pointer" onClick={() => { router.push('/cart'); }} />
     </>
   )
 }

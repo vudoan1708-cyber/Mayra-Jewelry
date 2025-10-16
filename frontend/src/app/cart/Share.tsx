@@ -1,8 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import { PAYMENT_INFO } from '../../helpers';
 import Modal from '../../components/Modal/Modal';
 import Button from '../../components/Button';
@@ -43,7 +40,6 @@ export default function Share({ encodedId, itemAmount, itemVariation }: { encode
       return true;
     } catch (err: any) {
       setCopyState(false);
-      toast.error(err);
       return false;
     }
   }, []);
@@ -62,7 +58,6 @@ export default function Share({ encodedId, itemAmount, itemVariation }: { encode
           </Modal>
         )}
       </AnimatePresence>
-      <ToastContainer aria-label="Added to cart" position="bottom-left" />
     </>
   )
 }

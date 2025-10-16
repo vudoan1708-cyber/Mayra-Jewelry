@@ -96,6 +96,23 @@ button {
   transition: border-color 0.25s;
 }
 
+input {
+  background-color: #f0f0f0;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+input[type="checkbox"]:checked::after {
+  content: "🎁";
+  position: relative;
+  top: 0;
+  left: 2px;
+}
+
 input[type="checkbox"] {
   width: 20px;
   height: 20px;

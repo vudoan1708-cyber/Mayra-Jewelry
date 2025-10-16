@@ -4,11 +4,11 @@ import Image from 'next/image';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 import { useMemo } from 'react';
-import { toast } from 'react-toastify';
 
 import { Trash2 } from 'lucide-react';
 
 import { motion } from 'framer-motion';
+
 import throttle from 'lodash/throttle';
 
 import Button from '../../components/Button';
@@ -31,15 +31,12 @@ export default function Card({
     const listOfActions = {
       increase: () => {
         addItem(item);
-        toast.success('Món đồ đã được đưa vào giỏ đồ điện tử! 🎉');
       },
       decrease: () => {
         removeItem(item);
-        toast.warning('Món đồ đã được bỏ đi!');
       },
       removeAll: () => {
         removeAllByItemName(item);
-        toast.warning('Món đồ đã được bỏ đi!');
       }
     };
     listOfActions[action]();
@@ -93,7 +90,7 @@ export default function Card({
           </span>
         </div>
 
-        <div className="relative flex flex-col gap-1 h-full col-start-1 md:col-start-2 md:row-start-1">
+        <div className="relative flex flex-col gap-1 h-full col-start-1 md:col-start-2 md:row-start-1 md:max-h-[288px] md:overflow-auto">
           <h3 className="text-lg md:text-xl text-brand-500 font-semibold">{item.itemName}</h3>
           {item.featureCollection && (
             <span className="flex gap-[4px] items-center">
