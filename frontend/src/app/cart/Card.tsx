@@ -63,7 +63,7 @@ export default function Card({
   const throttleDecrement = useMemo(() => throttle((item) => updateCart(item, 'decrease'), WAIT), []);
   const throttleRemoveAll = useMemo(() => throttle((item) => updateCart(item, 'removeAll'), WAIT), []);
 
-  const info = PAYMENT_INFO;
+  const info = `${PAYMENT_INFO} ${item.itemName}`;
   return (
     <>
       <motion.div
@@ -112,7 +112,7 @@ export default function Card({
           </label>
 
           <span>
-            <Share encodedId={item.id} itemAmount={item.amount} itemVariation={item.variation.label} />
+            <Share encodedId={item.id} itemName={item.itemName} itemAmount={item.amount} itemVariation={item.variation.label} />
           </span>
         </div>
 

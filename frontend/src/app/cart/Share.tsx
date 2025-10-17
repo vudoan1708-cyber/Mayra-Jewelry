@@ -5,11 +5,11 @@ import Modal from '../../components/Modal/Modal';
 import Button from '../../components/Button';
 import { AnimatePresence } from 'framer-motion';
 
-export default function Share({ encodedId, itemAmount, itemVariation }: { encodedId: string, itemAmount: number, itemVariation: string }) {
+export default function Share({ encodedId, itemName, itemAmount, itemVariation }: { encodedId: string; itemName: string; itemAmount: number; itemVariation: string }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [copyState, setCopyState] = useState<boolean>(false);
 
-  const info = PAYMENT_INFO;
+  const info = `${PAYMENT_INFO} ${itemName}`;
   const sharePath = `${window.location.origin}/product/${encodedId ?? ''}?amount=${itemAmount}&info=${info}&variation=${itemVariation}`;
 
   const copyToClipboard = useCallback(async (text: string) => {
@@ -38,7 +38,7 @@ export default function Share({ encodedId, itemAmount, itemVariation }: { encode
         clearTimeout(timeout);
       }, 1000);
       return true;
-    } catch (err: any) {
+    } catch (err) {
       setCopyState(false);
       return false;
     }

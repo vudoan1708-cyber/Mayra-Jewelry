@@ -111,6 +111,6 @@ export const ENGLISH_TO_VIETNAMESE = {
 
 export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';
 export const SAVE_TO_CART = 'save_to_cart';
-export const PAYMENT_INFO = '[Mayra Jewelry] Nhận chuyển khoản tiền trang sức';
+export const PAYMENT_INFO = 'CK tiền trang sức Mayra';
 export const WAIT = 750;
 export const DEFAULT_LOCALE = navigator.language ?? 'vi-VN';

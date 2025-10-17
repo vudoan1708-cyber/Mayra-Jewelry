@@ -47,7 +47,7 @@ export default function Cart() {
     getTheLatestCartItems();
   }, []);
 
-  const info = PAYMENT_INFO;
+  const info = `${PAYMENT_INFO} ${cartItems.map((item) => `${item.itemName} - ${item.sum}đ`).join(', ')}`;
 
   if (cartItems?.length > 0) {
     return (

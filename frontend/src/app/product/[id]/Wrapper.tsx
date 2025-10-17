@@ -75,7 +75,7 @@ export default function Wrapper({
           selectedVariation={selectedVariation} />
       </motion.section>
 
-      <PaymentView amount={searchParams.get('amount') ?? amount.toString()} info={searchParams.get('info') ?? PAYMENT_INFO} />
+      <PaymentView amount={searchParams.get('amount') ?? amount.toString()} info={searchParams.get('info') ?? `${PAYMENT_INFO} ${itemName}`} />
     </Suspense>
   )
 }
