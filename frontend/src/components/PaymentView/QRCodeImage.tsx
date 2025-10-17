@@ -56,11 +56,11 @@ export default function QRCodeImage({ qrCode, loading }: { qrCode: string, loadi
                 Để shop có thể xác minh việc chuyển khoản, xin vui lòng ghi chú <b>tên của người chuyển khoản</b> và <b>5 số cuối </b>
                 trên số tài khoản bạn đã sử dụng cho việc chuyển khoản để shop kiểm chứng lại
               </header>
-              <input type="text" placeholder="Đoàn Khánh Hương" pattern="/[a-zA-Z]/gi" className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" onInput={onNameInput} />
+              <input type="text" placeholder="Đoàn Khánh Hương" pattern="/[a-zA-Z]/gi" className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" autoFocus onInput={onNameInput} />
               <input type="text" placeholder="01234" pattern="/[0-9]/g" maxLength={5} className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" onInput={onDigitInput } />
             </div>
             <div className="w-full flex gap-1 items-center justify-end mt-1">
-              <Button variant="secondary" className="p-1" disabled={disabled} onClick={() => { closeModal(); }}>Huỷ</Button>
+              <Button variant="secondary" className="p-1" onClick={() => { closeModal(); }}>Huỷ</Button>
               <Button variant="primary" className="p-1" disabled={disabled} onClick={() => { sendConfirmation(); }}>Xác nhận</Button>
             </div>
           </Modal>

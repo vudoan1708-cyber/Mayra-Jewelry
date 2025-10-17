@@ -65,7 +65,6 @@ export default function ItemInfoSection({
       itemName,
       featureCollection,
       type,
-      imgUrl: imgUrlRef.current[0],
       variation,
       amount,
     });

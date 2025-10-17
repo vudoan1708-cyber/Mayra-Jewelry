@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
@@ -27,7 +27,7 @@ export default function Wrapper({
 }) {
   const searchParams = useSearchParams();
   const [imgUrls, setImgUrls] = useState<Array<string>>([]);
-  const decodedId = decodeURIComponent(id);
+  const decodedId = useMemo(() => decodeURIComponent(id), []);
 
   const findPrices = (variation: JewelryVariation) => prices.find((price) => variation.label === ENGLISH_TO_VIETNAMESE[price.variation]);
   const [availableVariations] = useState<Array<JewelryVariation>>(() => {
@@ -64,7 +64,7 @@ export default function Wrapper({
         className="relative grid grid-cols-1 md:[grid-template-columns:repeat(2,1fr)] gap-1 items-start mt-8"
       >
         <ItemInfoSection
-          id={id}
+          id={decodedId}
           itemName={itemName}
           description={description}
           featureCollection={featureCollection}

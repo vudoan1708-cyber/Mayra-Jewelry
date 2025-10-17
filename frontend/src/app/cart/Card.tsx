@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Trash2 } from 'lucide-react';
 
@@ -19,6 +19,7 @@ import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Share from './Share';
 import Money from '../../components/Money/Money';
 import NavItem from '../../components/Navigation/NavItem';
+import type { Media } from '../../../types';
 
 export default function Card({
   item, idx, getTheLatestCartItems, router,
@@ -26,6 +27,19 @@ export default function Card({
   item: CartItem; idx: number; getTheLatestCartItems: () => void; router: AppRouterInstance;
 }) {
   const { addItem, removeItem, removeAllByItemName } = useCartCount();
+  const [imgUrls, setImgUrls] = useState<Array<string>>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(item.id);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setImgUrls(parsed.map((value: Media) => value.url));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const updateCart = (item: CartItem, action: 'decrease' | 'increase' | 'removeAll' = 'increase') => {
     const listOfActions = {
@@ -74,15 +88,18 @@ export default function Card({
         title="Xem thông tin món đồ"
         onClick={() => { router.push(`/product/${item.id ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
         <div className="flex flex-col gap-1 h-full justify-between items-center col-start-1">
-          <Image
-            priority
-            alt={`image is shown with a name of ${item.itemName}`}
-            src={item.imgUrl}
-            width="240"
-            height="240"
-            className="rounded-md md:max-h-[240px] self-start justify-self-start"
-            style={{ objectFit: 'cover' }}
-          />
+          {imgUrls.map((url, idx) => (
+            <Image
+              key={idx}
+              priority
+              alt={`image is shown with a name of ${item.itemName}`}
+              src={url}
+              width="240"
+              height="240"
+              className="rounded-md md:max-h-[240px] self-start justify-self-start"
+              style={{ objectFit: 'cover' }}
+            />
+          ))}
           <span className="flex gap-3 items-center">
             <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
             <span className="">{item.count}</span>

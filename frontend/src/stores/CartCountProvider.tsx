@@ -6,7 +6,7 @@ import type { JewelryVariation } from '../components/Jewelry/Variation';
 export type CartItem = {
   id: string;
   itemName: string;
-  imgUrl: string;
+  imgUrls?: string[];
   featureCollection?: string;
   type?: string;
   variation: JewelryVariation;

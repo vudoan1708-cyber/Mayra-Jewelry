@@ -34,7 +34,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
   const onHoverStyling = () => {
     if (withHover) {
       if (isActive) return 'hover:text-brand-500 hover:cursor-default';
-      return 'hover:text-brand-400';
+      return 'group-hover:text-brand-500 group-hover:scale-105';
     }
     return 'hover:text-black';
   }
@@ -53,17 +53,15 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${onHoverStyling()} text-xs transition-colors flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
+          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${onHoverStyling()} text-xs transition-all flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
         </Link>
 
-        {isActive && withBorder && (
+        {withBorder && (
           <motion.hr
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            className="absolute left-[50%] translate-x-[-50%] bottom-[-18px] border-b-2 border-solid border-brand-500 w-[calc(100%+1px)]" />
+            className={`absolute left-[50%] translate-x-[-50%] bottom-[-18px] border-b-2 border-solid ${isActive ? 'w-[calc(100%+1px)] border-brand-500' : 'w-0 group-hover:border-brand-500 group-hover:w-[calc(100%+1px)]'} transition-all`} />
         )}
       </li>
 

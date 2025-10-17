@@ -55,7 +55,7 @@ export default function Navigation() {
           src="/images/logo.webp"
           className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
           onClick={() => { router.push('/'); }} />
-        <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_120px] sm:gap-2 sm:justify-center sm:items-center">
+        <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_120px] sm:gap-0 sm:justify-center sm:items-center">
           <NavItem href="/">
             <House />
             Home
@@ -67,6 +67,28 @@ export default function Navigation() {
 
           <NavItem href="/cart" withBorder={false}>
             <motion.div className="flex justify-center">
+              {/* Circular progress border */}
+              <svg
+                className="absolute top-0 w-[60px] h-[52px] rotate-[-90deg]"
+                viewBox="0 0 100 100"
+              >
+                <motion.circle
+                  cx="54"
+                  cy="50"
+                  r="48"
+                  fill="transparent"
+                  stroke="#0A1E4F"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 48} // exact circumference ≈ 295
+                  initial={{ strokeDashoffset: 2 * Math.PI * 48 }}
+                  animate={{ strokeDashoffset: pathname === '/cart' ? 0 : 2 * Math.PI * 48 }}
+                  transition={{
+                    duration: 0.8,
+                    ease: 'easeInOut',
+                  }}
+                />
+              </svg>
               <motion.div
                 key={items.length}
                 animate={{
@@ -77,7 +99,7 @@ export default function Navigation() {
                   ease: 'easeInOut',
                 }}
                 style={{ filter: shadow }}
-                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 border-2 border-solid ${pathname === '/cart' && 'border-brand-500'} shadow-lg`}>
+                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 transition-all shadow-lg`}>
                 <ShoppingCart />
                 {items.length > 0 && (
                   <motion.aside

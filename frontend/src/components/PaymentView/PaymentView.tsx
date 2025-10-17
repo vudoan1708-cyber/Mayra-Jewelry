@@ -25,10 +25,6 @@ export default function PaymentView({ amount, info }: { amount: string, info: st
   const [loading, setLoading] = useState<boolean>(false);
   const [qrCode, setQrCode] = useState<string>('');
 
-  useEffect(() => {
-    getAndProcessQrCode();
-  }, [amount]);
-
   const LazyPaymentSectionComponent = lazy(() => import('./QRCodeImage'));
 
   const getAndProcessQrCode = async () => {
@@ -50,6 +46,10 @@ export default function PaymentView({ amount, info }: { amount: string, info: st
       await getAndProcessQrCode();
     }
   };
+
+  useEffect(() => {
+    getAndProcessQrCode();
+  }, [amount]);
 
   return (
     <motion.section
