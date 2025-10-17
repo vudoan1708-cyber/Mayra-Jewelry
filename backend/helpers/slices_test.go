@@ -76,11 +76,19 @@ func TestFindFunc(t *testing.T) {
 		Id: "more test", Value: 5000,
 	}
 
-	found := FindFunc(array, func(item Item, _ int) bool {
+	found, _ := FindFunc(array, func(item Item, _ int) bool {
 		return item.Id == "more test"
 	})
 
-	if !reflect.DeepEqual(want, found) {
-		t.Errorf("TestFindFunc: %+v does not equal %+v", found, want)
+	if !reflect.DeepEqual(want, *found) {
+		t.Errorf("TestFindFunc: %+v does not equal %+v", *found, want)
+	}
+
+	_, ok := FindFunc(array, func(item Item, _ int) bool {
+		return item.Id == "Not exist"
+	})
+
+	if ok == true {
+		t.Errorf("TestFindFunc not found scenario: ok is %t", ok)
 	}
 }

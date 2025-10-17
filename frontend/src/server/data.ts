@@ -1,4 +1,4 @@
-import { type JewelryItemInfo } from '../../types';
+import { type JewelryItemInfo, type VeriyingOrderPayload } from '../../types';
 
 export type UseFetchRequest = {
   url: string | URL | Request;
@@ -6,16 +6,17 @@ export type UseFetchRequest = {
   body?: BodyInit | undefined;
 }
 
-export const useFetch = async ({ url, method = 'GET', body }: UseFetchRequest) => {
+export const doFetch = async ({ url, method = 'GET', body }: UseFetchRequest) => {
   try {
     const options: RequestInit = {
       method,
-      body,
+      body: body instanceof FormData ? body : JSON.stringify(body) || undefined,
     };
     if (method === 'GET') {
       delete options.body;
     }
     const response = await fetch(url, options);
+    if (response.status === 204 || response.status === 201) return;
     if (!response.ok) {
       const err = await response.json()
       throw new Error(err.message || 'Unknown error')
@@ -30,7 +31,7 @@ export const useFetch = async ({ url, method = 'GET', body }: UseFetchRequest) =
 
 export const fetchQRCode = async ({ amount, info }: { amount: string | number, info: string }) => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/qr?amount=${amount}&info=${info ?? ''}`;
-  return useFetch({
+  return doFetch({
     url,
     method: 'GET',
   });
@@ -38,29 +39,57 @@ export const fetchQRCode = async ({ amount, info }: { amount: string | number, i
 
 export const getJewelryItem = (id: string): Promise<JewelryItemInfo> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/${id}`;
-  return useFetch({
+  return doFetch({
     url,
     method: 'GET',
   });
 };
 export const getBestSellers = (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/best`;
-  return useFetch({
+  return doFetch({
     url,
     method: 'GET',
   });
 };
 export const getFeatureCollectionThumbnails = (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/feature`;
-  return useFetch({
+  return doFetch({
     url,
     method: 'GET',
   });
 };
 export const getMostViewedJewelryItems = (id: string): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/${id}/collection/most-views`;
-  return useFetch({
+  return doFetch({
     url,
     method: 'GET',
+  });
+};
+
+export const updateJewelry = (jewelryInfo: Partial<JewelryItemInfo>): Promise<void> => {
+  const formData = new FormData();
+  formData.append('directoryId', jewelryInfo.directoryId ?? '');
+  formData.append('views', `${(jewelryInfo.views ?? 0)}`);
+
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry`;
+  return doFetch({
+    url,
+    method: 'PATCH',
+    body: formData,
+  });
+};
+
+// Produce Order
+export const verifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => {
+  const formData = new FormData();
+  formData.append('buyerId', payload.buyerId);
+  formData.append('buyerName', payload.buyerName);
+  formData.append('digits', payload.digits);
+  formData.append('jewelryItems', JSON.stringify(payload.jewelryItems));
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/payment/pending-verification`;
+  return doFetch({
+    url,
+    method: 'POST',
+    body: formData,
   });
 }

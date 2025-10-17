@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
@@ -21,13 +21,12 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100', amount: 0 },
 ];
 export default function Wrapper({
-  id, itemName, featureCollection, type, description, prices,
+  id, itemName, featureCollection, type, description, prices, userId,
 }: {
-  id: string; itemName: string; featureCollection: string; type: 'ring' | 'bracelet'; description: string; prices: Prices[]
+  id: string; itemName: string; featureCollection: string; type: 'ring' | 'bracelet'; description: string; prices: Prices[]; userId: string
 }) {
   const searchParams = useSearchParams();
   const [imgUrls, setImgUrls] = useState<Array<string>>([]);
-  const decodedId = useMemo(() => decodeURIComponent(id), []);
 
   const findPrices = (variation: JewelryVariation) => prices.find((price) => variation.label === ENGLISH_TO_VIETNAMESE[price.variation]);
   const [availableVariations] = useState<Array<JewelryVariation>>(() => {
@@ -46,7 +45,7 @@ export default function Wrapper({
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(decodedId);
+      const stored = localStorage.getItem(id);
       if (stored) {
         const parsed = JSON.parse(stored);
         setImgUrls(parsed.map((value: Media) => value.url));
@@ -54,7 +53,7 @@ export default function Wrapper({
     } catch (e) {
       console.error(e);
     }
-  }, [decodedId]);
+  }, [id]);
 
   return (
     <Suspense fallback={<Loading />}>
@@ -64,7 +63,7 @@ export default function Wrapper({
         className="relative grid grid-cols-1 md:[grid-template-columns:repeat(2,1fr)] gap-1 items-start mt-8"
       >
         <ItemInfoSection
-          id={decodedId}
+          id={id}
           itemName={itemName}
           description={description}
           featureCollection={featureCollection}
@@ -75,7 +74,11 @@ export default function Wrapper({
           selectedVariation={selectedVariation} />
       </motion.section>
 
-      <PaymentView amount={searchParams.get('amount') ?? amount.toString()} info={searchParams.get('info') ?? `${PAYMENT_INFO} ${itemName}`} />
+      <PaymentView
+        userId={userId}
+        amount={searchParams.get('amount') ?? amount.toString()}
+        info={searchParams.get('info') ?? `${PAYMENT_INFO} ${itemName}`}
+        items={[{ directoryId: id, itemName }]} />
     </Suspense>
   )
 }

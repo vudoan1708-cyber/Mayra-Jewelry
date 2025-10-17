@@ -24,3 +24,9 @@ export type JewelryItemInfo = {
   prices: Prices[];
   media: Media[];
 };
+export type VeriyingOrderPayload = {
+  buyerId: string;
+  buyerName: string;
+  digits: string;
+  jewelryItems: Array<Partial<JewelryItemInfo>>;
+};

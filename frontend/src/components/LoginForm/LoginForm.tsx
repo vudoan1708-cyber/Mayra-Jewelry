@@ -24,7 +24,7 @@ export default function LoginForm({ title, redirectTo = '/' }: { title: string, 
       <Button
         variant="secondary"
         className="items-center justify-center text-facebook border-facebook py-1"
-        disabled={clicked}
+        working={clicked}
         onClick={() => {
           setClicked(true);
         }}>

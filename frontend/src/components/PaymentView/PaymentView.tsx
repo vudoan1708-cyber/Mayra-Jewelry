@@ -12,6 +12,7 @@ import Tabs, { type Tab } from '../Tabs/Tabs';
 import Loading from '../Loading/Loading';
 
 import { PAYMENT_INFO } from '../../helpers';
+import type { JewelryItemInfo } from '../../../types';
 
 const tabs: Array<Tab> = [
   // { label: 'Thẻ tín dụng', id: 1, active: true },
@@ -19,7 +20,11 @@ const tabs: Array<Tab> = [
   { label: 'Quét mã QR', id: 'qr', active: true },
 ];
 
-export default function PaymentView({ amount, info }: { amount: string, info: string }) {
+export default function PaymentView({
+  amount, info, items, userId,
+}: {
+  amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string
+}) {
   const [activeTab, setActiveTab] = useState<Tab>(() => tabs.find((tab) => tab.id === 'qr') as Tab);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -62,7 +67,7 @@ export default function PaymentView({ amount, info }: { amount: string, info: st
       {activeTab?.id === 'qr' && (
         <Suspense fallback={<div className="w-full flex justify-center items-center"><Loading /></div>}>
           {!error
-            ? <LazyPaymentSectionComponent qrCode={qrCode} loading={loading} />
+            ? <LazyPaymentSectionComponent qrCode={qrCode} loading={loading} items={items} userId={userId} />
             : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error}</div>}
         </Suspense>
       )}

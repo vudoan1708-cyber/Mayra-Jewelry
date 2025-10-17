@@ -443,12 +443,13 @@ func UpdateJewelryInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := r.MultipartForm.Value
-	directoryId := data["directoryId"][0]
 
-	if directoryId == "" {
+	if data["directoryId"] == nil || data["directoryId"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "directoryId is not found in the request payload and is required")
 		return
 	}
+
+	directoryId := data["directoryId"][0]
 
 	var selectedFields []string
 	updatedData := map[string]interface{}{}

@@ -21,13 +21,11 @@ func FilterFunc[T any](array []T, callback func(T, int) bool) []T {
 	return newArray
 }
 
-func FindFunc[T any](array []T, callback func(T, int) bool) T {
-	var found T
+func FindFunc[T any](array []T, callback func(T, int) bool) (*T, bool) {
 	for idx, item := range array {
 		if callback(item, idx) {
-			found = item
-			break
+			return &item, true
 		}
 	}
-	return found
+	return nil, false
 }

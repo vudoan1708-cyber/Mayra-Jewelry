@@ -2,13 +2,23 @@
 
 import Image from 'next/image';
 import { useState, type DOMAttributes } from 'react';
-import Button from '../Button';
-import Modal from '../Modal/Modal';
+
 import { AnimatePresence } from 'framer-motion';
 
-export default function QRCodeImage({ qrCode, loading }: { qrCode: string, loading: boolean }) {
+import Button from '../Button';
+import Modal from '../Modal/Modal';
+
+import { verifyingOrder } from '../../server/data';
+import type { JewelryItemInfo } from '../../../types';
+
+export default function QRCodeImage({
+  qrCode, loading, items, userId,
+}: {
+  qrCode: string; loading: boolean; items: Array<Partial<JewelryItemInfo>>; userId: string
+}) {
   const [confirmModal, setOpenConfirmModal] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
+  const [verifying, setVerifying] = useState<boolean>(false);
 
   const [partialAccountNumber, setPartialAccountNumber] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -33,8 +43,20 @@ export default function QRCodeImage({ qrCode, loading }: { qrCode: string, loadi
     setDisabled(true);
   }
 
-  const sendConfirmation = () => {
-    console.log('partialAccountNumber', partialAccountNumber);
+  const sendConfirmation = async () => {
+    try {
+      setVerifying(true);
+      await verifyingOrder({
+        buyerId: userId ?? '',
+        buyerName: name,
+        digits: partialAccountNumber,
+        jewelryItems: items,
+      })
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (loading) return null;
@@ -60,8 +82,8 @@ export default function QRCodeImage({ qrCode, loading }: { qrCode: string, loadi
               <input type="text" placeholder="01234" pattern="/[0-9]/g" maxLength={5} className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" onInput={onDigitInput } />
             </div>
             <div className="w-full flex gap-1 items-center justify-end mt-1">
-              <Button variant="secondary" className="p-1" onClick={() => { closeModal(); }}>Huỷ</Button>
-              <Button variant="primary" className="p-1" disabled={disabled} onClick={() => { sendConfirmation(); }}>Xác nhận</Button>
+              <Button variant="secondary" className="p-1" disabled={verifying} working={verifying} onClick={() => { closeModal(); }}>Huỷ</Button>
+              <Button variant="primary" className="p-1" disabled={disabled || verifying} working={verifying} onClick={() => { sendConfirmation(); }}>Xác nhận</Button>
             </div>
           </Modal>
         )}

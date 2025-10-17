@@ -64,11 +64,16 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
 
 	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-		metadata := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
+		metadata, ok := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
 			return resItem.DirectoryId == item.DirectoryId
 		})
-		item.Media = append(item.Media, metadata.Media...)
-		return item
+		if ok {
+			pointer := *metadata
+			item.Media = append(item.Media, pointer.Media...)
+			return item
+		} else {
+			return models.JewelryItemInfo{}
+		}
 	})
 
 	middleware.HandleResponse(w, buyer)
@@ -101,11 +106,16 @@ func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
 
 	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-		metadata := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
+		metadata, ok := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
 			return resItem.DirectoryId == item.DirectoryId
 		})
-		item.Media = append(item.Media, metadata.Media...)
-		return item
+		if ok {
+			pointer := *metadata
+			item.Media = append(item.Media, pointer.Media...)
+			return item
+		} else {
+			return models.JewelryItemInfo{}
+		}
 	})
 
 	middleware.HandleResponse(w, buyer.Wishlist)
@@ -220,8 +230,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, nil)
 }
 
-func sendEmail(buyerName string, lastFourDigits string, productName string, amount string) error {
-	encryptedId := ""
+func sendEmail(buyerName string, lastFourDigits string, productName string, amount string, encryptedId []byte) error {
 	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encryptedId)
 	payload := fmt.Sprintf(`{
 		"from": "Payments <onboarding@resend.dev>",
@@ -238,7 +247,7 @@ func sendEmail(buyerName string, lastFourDigits string, productName string, amou
 	return err
 }
 
-func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
+func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
 		return
@@ -249,28 +258,28 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 	data := r.MultipartForm.Value
 
 	// check for buyer ID
-	if data["buyerId"][0] == "" {
+	if data["buyerId"] == nil || data["buyerId"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerId is missing from the payload")
 		return
 	}
 
-	if data["buyerName"][0] == "" {
+	if data["buyerName"] == nil || data["buyerName"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerName is missing from the payload")
 		return
 	}
 
-	if data["digits"][0] == "" {
+	if data["digits"] == nil || data["digits"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "digits is missing from the payload")
 		return
 	}
 
-	if data["jewelryItems"][0] == "" {
+	if data["jewelryItems"] == nil || data["jewelryItems"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "jewelryItems is missing from the payload")
 		return
 	}
 
 	// Prevent abusing the endpoint for confirming payments (5 seconds)
-	if session_err := session.UserSessionFactory.Add(data["buyerId"][0]); session_err != nil {
+	if session_err := session.UserSessionFactory.AddSession(data["buyerId"][0]); session_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusForbidden, session_err.Error())
 		return
 	}
@@ -319,7 +328,6 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create an encryption session ID to send an email to an admin
 	productNames := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
 		return item.ItemName
 	})
@@ -327,7 +335,20 @@ func ConfirmPaymentAndPendingOrder(w http.ResponseWriter, r *http.Request) {
 		amount := strconv.Itoa(int(item.Prices[0].Amount))
 		return fmt.Sprintf("%s₫", amount)
 	})
-	sendEmail(data["buyerName"][0], data["digits"][0], strings.Join(productNames, ", "), strings.Join(producePrices, ", "))
+
+	// Create an encryption session ID to send an email to an admin
+	buyerName := data["buyerName"][0]
+	lastFourDigits := data["digits"][0]
+	encryptedId, nonce, encryption_err := helpers.Encrypt([]byte(fmt.Sprintf("%s_%s", buyerName, lastFourDigits)), helpers.GenerateKey())
+	if encryption_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, encryption_err.Error())
+		return
+	}
+	if add_nonce_err := session.UserSessionFactory.AddNonceId(data["buyerId"][0], nonce); add_nonce_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, add_nonce_err.Error())
+		return
+	}
+	sendEmail(buyerName, lastFourDigits, strings.Join(productNames, ", "), strings.Join(producePrices, ", "), encryptedId)
 
 	middleware.HandleResponse(w, nil)
 }
