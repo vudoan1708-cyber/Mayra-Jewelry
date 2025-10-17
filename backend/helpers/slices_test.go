@@ -63,3 +63,24 @@ func TestFilterFunc(t *testing.T) {
 		t.Errorf("TestFilterFunc: %+v does not equal %+v", newArray, want)
 	}
 }
+
+func TestFindFunc(t *testing.T) {
+	var array = []Item{
+		{Id: "12312", Value: 1000},
+		{Id: "test", Value: 2000},
+		{Id: "more test", Value: 5000},
+		{Id: "more test 2", Value: 6000},
+	}
+
+	want := Item{
+		Id: "more test", Value: 5000,
+	}
+
+	found := FindFunc(array, func(item Item, _ int) bool {
+		return item.Id == "more test"
+	})
+
+	if !reflect.DeepEqual(want, found) {
+		t.Errorf("TestFindFunc: %+v does not equal %+v", found, want)
+	}
+}

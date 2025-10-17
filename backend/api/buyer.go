@@ -32,7 +32,7 @@ func convertMayraPointToTier(mayraPoint float32) models.Tier {
 }
 
 func getOneBuyer(db *gorm.DB, buyerId string, buyerModel *models.Buyer, selector string) error {
-	return db.Model(&models.Buyer{}).Preload("Wishlist").Preload("OrderHistory").
+	return db.Model(&models.Buyer{}).Preload("Wishlist.Prices").Preload("Wishlist").Preload("OrderHistory").
 		Where(&models.Buyer{Id: buyerId}).
 		Select(selector).
 		First(&buyerModel).Error
@@ -59,6 +59,17 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, statusCode, err_string)
 		return
 	}
+	response := []models.Metadata{}
+
+	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
+
+	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+		metadata := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
+			return resItem.DirectoryId == item.DirectoryId
+		})
+		item.Media = append(item.Media, metadata.Media...)
+		return item
+	})
 
 	middleware.HandleResponse(w, buyer)
 }
@@ -74,7 +85,7 @@ func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 	buyerId := vars["buyerId"]
 
 	buyer := models.Buyer{}
-	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "wishlist"); err != nil {
+	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "id"); err != nil {
 		err_string := err.Error()
 		var statusCode int = http.StatusInternalServerError
 		if strings.Contains(err_string, "not found") {
@@ -84,6 +95,18 @@ func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, statusCode, err_string)
 		return
 	}
+
+	response := []models.Metadata{}
+
+	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
+
+	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+		metadata := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
+			return resItem.DirectoryId == item.DirectoryId
+		})
+		item.Media = append(item.Media, metadata.Media...)
+		return item
+	})
 
 	middleware.HandleResponse(w, buyer.Wishlist)
 }
@@ -106,10 +129,26 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buyerId := data["id"][0]
-	if buyerId == "" {
+	// Buyer Id check
+	if data["id"] == nil && data["id"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing user's ID")
 		return
+	}
+	buyerId := data["id"][0]
+
+	// Jewelry Item check
+	jewelryItems := []models.JewelryItemInfo{}
+	if data["jewelryIds"] != nil && data["jewelryIds"][0] != "" {
+		helpers.CastStringToAnyType(data["jewelryIds"][0], &jewelryItems)
+		if err := database.DatabaseInstance.Gorm.
+			Preload("Prices").Model([]models.JewelryItemInfo{}).
+			Where(helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+				return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
+			})).
+			First(&jewelryItems).Error; err != nil {
+			middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
+			return
+		}
 	}
 
 	var buyer models.Buyer
@@ -134,11 +173,11 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 			if strings.Contains(query_err.Error(), "not found") {
 				buyer = models.Buyer{
 					Id:           data["id"][0],
-					Wishlist:     []models.JewelryItemInfo{},
 					OrderHistory: []models.Order{},
 					Tier:         helpers.FalsyFallback(tier, models.SilverTier),
 					MayraPoint:   helpers.FalsyFallback(float32(mayraPoint), 0),
 				}
+				// Add a new user
 				if create_err := tx.Model(models.Buyer{}).
 					Clauses(clause.OnConflict{
 						Columns: []clause.Column{
@@ -149,7 +188,8 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 					Create(buyer).Error; create_err != nil {
 					return create_err
 				}
-				return nil
+				// Add a wishlist
+				return tx.Model(&buyer).Association("Wishlist").Append(jewelryItems)
 			}
 			return query_err
 		}
@@ -158,13 +198,21 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 		updatedData := map[string]interface{}{}
 		var selectedKeys []string
 		for key, value := range data {
+			if data["jewelryIds"] != nil && data["jewelryIds"][0] != "" {
+				continue
+			}
 			selectedKeys = append(selectedKeys, key)
 			updatedData[key] = value[0]
 		}
-		return tx.Model(&models.Buyer{}).
+		if update_err := tx.Model(&models.Buyer{}).
 			Where(&models.Buyer{Id: buyerId}).
 			Select(selectedKeys).
-			Updates(updatedData).Error
+			Updates(updatedData).Error; update_err != nil {
+			return update_err
+		}
+		buyer := models.Buyer{}
+		// Add a wishlist
+		return tx.Model(&buyer).Where(&models.Buyer{Id: buyerId}).First(&buyer).Association("Wishlist").Append(jewelryItems)
 	}); txn_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, txn_err.Error())
 		return

@@ -41,6 +41,7 @@ type JewelryItemInfo struct {
 	InStock           bool           `json:"inStock" gorm:"column:inStock"`
 	Giftable          bool           `json:"giftable" gorm:"column:giftable"`
 	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
+	Media             []MediaLink    `json:"media" gorm:"-"`
 	WishlistBuyerId   *string        `json:"-" gorm:"column:wishlistBuyerId"`
 	OrderId           *string        `json:"-" gorm:"column:orderId"`
 }

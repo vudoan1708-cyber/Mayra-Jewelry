@@ -20,3 +20,14 @@ func FilterFunc[T any](array []T, callback func(T, int) bool) []T {
 
 	return newArray
 }
+
+func FindFunc[T any](array []T, callback func(T, int) bool) T {
+	var found T
+	for idx, item := range array {
+		if callback(item, idx) {
+			found = item
+			break
+		}
+	}
+	return found
+}
