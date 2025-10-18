@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
@@ -242,10 +243,12 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendEmail(buyerName string, lastFourDigits string, productName string, amount string, encryptedId []byte) error {
-	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encryptedId)
+	encoded := base64.StdEncoding.EncodeToString(encryptedId)
+	log.Printf("encoded: %s", encoded)
+	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encoded)
 	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
 	params := &resend.SendEmailRequest{
-		From:    "Payments <onboarding@resend.dev>",
+		From:    "Mayra Payments <onboarding@resend.dev>",
 		To:      []string{os.Getenv("MERCHANT_EMAIL")},
 		Subject: fmt.Sprintf("Confirm payment for %s product(s) from %s with their last 4 digits on their account as %s - %s", productName, buyerName, lastFourDigits, amount),
 		Html:    fmt.Sprintf("<p><a href='%s'>Confirm here</a></p>", confirmUrl),

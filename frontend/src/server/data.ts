@@ -82,7 +82,7 @@ export const updateJewelry = (jewelryInfo: Partial<JewelryItemInfo>): Promise<vo
 // Produce Order
 export const verifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => {
   const formData = new FormData();
-  formData.append('id', payload.buyerId);
+  formData.append('buyerId', payload.buyerId);
   formData.append('buyerName', payload.buyerName);
   formData.append('digits', payload.digits);
   formData.append('jewelryItems', JSON.stringify(payload.jewelryItems));

@@ -47,7 +47,7 @@ export default function QRCodeImage({
     try {
       setVerifying(true);
       await verifyingOrder({
-        buyerId: userId ?? '',
+        buyerId: userId ?? window.btoa(name),
         buyerName: name,
         digits: partialAccountNumber,
         jewelryItems: items,
@@ -56,6 +56,7 @@ export default function QRCodeImage({
       alert(e.message);
     } finally {
       setVerifying(false);
+      closeModal();
     }
   };
 
