@@ -20,8 +20,8 @@ const (
 )
 
 type Order struct {
-	Id                   uint              `json:"id" gorm:"primaryKey"`
-	JewelryItems         []JewelryItemInfo `json:"jewelryItems" gorm:"foreignKey:OrderId;references:Id"`
+	Id                   string            `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	JewelryItems         []JewelryItemInfo `json:"jewelryItems" gorm:"many2many:order_jewelry_items;joinForeignKey:OrderId;joinReferences:JewelryId"`
 	Status               OrderStatus       `json:"status" gorm:"column:status"`
 	PendingAt            time.Time         `json:"pendingAt" gorm:"column:pendingAt;not null;default:now()"`
 	FailedVerificationAt *time.Time        `json:"failedVerificationAt" gorm:"column:failedVerificationAt"`

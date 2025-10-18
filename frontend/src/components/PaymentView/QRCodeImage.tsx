@@ -12,9 +12,9 @@ import { verifyingOrder } from '../../server/data';
 import type { JewelryItemInfo } from '../../../types';
 
 export default function QRCodeImage({
-  qrCode, loading, items, userId,
+  qrCode, loading, items, userId, totalAmount,
 }: {
-  qrCode: string; loading: boolean; items: Array<Partial<JewelryItemInfo>>; userId: string
+  qrCode: string; loading: boolean; items: Array<Partial<JewelryItemInfo>>; userId: string; totalAmount: string
 }) {
   const [confirmModal, setOpenConfirmModal] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -51,12 +51,13 @@ export default function QRCodeImage({
         buyerName: name,
         digits: partialAccountNumber,
         jewelryItems: items,
+        totalAmount,
       })
+      closeModal();
     } catch (e) {
       alert(e.message);
     } finally {
       setVerifying(false);
-      closeModal();
     }
   };
 

@@ -23,11 +23,11 @@ import (
 
 func convertMayraPointToTier(mayraPoint float32) models.Tier {
 	switch {
-	case mayraPoint < 50:
+	case mayraPoint < 100:
 		return models.SilverTier
-	case mayraPoint < 400:
+	case mayraPoint < 600:
 		return models.GoldTier
-	case mayraPoint >= 400:
+	case mayraPoint >= 1200:
 		return models.PlatinumTier
 	default:
 		return ""
@@ -244,14 +244,19 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 
 func sendEmail(buyerName string, lastFourDigits string, productName string, amount string, encryptedId []byte) error {
 	encoded := base64.StdEncoding.EncodeToString(encryptedId)
-	log.Printf("encoded: %s", encoded)
 	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encoded)
 	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
 	params := &resend.SendEmailRequest{
 		From:    "Mayra Payments <onboarding@resend.dev>",
 		To:      []string{os.Getenv("MERCHANT_EMAIL")},
-		Subject: fmt.Sprintf("Confirm payment for %s product(s) from %s with their last 4 digits on their account as %s - %s", productName, buyerName, lastFourDigits, amount),
-		Html:    fmt.Sprintf("<p><a href='%s'>Confirm here</a></p>", confirmUrl),
+		Subject: fmt.Sprintf("Confirm payment for %s from %s", productName, buyerName),
+		Html: fmt.Sprintf(
+			`<div>
+				<span>Buyer named: <strong>%s</strong>, with the last 5 digits on their account as <strong>%s</strong> spent <strong>%s</strong> to buy <strong>%s</strong></span><br />
+				<a href='%s'>Confirm here</a>
+			</div>`,
+			buyerName, lastFourDigits, amount, productName, confirmUrl,
+		),
 	}
 
 	sent, err := client.Emails.Send(params)
@@ -279,6 +284,7 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data["id"] = data["buyerId"]
+	buyerId := data["buyerId"][0]
 
 	if data["buyerName"] == nil || data["buyerName"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerName is missing from the payload")
@@ -295,8 +301,13 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if data["totalAmount"] == nil || data["totalAmount"][0] == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "totalAmount is missing from the payload")
+		return
+	}
+
 	// Prevent abusing the endpoint for confirming payments (5 seconds)
-	if session_err := session.UserSessionFactory.AddSession(data["buyerId"][0]); session_err != nil {
+	if session_err := session.UserSessionFactory.AddSession(buyerId); session_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusForbidden, session_err.Error())
 		return
 	}
@@ -307,25 +318,40 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	directoryIds := helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) string {
+		return __item.DirectoryId
+	})
+	if get_many_jewelry_err := database.DatabaseInstance.Gorm.
+		Preload("Prices").Model([]models.JewelryItemInfo{}).
+		Where("\"directoryId\" IN ?", directoryIds).
+		Find(&jewelryItems).Error; get_many_jewelry_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_many_jewelry_err.Error())
+		return
+	}
+
 	var mayraPoint float32
+	str_to_float, conv_err := strconv.ParseFloat(data["totalAmount"][0], 32)
+	if conv_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, conv_err.Error())
+		return
+	}
 	for _, item := range jewelryItems {
-		for _, price := range item.Prices {
-			afterDiscount := float32(price.Amount) * (1 - helpers.FalsyFallback(price.Discount, 0))
-			mayraPoint += afterDiscount / 10000
-		}
+		// TODO: This only counts the first item (Silver) in the Prices array, needs further expanding if other materials become relevant
+		afterDiscount := float32(str_to_float) * (1 - helpers.FalsyFallback(item.Prices[0].Discount, 0))
+		mayraPoint += afterDiscount / 10000
 	}
 
 	// PendingAt has a default value to now() so no need to fill it in the struct
 	orderPayload := models.Order{
 		Status:  models.PendingVerification,
-		BuyerId: data["buyerId"][0],
+		BuyerId: buyerId,
 	}
 
 	if tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		buyer := models.Buyer{}
 		// Get a buyer with a provided ID
-		if get_error := getOneBuyer(tx, data["buyerId"][0], &buyer, "*"); get_error != nil {
-			log.Printf("Cannot get the buyer with ID: %s. Reason: %s", data["buyerId"][0], get_error.Error())
+		if get_error := getOneBuyer(tx, buyerId, &buyer, "*"); get_error != nil {
+			log.Printf("Cannot get the buyer with ID: %s. Reason: %s", buyerId, get_error.Error())
 			// If error, it's likely that the user doesn't exist
 			if strings.Contains(get_error.Error(), "not found") {
 				if create_err := createNewUser(tx, &buyer, data); create_err != nil {
@@ -344,7 +370,7 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if update_err := tx.Model(&models.Buyer{}).
-			Where(&models.Buyer{Id: data["buyerId"][0]}).
+			Where(&models.Buyer{Id: buyerId}).
 			Select([]string{"tier", "mayraPoint"}).
 			Updates(map[string]any{
 				"tier":       convertMayraPointToTier(mayraPoint),
@@ -354,28 +380,21 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Sending Notification to an admin
-		if get_many_jewelry_err := GetManyJewelryItemInfoByDirectoryIds(tx, &jewelryItems); get_many_jewelry_err != nil {
-			return get_many_jewelry_err
-		}
 		productNames := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
 			return item.ItemName
-		})
-		producePrices := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
-			amount := strconv.Itoa(int(item.Prices[0].Amount))
-			return fmt.Sprintf("%s₫", amount)
 		})
 
 		// Create an encryption session ID to send an email to an admin
 		buyerName := data["buyerName"][0]
 		lastFourDigits := data["digits"][0]
-		encryptedId, nonce, encryption_err := helpers.Encrypt([]byte(fmt.Sprintf("%s_%s", buyerName, lastFourDigits)), helpers.GenerateKey())
+		encryptedId, nonce, encryption_err := helpers.Encrypt([]byte(fmt.Sprintf("%s_%s", string(orderPayload.Id), buyerName)), helpers.GenerateKey())
 		if encryption_err != nil {
 			return encryption_err
 		}
-		if add_nonce_err := session.UserSessionFactory.AddNonceId(data["buyerId"][0], nonce); add_nonce_err != nil {
+		if add_nonce_err := session.UserSessionFactory.AddNonceId(buyerId, nonce); add_nonce_err != nil {
 			return add_nonce_err
 		}
-		return sendEmail(buyerName, lastFourDigits, strings.Join(productNames, ", "), strings.Join(producePrices, ", "), encryptedId)
+		return sendEmail(buyerName, lastFourDigits, strings.Join(productNames, ", "), fmt.Sprintf("%s₫", data["totalAmount"][0]), encryptedId)
 	}); tx_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, tx_err.Error())
 		return

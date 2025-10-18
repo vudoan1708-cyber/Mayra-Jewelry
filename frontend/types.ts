@@ -29,4 +29,5 @@ export type VeriyingOrderPayload = {
   buyerName: string;
   digits: string;
   jewelryItems: Array<Partial<JewelryItemInfo>>;
+  totalAmount: string;
 };

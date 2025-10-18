@@ -18,6 +18,7 @@ func (db *Database) AutoMigrate() error {
 	log.Println("Database auto-migrating...")
 	var allModels = []interface{}{
 		&models.Buyer{},
+		&models.Order{},
 		&models.JewelryItemInfo{},
 		&models.JewelryPrice{},
 	}

@@ -276,14 +276,6 @@ func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, response)
 }
 
-func GetManyJewelryItemInfoByDirectoryIds(tx *gorm.DB, jewelryItems *[]models.JewelryItemInfo) error {
-	return tx.
-		Preload("Prices").Model([]models.JewelryItemInfo{}).
-		Where(helpers.MapFunc(*jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-			return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
-		})).
-		Find(&jewelryItems).Error
-}
 func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")

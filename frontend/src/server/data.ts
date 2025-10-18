@@ -86,6 +86,7 @@ export const verifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => 
   formData.append('buyerName', payload.buyerName);
   formData.append('digits', payload.digits);
   formData.append('jewelryItems', JSON.stringify(payload.jewelryItems));
+  formData.append('totalAmount', payload.totalAmount);
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/payment/pending-verification`;
   return doFetch({
     url,

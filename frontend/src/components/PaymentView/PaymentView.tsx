@@ -67,7 +67,12 @@ export default function PaymentView({
       {activeTab?.id === 'qr' && (
         <Suspense fallback={<div className="w-full flex justify-center items-center"><Loading /></div>}>
           {!error
-            ? <LazyPaymentSectionComponent qrCode={qrCode} loading={loading} items={items} userId={userId} />
+            ? <LazyPaymentSectionComponent
+              qrCode={qrCode}
+              loading={loading}
+              items={items}
+              userId={userId}
+              totalAmount={amount} />
             : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error}</div>}
         </Suspense>
       )}

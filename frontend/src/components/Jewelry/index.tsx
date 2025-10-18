@@ -9,7 +9,7 @@ export default async function Jewelry() {
       {/* <Filter /> */}
 
       <div className="text-5xl mt-4">
-        <h3 className="px-6 py-4 text-brand-500 font-medium text-center">Hàng bán chạy nhất</h3>
+        {/* <h3 className="px-6 py-4 text-brand-500 font-medium text-center">Hàng bán chạy nhất</h3> */}
         <BestSeller />
       </div>
 
