@@ -27,7 +27,7 @@ type Order struct {
 	FailedVerificationAt *time.Time        `json:"failedVerificationAt" gorm:"column:failedVerificationAt"`
 	VerifiedAt           *time.Time        `json:"verifiedAt" gorm:"column:verifiedAt"`
 	ShipAt               *time.Time        `json:"shipAt" gorm:"column:shipAt"`
-	BuyerId              string            `json:"-" gorm:"column:buyerId"`
+	BuyerId              string            `json:"buyerId" gorm:"column:buyerId"`
 }
 
 type Buyer struct {

@@ -276,6 +276,14 @@ func GetJewelryItemsByBestSeller(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, response)
 }
 
+func GetManyJewelryItemInfoByDirectoryIds(tx *gorm.DB, jewelryItems *[]models.JewelryItemInfo) error {
+	return tx.
+		Preload("Prices").Model([]models.JewelryItemInfo{}).
+		Where(helpers.MapFunc(*jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+			return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
+		})).
+		Find(&jewelryItems).Error
+}
 func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
@@ -380,7 +388,6 @@ func AddJewelryItem(w http.ResponseWriter, r *http.Request) {
 	if bool_parse_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, bool_parse_err.Error())
 	}
-	log.Printf("data is %+v", data)
 	tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
 		jewelryInfo := &models.JewelryItemInfo{
 			DirectoryId:       itemNameBase64,
