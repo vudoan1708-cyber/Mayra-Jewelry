@@ -1,12 +1,11 @@
+import type { Session } from 'next-auth';
 import { AnimatePresence } from 'framer-motion';
 
-import { auth } from '../auth';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import AlreadySignedIn from './AlreadySignedIn';
+import type { Order } from '../../../types';
 
-export default async function SelectProvider() {
-  const session = await auth();
-
+export default function SelectProvider({ session, orders }: { session: Session | null; orders: Array<Order> }) {
   if (!session) {
     return (
       <AnimatePresence mode="wait">
@@ -16,6 +15,6 @@ export default async function SelectProvider() {
   }
 
   return (
-    <AlreadySignedIn userName={session.user?.name ?? ''} userImage={session.user?.image ?? ''} />
+    <AlreadySignedIn userName={session.user?.name ?? ''} userImage={session.user?.image ?? ''} orders={orders} />
   )
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database/models"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/middleware"
+	nonDbModels "github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -174,7 +176,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Buyer Id check
-	if data["id"] == nil && data["id"][0] == "" {
+	if data["id"] == nil || data["id"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing user's ID")
 		return
 	}
@@ -182,22 +184,26 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 
 	// Jewelry Item check
 	jewelryItems := []models.JewelryItemInfo{}
-	if data["wishlistItems"] == nil && data["wishlistItems"][0] == "" {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing wishlistItems")
-		return
+	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
+		log.Printf("Payload is missing wishlistItems but is non-critical")
+	} else {
+		if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
+			return
+		}
 	}
-	if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
-		return
-	}
-	if err := database.DatabaseInstance.Gorm.
-		Preload("Prices").Model([]models.JewelryItemInfo{}).
-		Where(helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-			return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
-		})).
-		First(&jewelryItems).Error; err != nil {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
-		return
+
+	// If data is passed through and is valid
+	if len(jewelryItems) > 0 {
+		if err := database.DatabaseInstance.Gorm.
+			Preload("Prices").Model([]models.JewelryItemInfo{}).
+			Where(helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+				return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
+			})).
+			First(&jewelryItems).Error; err != nil {
+			middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
+			return
+		}
 	}
 
 	var buyer models.Buyer
@@ -211,13 +217,15 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 				}
 
 				// Add a wishlist
-				return tx.Model(&buyer).Association("Wishlist").Append(jewelryItems)
+				if len(jewelryItems) > 0 {
+					return tx.Model(&buyer).Association("Wishlist").Append(jewelryItems)
+				}
 			}
 			return query_err
 		}
 
 		// Otherwise, if found
-		updatedData := map[string]interface{}{}
+		updatedData := map[string]any{}
 		var selectedKeys []string
 		for key, value := range data {
 			if key == "wishlistItems" {
@@ -243,7 +251,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendEmail(buyerName string, lastFourDigits string, productName string, amount string, encryptedId []byte) error {
-	encoded := base64.StdEncoding.EncodeToString(encryptedId)
+	encoded := base64.URLEncoding.EncodeToString(encryptedId)
 	confirmUrl := fmt.Sprintf("%s/admin/approval/%s", os.Getenv("FRONTEND_URL"), encoded)
 	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
 	params := &resend.SendEmailRequest{
@@ -268,7 +276,7 @@ func sendEmail(buyerName string, lastFourDigits string, productName string, amou
 	return nil
 }
 
-func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
+func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
 		return
@@ -288,6 +296,10 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 
 	if data["buyerName"] == nil || data["buyerName"][0] == "" {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerName is missing from the payload")
+		return
+	}
+	if data["buyerEmail"] == nil || data["buyerEmail"][0] == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerEmail is missing from the payload")
 		return
 	}
 
@@ -329,18 +341,6 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var mayraPoint float32
-	str_to_float, conv_err := strconv.ParseFloat(data["totalAmount"][0], 32)
-	if conv_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, conv_err.Error())
-		return
-	}
-	for _, item := range jewelryItems {
-		// TODO: This only counts the first item (Silver) in the Prices array, needs further expanding if other materials become relevant
-		afterDiscount := float32(str_to_float) * (1 - helpers.FalsyFallback(item.Prices[0].Discount, 0))
-		mayraPoint += afterDiscount / 10000
-	}
-
 	// PendingAt has a default value to now() so no need to fill it in the struct
 	orderPayload := models.Order{
 		Status:  models.PendingVerification,
@@ -361,22 +361,12 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 				return get_error
 			}
 		}
-		// Update Order database table
+		// Create an Order with a pending state
 		if jewelry_db_err := tx.Model(&models.Order{}).Create(&orderPayload).Error; jewelry_db_err != nil {
 			return jewelry_db_err
 		}
 		if association_err := tx.Model(&orderPayload).Association("JewelryItems").Append(jewelryItems); association_err != nil {
 			return association_err
-		}
-
-		if update_err := tx.Model(&models.Buyer{}).
-			Where(&models.Buyer{Id: buyerId}).
-			Select([]string{"tier", "mayraPoint"}).
-			Updates(map[string]any{
-				"tier":       convertMayraPointToTier(mayraPoint),
-				"mayraPoint": mayraPoint,
-			}).Error; update_err != nil {
-			return update_err
 		}
 
 		// Sending Notification to an admin
@@ -387,11 +377,21 @@ func ConfirmPaymentAndVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		// Create an encryption session ID to send an email to an admin
 		buyerName := data["buyerName"][0]
 		lastFourDigits := data["digits"][0]
-		encryptedId, nonce, encryption_err := helpers.Encrypt([]byte(fmt.Sprintf("%s_%s", string(orderPayload.Id), buyerName)), helpers.GenerateKey())
+		jsonData, serialize_err := json.Marshal(nonDbModels.EncryptionData{
+			BuyerId:     buyerId,
+			BuyerEmail:  data["buyerEmail"][0],
+			OrderId:     orderPayload.Id,
+			TotalAmount: data["totalAmount"][0],
+		})
+		if serialize_err != nil {
+			return serialize_err
+		}
+		cypherKey := helpers.GenerateKey()
+		encryptedId, nonce, encryption_err := helpers.Encrypt(fmt.Appendf(nil, "%s", jsonData), cypherKey)
 		if encryption_err != nil {
 			return encryption_err
 		}
-		if add_nonce_err := session.UserSessionFactory.AddNonceId(buyerId, nonce); add_nonce_err != nil {
+		if add_nonce_err := session.UserSessionFactory.AddNonceAndKey(buyerId, nonce, cypherKey, encryptedId); add_nonce_err != nil {
 			return add_nonce_err
 		}
 		return sendEmail(buyerName, lastFourDigits, strings.Join(productNames, ", "), fmt.Sprintf("%s₫", data["totalAmount"][0]), encryptedId)

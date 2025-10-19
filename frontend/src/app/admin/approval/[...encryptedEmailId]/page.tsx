@@ -1,7 +1,20 @@
-export default async function Page({ params }: { params: Promise<{ encryptedEmailId: string }> }) {
+import { Suspense, lazy } from 'react';
+import { verifyOrder } from '../../../../server/data';
+import FullScreenLoading from '../../../../components/Loading/FullScreenLoading';
+import { AnimatePresence } from 'framer-motion';
+
+export default async function Page({ params }: { params: Promise<{ encryptedEmailId: Array<string> }> }) {
   const { encryptedEmailId } = await params;
   console.log('encryptedEmailId', encryptedEmailId)
+  console.log('split joined encryptedEmailId', encryptedEmailId.join('/'))
+  await verifyOrder({ id: decodeURIComponent(encryptedEmailId.join('/')) });
+
+  const LazyConfirmScreen = lazy(() => import ('./ConfirmScreen'));
   return (
-    <div className="self-center">This page is not done yet, but the button below should allow the merchant to trigger an endpoint from the Backend to approve a pending order</div>
+    <Suspense fallback={<FullScreenLoading />}>
+      <AnimatePresence mode="wait">
+        <LazyConfirmScreen />
+      </AnimatePresence>
+    </Suspense>
   )
 }

@@ -32,3 +32,10 @@ type VietQRBankResponsePayload struct {
 	Desc string `json:"desc"`
 	Data []Bank `json:"data"`
 }
+
+type EncryptionData struct {
+	BuyerId     string `json:"buyerId"`
+	BuyerEmail  string `json:"buyerEmail"`
+	OrderId     string `json:"orderId"`
+	TotalAmount string `json:"totalAmount"`
+}

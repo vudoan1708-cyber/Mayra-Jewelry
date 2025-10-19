@@ -26,8 +26,20 @@ export type JewelryItemInfo = {
 };
 export type VeriyingOrderPayload = {
   buyerId: string;
+  buyerEmail: string;
   buyerName: string;
   digits: string;
   jewelryItems: Array<Partial<JewelryItemInfo>>;
   totalAmount: string;
+};
+
+export type Order = {
+  id: string;
+  jewelryItems: Array<JewelryItemInfo>;
+  status: 'pending-verification' | 'failed-verification' | 'verified' | 'shipped';
+  pendingAt: string;
+  failedVerificationAt?: string;
+  verifiedAt?: string;
+  shipAt?: string;
+  buyerId: string;
 };

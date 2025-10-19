@@ -21,9 +21,23 @@ const variations: Array<JewelryVariation> = [
   { key: 2, label: 'Vàng trắng', style: 'bg-slate-100', amount: 0 },
 ];
 export default function Wrapper({
-  id, itemName, featureCollection, type, description, prices, userId,
+  id,
+  itemName,
+  featureCollection,
+  type,
+  description,
+  prices,
+  userId,
+  userEmail,
 }: {
-  id: string; itemName: string; featureCollection: string; type: 'ring' | 'bracelet'; description: string; prices: Prices[]; userId: string
+  id: string;
+  itemName: string;
+  featureCollection: string;
+  type: 'ring' | 'bracelet';
+  description: string;
+  prices: Prices[];
+  userId: string;
+  userEmail: string;
 }) {
   const searchParams = useSearchParams();
   const [imgUrls, setImgUrls] = useState<Array<string>>([]);
@@ -76,6 +90,7 @@ export default function Wrapper({
 
       <PaymentView
         userId={userId}
+        userEmail={userEmail}
         amount={searchParams.get('amount') ?? amount.toString()}
         info={searchParams.get('info') ?? `${PAYMENT_INFO} ${itemName}`}
         items={[{ directoryId: id, itemName }]} />

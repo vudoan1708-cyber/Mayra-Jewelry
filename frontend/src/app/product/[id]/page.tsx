@@ -23,7 +23,8 @@ export default async function Product({ params }: { params: Promise<{ id: string
         type={jewelryItem.type}
         description={jewelryItem.description}
         prices={jewelryItem.prices}
-        userId={session?.user?.id ?? ''} />
+        userId={session?.user?.id ?? ''}
+        userEmail={session?.user?.email ?? ''} />
       <MostViewed id={id} />
     </div>
   );

@@ -8,11 +8,12 @@ import { motion } from 'framer-motion';
 import { useCartCount, type CartItem } from '../../stores/CartCountProvider';
 import Card from './Card';
 import PaymentView from '../../components/PaymentView/PaymentView';
-import { PAYMENT_INFO } from '../../helpers';
+import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../helpers';
 import type { JewelryItemInfo } from '../../../types';
 
-export default function Cart({ userId }: { userId: string }) {
+export default function Cart({ userId, userEmail }: { userId: string; userEmail: string }) {
   const router = useRouter();
+  const { removeAll } = useCartCount();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
@@ -43,6 +44,14 @@ export default function Cart({ userId }: { userId: string }) {
     const {items} = useCartCount.getState();
     setCartItems(() => reorderAndMergeDuplicate(items));
   };
+  const removeAllCartItems = () => {
+    removeAll();
+    getTheLatestCartItems();
+    localStorage.setItem(SAVE_TO_CART, '');
+    setTimeout(() => {
+      router.push('/account?tab=orderHistory');
+    }, WAIT - 250);
+  };
 
   useEffect(() => {
     getTheLatestCartItems();
@@ -72,12 +81,14 @@ export default function Cart({ userId }: { userId: string }) {
 
         <PaymentView
           userId={userId}
+          userEmail={userEmail}
           amount={String(cartItems.reduce((acc, prev) => acc + (prev?.sum ?? 0), 0))}
           info={info}
           items={cartItems.map<Partial<JewelryItemInfo>>((item) => ({
             directoryId: item.id,
             itemName: item.itemName,
-          }))} />
+          }))}
+          onSuccessfulConfirmation={removeAllCartItems} />
       </div>
     )
   }

@@ -8,13 +8,25 @@ import { AnimatePresence } from 'framer-motion';
 import Button from '../Button';
 import Modal from '../Modal/Modal';
 
-import { verifyingOrder } from '../../server/data';
+import { requestVerifyingOrder } from '../../server/data';
 import type { JewelryItemInfo } from '../../../types';
 
 export default function QRCodeImage({
-  qrCode, loading, items, userId, totalAmount,
+  qrCode,
+  loading,
+  items,
+  userId,
+  userEmail,
+  totalAmount,
+  onSuccessfulConfirmation,
 }: {
-  qrCode: string; loading: boolean; items: Array<Partial<JewelryItemInfo>>; userId: string; totalAmount: string
+  qrCode: string;
+  loading: boolean;
+  items: Array<Partial<JewelryItemInfo>>;
+  userId: string;
+  userEmail: string;
+  totalAmount: string;
+  onSuccessfulConfirmation?: () => void;
 }) {
   const [confirmModal, setOpenConfirmModal] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -46,16 +58,20 @@ export default function QRCodeImage({
   const sendConfirmation = async () => {
     try {
       setVerifying(true);
-      await verifyingOrder({
-        buyerId: userId ?? window.btoa(name),
+      await requestVerifyingOrder({
+        buyerId: userId ?? window.btoa(userEmail),
+        buyerEmail: userEmail,
         buyerName: name,
         digits: partialAccountNumber,
         jewelryItems: items,
         totalAmount,
       })
       closeModal();
+      if (onSuccessfulConfirmation) {
+        onSuccessfulConfirmation();
+      }
     } catch (e) {
-      alert(e.message);
+      alert((e as { message: string }).message);
     } finally {
       setVerifying(false);
     }

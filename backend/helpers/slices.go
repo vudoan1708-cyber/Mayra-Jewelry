@@ -29,3 +29,12 @@ func FindFunc[T any](array []T, callback func(T, int) bool) (*T, bool) {
 	}
 	return nil, false
 }
+
+func FlatFunc[T any](array [][]T) []T {
+	var flat []T
+
+	for _, items := range array {
+		flat = append(flat, items...)
+	}
+	return flat
+}

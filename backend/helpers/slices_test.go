@@ -92,3 +92,29 @@ func TestFindFunc(t *testing.T) {
 		t.Errorf("TestFindFunc not found scenario: ok is %t", ok)
 	}
 }
+
+func TestFlatFunc(t *testing.T) {
+	var twoDArray = [][]Item{
+		{
+			{Id: "12312", Value: 1000},
+			{Id: "test", Value: 2000},
+			{Id: "more test", Value: 5000},
+		},
+		{
+			{Id: "more test 2", Value: 6000},
+		},
+	}
+
+	want := []Item{
+		{Id: "12312", Value: 1000},
+		{Id: "test", Value: 2000},
+		{Id: "more test", Value: 5000},
+		{Id: "more test 2", Value: 6000},
+	}
+
+	got := FlatFunc(twoDArray)
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("TestFlatFunc: want: %+v does not equal got: %+v", want, got)
+	}
+}

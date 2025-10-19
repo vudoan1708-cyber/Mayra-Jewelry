@@ -20,6 +20,7 @@ type CartStore = {
   setTo: (wholeStore: { items: CartStore['items'] }) => void;
   removeItem: (item: CartItem) => void;
   removeAllByItemName: (item: CartItem) => void;
+  removeAll: () => void;
 };
 export const useCartCount = create<CartStore>((set) => ({
   count: 0,
@@ -40,5 +41,8 @@ export const useCartCount = create<CartStore>((set) => ({
     items: state.items.filter((stateItem) => {
       return stateItem.itemName !== item.itemName || stateItem.variation.key !== item.variation.key;
     }),
+  })),
+  removeAll: () => set(() => ({
+    items: [],
   }))
 }));

@@ -54,9 +54,10 @@ func main() {
 	apiRouter.HandleFunc("/jewelry", api.UpdateJewelryInfo).Methods("PATCH")
 	apiRouter.HandleFunc("/user/buyer/{buyerId}/wishlist", api.GetBuyerWishlist).Methods("GET")
 	apiRouter.HandleFunc("/user/buyer/{buyerId}", api.GetBuyer).Methods("GET")
-	apiRouter.HandleFunc("/user/buyer/payment/pending-verification", api.ConfirmPaymentAndVerifyingOrder).Methods("POST")
+	apiRouter.HandleFunc("/user/buyer/payment/pending-verification", api.RequestVerifyingOrder).Methods("POST")
 	apiRouter.HandleFunc("/user/buyer", api.UpsertBuyerDetails).Methods("POST")
-	apiRouter.HandleFunc("/user/admin/payment/confirm-payment", api.AdminConfirmPayment).Methods("POST")
+	apiRouter.HandleFunc("/order/buyer/{buyerId}", api.GetOrdersByBuyerId).Methods("GET")
+	apiRouter.HandleFunc("/payment/confirm-payment", api.ConfirmPaymentAndVerifyOrder).Methods("POST")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
 

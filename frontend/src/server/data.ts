@@ -1,4 +1,4 @@
-import { type JewelryItemInfo, type VeriyingOrderPayload } from '../../types';
+import { type JewelryItemInfo, type Order, type VeriyingOrderPayload } from '../../types';
 
 export type UseFetchRequest = {
   url: string | URL | Request;
@@ -80,9 +80,10 @@ export const updateJewelry = (jewelryInfo: Partial<JewelryItemInfo>): Promise<vo
 };
 
 // Produce Order
-export const verifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => {
+export const requestVerifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => {
   const formData = new FormData();
   formData.append('buyerId', payload.buyerId);
+  formData.append('buyerEmail', payload.buyerEmail);
   formData.append('buyerName', payload.buyerName);
   formData.append('digits', payload.digits);
   formData.append('jewelryItems', JSON.stringify(payload.jewelryItems));
@@ -93,4 +94,23 @@ export const verifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => 
     method: 'POST',
     body: formData,
   });
-}
+};
+export const verifyOrder = (payload: { id: string }): Promise<void> => {
+  const formData = new FormData();
+  formData.append('id', payload.id);
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/confirm-payment`;
+  return doFetch({
+    url,
+    method: 'POST',
+    body: formData,
+  });
+};
+
+// Orders
+export const getOrdersByBuyerId = (buyerId: string): Promise<Array<Order>> => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/buyer/${buyerId}`;
+  return doFetch({
+    url,
+    method: 'GET',
+  });
+};

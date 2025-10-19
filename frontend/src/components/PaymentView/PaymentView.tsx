@@ -21,9 +21,9 @@ const tabs: Array<Tab> = [
 ];
 
 export default function PaymentView({
-  amount, info, items, userId,
+  amount, info, items, userId, userEmail, onSuccessfulConfirmation,
 }: {
-  amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string
+  amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string; userEmail: string; onSuccessfulConfirmation?: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>(() => tabs.find((tab) => tab.id === 'qr') as Tab);
   const [error, setError] = useState<string>('');
@@ -68,11 +68,13 @@ export default function PaymentView({
         <Suspense fallback={<div className="w-full flex justify-center items-center"><Loading /></div>}>
           {!error
             ? <LazyPaymentSectionComponent
-              qrCode={qrCode}
-              loading={loading}
-              items={items}
-              userId={userId}
-              totalAmount={amount} />
+                qrCode={qrCode}
+                loading={loading}
+                items={items}
+                userId={userId}
+                userEmail={userEmail}
+                totalAmount={amount}
+                onSuccessfulConfirmation={onSuccessfulConfirmation} />
             : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error}</div>}
         </Suspense>
       )}
