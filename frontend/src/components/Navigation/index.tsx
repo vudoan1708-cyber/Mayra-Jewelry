@@ -84,7 +84,7 @@ export default function Navigation() {
                   initial={{ strokeDashoffset: 2 * Math.PI * 48 }}
                   animate={{ strokeDashoffset: pathname === '/cart' ? 0 : 2 * Math.PI * 48 }}
                   transition={{
-                    duration: 0.8,
+                    duration: 0.75,
                     ease: 'easeInOut',
                   }}
                 />
@@ -99,7 +99,7 @@ export default function Navigation() {
                   ease: 'easeInOut',
                 }}
                 style={{ filter: shadow }}
-                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 transition-all shadow-lg`}>
+                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 shadow-lg`}>
                 <ShoppingCart />
                 {items.length > 0 && (
                   <motion.aside
