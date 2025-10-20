@@ -37,7 +37,7 @@ func main() {
 	// CORS for HTTP request polling
 	cors := handlers.CORS(
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS"}),
 		handlers.AllowedOrigins([]string{allowedOrigin}),
 	)
 
@@ -52,6 +52,7 @@ func main() {
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")
 	apiRouter.HandleFunc("/jewelry", api.UpdateJewelryInfo).Methods("PATCH")
+	apiRouter.HandleFunc("/user/buyer/wishlist", api.RemoveFromBuyerWishlist).Methods("DELETE")
 	apiRouter.HandleFunc("/user/buyer/wishlist", api.AddToBuyerWishlist).Methods("POST")
 	apiRouter.HandleFunc("/user/buyer/{buyerId}/wishlist/{directoryId}", api.CheckIfItemInWishlist).Methods("GET")
 	apiRouter.HandleFunc("/user/buyer/{buyerId}/wishlist", api.GetBuyerWishlist).Methods("GET")

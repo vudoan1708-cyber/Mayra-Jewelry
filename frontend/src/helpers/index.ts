@@ -1,3 +1,4 @@
+import type { Session } from "next-auth";
 import type { Prices } from "../../types";
 
 export const subtleCrypto = {
@@ -94,6 +95,8 @@ export const base64ToArrayBuffer = (base64: string) => {
   }
   return buffer;
 };
+
+export const userIdOrBase64Email = (user: Session['user']) => user?.id ?? Buffer.from(user?.email ?? '', 'utf8').toString('base64');
 
 export const minPrice = (prices: Prices[]) => {
   let currentPrice = prices[0].amount;

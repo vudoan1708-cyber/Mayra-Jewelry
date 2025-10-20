@@ -5,8 +5,8 @@ import LoginForm from '../../components/LoginForm/LoginForm';
 import AlreadySignedIn from './AlreadySignedIn';
 import type { Order } from '../../../types';
 
-export default function SelectProvider({ session, orders }: { session: Session | null; orders: Array<Order> }) {
-  if (!session) {
+export default function SelectProvider({ session, orders }: { session: Session | null; orders?: Array<Order> }) {
+  if (!session || !orders) {
     return (
       <AnimatePresence mode="wait">
         <LoginForm title="Hãy lưu trữ<br /> các món đồ yêu thích của bạn" />

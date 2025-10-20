@@ -33,6 +33,15 @@ export default function Navigation() {
       console.error(e);
       alert(e);
     }
+
+    // Remove hash redirection after signing in from Facebook
+    if (window.location.hash === '#_=_') {
+      history.replaceState(
+        null,
+        "",
+        window.location.href.replace('#_=_', '')
+      );
+    }
   }, []);
   return (
     <>

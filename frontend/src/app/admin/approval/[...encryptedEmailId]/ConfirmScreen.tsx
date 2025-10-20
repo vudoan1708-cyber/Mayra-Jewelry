@@ -15,7 +15,7 @@ export default function ConfirmScreen() {
         className="w-20 h-20"
         autoplay
       />
-      <h3 className="mr-3">Payment Verified</h3>
+      <h3 className="mr-3">Xác nhận thanh toán thành công</h3>
     </motion.div>
   )
 }

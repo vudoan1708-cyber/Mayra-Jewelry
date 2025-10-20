@@ -9,11 +9,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
-    async session({ session, token, user }) {
-      // ✅ Works whether you use a DB adapter or not
-      if (user?.id) session.user.id = user.id;
-      else if (token?.sub) session.user.id = token.sub;
+    async session({ session, token }) {
+      // token contains data from the OAuth profile
+      if (token.id) {
+        session.user.id = token.id as string; // map Facebook ID to session
+      }
       return session;
+    },
+    async jwt({ token, profile }) {
+      // Store Facebook profile id in JWT
+      if (profile) {
+        token.id = profile.id;
+      }
+      return token;
     },
   },
 });

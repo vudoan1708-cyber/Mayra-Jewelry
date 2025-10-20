@@ -14,6 +14,7 @@ import { ENGLISH_TO_VIETNAMESE, PAYMENT_INFO } from '../../../helpers';
 import Loading from '../../../components/Loading/Loading';
 import PaymentView from '../../../components/PaymentView/PaymentView';
 import type { JewelryVariation } from '../../../components/Jewelry/Variation';
+import type { Session } from 'next-auth';
 
 const variations: Array<JewelryVariation> = [
   { key: 0, label: 'Bạc', style: 'bg-gray-400', amount: 0 },
@@ -27,8 +28,7 @@ export default function Wrapper({
   type,
   description,
   prices,
-  userId,
-  userEmail,
+  session,
   buyerWishlistFound,
 }: {
   id: string;
@@ -37,8 +37,7 @@ export default function Wrapper({
   type: 'ring' | 'bracelet';
   description: string;
   prices: Prices[];
-  userId: string;
-  userEmail: string;
+  session: Session | null;
   buyerWishlistFound: boolean;
 }) {
   const searchParams = useSearchParams();
@@ -88,13 +87,13 @@ export default function Wrapper({
           imgUrls={imgUrls}
           availableVariations={availableVariations}
           selectedVariation={selectedVariation}
-          userId={userId}
+          session={session}
           buyerWishlistFound={buyerWishlistFound} />
       </motion.section>
 
       <PaymentView
-        userId={userId}
-        userEmail={userEmail}
+        userId={session?.user?.id ?? ''}
+        userEmail={session?.user?.email ?? ''}
         amount={searchParams.get('amount') ?? amount.toString()}
         info={searchParams.get('info') ?? `${PAYMENT_INFO} ${itemName}`}
         items={[{ directoryId: id, itemName }]} />

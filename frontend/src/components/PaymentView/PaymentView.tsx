@@ -38,8 +38,8 @@ export default function PaymentView({
       const result = await fetchQRCode({ amount, info: info ?? PAYMENT_INFO });
       if (!result?.data?.qrDataURL) throw Error('Cannot find QR Code');
       setQrCode(result?.data?.qrDataURL);
-    } catch (e: any) {
-      setError(e?.message as Error['message']);
+    } catch (e) {
+      setError((e as { message: '' }).message);
     } finally {
       setLoading(false);
     }

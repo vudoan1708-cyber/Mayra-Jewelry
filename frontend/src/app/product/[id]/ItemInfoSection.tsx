@@ -19,9 +19,9 @@ import Loading from '../../../components/Loading/Loading';
 import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART, WAIT } from '../../../helpers';
 import NavItem from '../../../components/Navigation/NavItem';
-import { addToWishlist } from '../../../server/data';
-import type { Buyer } from '../../../../types';
+import { addToWishlist, deleteFromWishlist } from '../../../server/data';
 import FullScreenLoading from '../../../components/Loading/FullScreenLoading';
+import type { Session } from 'next-auth';
 
 export default function ItemInfoSection({
   id,
@@ -33,7 +33,7 @@ export default function ItemInfoSection({
   imgUrls,
   availableVariations,
   selectedVariation,
-  userId,
+  session,
   buyerWishlistFound,
 }: {
   id: string;
@@ -45,7 +45,7 @@ export default function ItemInfoSection({
   imgUrls: string[];
   availableVariations: Array<JewelryVariation>;
   selectedVariation: JewelryVariation;
-  userId: string;
+  session: Session | null;
   buyerWishlistFound: boolean;
 }) {
   const router = useRouter();
@@ -58,8 +58,8 @@ export default function ItemInfoSection({
     imgUrlRef.current = imgUrls;
   }, [imgUrls]);
 
-  const [buyer, setBuyer] = useState<Buyer | boolean>(buyerWishlistFound);
-  const [addingToWishlist, setAddingToWishlist] = useState<boolean>(false);
+  const [hasItemWishlisted, setItemWishlisted] = useState<boolean>(buyerWishlistFound);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const numberOfPurchases = 7;
 
@@ -87,21 +87,34 @@ export default function ItemInfoSection({
     }, WAIT - 250);
   };
 
+  const userId = session?.user?.id ?? '';
+
   const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, WAIT), []);
 
   const onWishlistButtonClicked = async () => {
-    setAddingToWishlist(true);
+    if (!session) {
+      router.push(`/wishlist?from=/product/${id}`);
+      return;
+    }
+    setLoading(true);
     try {
-      setBuyer(await addToWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] }));
+      if (!hasItemWishlisted) {
+        const buyer = await addToWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] });
+        setItemWishlisted(!!buyer);
+        return;
+      }
+
+      await deleteFromWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] });
+      setItemWishlisted(false);
     } catch (e) {
       alert((e as { message: string }).message);
     } finally {
-      setAddingToWishlist(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    setBuyer(buyerWishlistFound);
+    setItemWishlisted(buyerWishlistFound);
   }, [buyerWishlistFound]);
 
   useEffect(()  => {
@@ -171,14 +184,14 @@ export default function ItemInfoSection({
             <ShoppingCart />
             Thêm vào giỏ đồ
           </Button>
-          <Button variant="tertiary" className={`justify-self-start ${addingToWishlist && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
-            <Heart fill={buyer ? 'var(--brand-500)' : 'none'} />
-            {buyer ? 'Bỏ ra khỏi Wishlist' : 'Thêm vào Wishlist'}
+          <Button variant="tertiary" className={`justify-self-start ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
+            <Heart fill={hasItemWishlisted ? 'var(--brand-500)' : 'none'} />
+            {hasItemWishlisted ? 'Bỏ ra khỏi Wishlist' : 'Thêm vào Wishlist'}
           </Button>
         </div>
       </div>
 
-      {addingToWishlist && <FullScreenLoading />}
+      {loading && <FullScreenLoading />}
     </>
   )
 }

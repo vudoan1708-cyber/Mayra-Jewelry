@@ -58,7 +58,7 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 		err_string := err.Error()
 		var statusCode int = http.StatusInternalServerError
 		if strings.Contains(err_string, "not found") {
-			statusCode = http.StatusBadRequest
+			statusCode = http.StatusNotFound
 			err_string = fmt.Sprintf("buyer Id: %s might not exist. %s", buyerId, err_string)
 		}
 		middleware.HandleErrorResponse(w, statusCode, err_string)
@@ -113,7 +113,7 @@ func AddToBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Step 1: Get Jewelry items (including Prices and Media) from Directory IDs
+	// Step 1: Get Jewelry items by Directory IDs
 	if get_err := database.DatabaseInstance.Gorm.Model(&jewelryItems).
 		Where(helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
 			return models.JewelryItemInfo{DirectoryId: item.DirectoryId}
@@ -124,18 +124,77 @@ func AddToBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Step 2: Add those items to wishlist
+	buyerId := data["buyerId"][0]
 	buyer := models.Buyer{}
-	if get_buyer_err := database.DatabaseInstance.Gorm.Model(&buyer).Where(&models.Buyer{Id: data["buyerId"][0]}).First(&buyer).Error; get_buyer_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_buyer_err.Error())
-		return
+	// Get a buyer with a provided ID
+	if get_error := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "*"); get_error != nil {
+		log.Printf("Cannot get the buyer with ID: %s. Reason: %s", buyerId, get_error.Error())
+		// If error, it's likely that the user doesn't exist
+		if strings.Contains(get_error.Error(), "not found") {
+			if create_err := createNewUser(database.DatabaseInstance.Gorm, &buyer, data); create_err != nil {
+				middleware.HandleErrorResponse(w, http.StatusInternalServerError, create_err.Error())
+				return
+			}
+		} else {
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_error.Error())
+			return
+		}
 	}
 
 	if update_err := database.DatabaseInstance.Gorm.Model(&buyer).Association("Wishlist").Append(jewelryItems); update_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, update_err.Error())
 		return
 	}
-	log.Printf("After adding buyer: %+v", buyer)
 	middleware.HandleResponse(w, buyer)
+}
+
+func RemoveFromBuyerWishlist(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	r.ParseMultipartForm(10 << 20)
+
+	data := r.MultipartForm.Value
+
+	if len(data) == 0 {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing")
+		return
+	}
+
+	var missingFields []string
+	if data["buyerId"] == nil || data["buyerId"][0] == "" {
+		missingFields = append(missingFields, "buyerId")
+	}
+	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
+		missingFields = append(missingFields, "wishlistItems")
+	}
+	if len(missingFields) > 0 {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("%s field(s) missing from payload", strings.Join(missingFields, ", ")))
+		return
+	}
+
+	jewelryItems := []models.JewelryItemInfo{}
+	if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
+		return
+	}
+
+	directoryIds := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, _ int) string {
+		return item.DirectoryId
+	})
+
+	buyerId := data["buyerId"][0]
+	if delete_err := database.DatabaseInstance.Gorm.Table("buyer_wishlists").
+		Where("\"buyer_id\" = ?", buyerId).
+		Where("\"jewelry_id\" IN ?", directoryIds).
+		Delete(nil).Error; delete_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, delete_err.Error())
+		return
+	}
+
+	middleware.HandleResponse(w, nil)
 }
 
 func CheckIfItemInWishlist(w http.ResponseWriter, r *http.Request) {
@@ -244,8 +303,15 @@ func createNewUser(tx *gorm.DB, buyer *models.Buyer, data map[string][]string) e
 			return conv_err
 		}
 	}
+
+	var buyerId string
+	if data["id"] != nil && data["id"][0] != "" {
+		buyerId = data["id"][0]
+	} else {
+		buyerId = data["buyerId"][0]
+	}
 	*buyer = models.Buyer{
-		Id:           data["id"][0],
+		Id:           buyerId,
 		OrderHistory: []models.Order{},
 		Tier:         helpers.FalsyFallback(tier, models.SilverTier),
 		MayraPoint:   helpers.FalsyFallback(float32(mayraPoint), 0),
