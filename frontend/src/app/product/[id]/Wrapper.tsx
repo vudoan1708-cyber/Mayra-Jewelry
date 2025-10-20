@@ -29,6 +29,7 @@ export default function Wrapper({
   prices,
   userId,
   userEmail,
+  buyerWishlistFound,
 }: {
   id: string;
   itemName: string;
@@ -38,6 +39,7 @@ export default function Wrapper({
   prices: Prices[];
   userId: string;
   userEmail: string;
+  buyerWishlistFound: boolean;
 }) {
   const searchParams = useSearchParams();
   const [imgUrls, setImgUrls] = useState<Array<string>>([]);
@@ -85,7 +87,9 @@ export default function Wrapper({
           amount={parseInt(searchParams.get('amount') ?? amount.toString())}
           imgUrls={imgUrls}
           availableVariations={availableVariations}
-          selectedVariation={selectedVariation} />
+          selectedVariation={selectedVariation}
+          userId={userId}
+          buyerWishlistFound={buyerWishlistFound} />
       </motion.section>
 
       <PaymentView

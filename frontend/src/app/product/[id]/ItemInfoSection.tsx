@@ -19,6 +19,9 @@ import Loading from '../../../components/Loading/Loading';
 import { useCartCount } from '../../../stores/CartCountProvider';
 import { SAVE_TO_CART, WAIT } from '../../../helpers';
 import NavItem from '../../../components/Navigation/NavItem';
+import { addToWishlist } from '../../../server/data';
+import type { Buyer } from '../../../../types';
+import FullScreenLoading from '../../../components/Loading/FullScreenLoading';
 
 export default function ItemInfoSection({
   id,
@@ -30,6 +33,8 @@ export default function ItemInfoSection({
   imgUrls,
   availableVariations,
   selectedVariation,
+  userId,
+  buyerWishlistFound,
 }: {
   id: string;
   itemName: string;
@@ -40,6 +45,8 @@ export default function ItemInfoSection({
   imgUrls: string[];
   availableVariations: Array<JewelryVariation>;
   selectedVariation: JewelryVariation;
+  userId: string;
+  buyerWishlistFound: boolean;
 }) {
   const router = useRouter();
   const [variation, setSelectedVariation] = useState<JewelryVariation>(selectedVariation);
@@ -50,6 +57,9 @@ export default function ItemInfoSection({
     setLoadingImg(!imgUrls);
     imgUrlRef.current = imgUrls;
   }, [imgUrls]);
+
+  const [buyer, setBuyer] = useState<Buyer | boolean>(buyerWishlistFound);
+  const [addingToWishlist, setAddingToWishlist] = useState<boolean>(false);
 
   const numberOfPurchases = 7;
 
@@ -78,6 +88,21 @@ export default function ItemInfoSection({
   };
 
   const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, WAIT), []);
+
+  const onWishlistButtonClicked = async () => {
+    setAddingToWishlist(true);
+    try {
+      setBuyer(await addToWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] }));
+    } catch (e) {
+      alert((e as { message: string }).message);
+    } finally {
+      setAddingToWishlist(false);
+    }
+  };
+
+  useEffect(() => {
+    setBuyer(buyerWishlistFound);
+  }, [buyerWishlistFound]);
 
   useEffect(()  => {
     return () => {
@@ -146,12 +171,14 @@ export default function ItemInfoSection({
             <ShoppingCart />
             Thêm vào giỏ đồ
           </Button>
-          <Button variant="tertiary" className="justify-self-start" onClick={() => {}}>
-            <Heart />
-            Thêm vào Wishlist
+          <Button variant="tertiary" className={`justify-self-start ${addingToWishlist && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
+            <Heart fill={buyer ? 'var(--brand-500)' : 'none'} />
+            {buyer ? 'Bỏ ra khỏi Wishlist' : 'Thêm vào Wishlist'}
           </Button>
         </div>
       </div>
+
+      {addingToWishlist && <FullScreenLoading />}
     </>
   )
 }

@@ -43,3 +43,11 @@ export type Order = {
   shipAt?: string;
   buyerId: string;
 };
+
+export type Buyer = {
+  id: string;
+  wishlist: Array<JewelryItemInfo>;
+  orderHistory: Array<Order>;
+  tier: 'silver' | 'gold' | 'platinum';
+  mayraPoint: number;
+};

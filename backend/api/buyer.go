@@ -84,6 +84,110 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 	middleware.HandleResponse(w, buyer)
 }
 
+func AddToBuyerWishlist(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	r.ParseMultipartForm(10 << 20)
+
+	data := r.MultipartForm.Value
+
+	if len(data) == 0 {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing")
+		return
+	}
+	if data["buyerId"] == nil || data["buyerId"][0] == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerId is missing from the payload")
+		return
+	}
+	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "wishlistItems is missing from the payload")
+		return
+	}
+
+	jewelryItems := []models.JewelryItemInfo{}
+	if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
+		return
+	}
+
+	// Step 1: Get Jewelry items (including Prices and Media) from Directory IDs
+	if get_err := database.DatabaseInstance.Gorm.Model(&jewelryItems).
+		Where(helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
+			return models.JewelryItemInfo{DirectoryId: item.DirectoryId}
+		})).
+		Find(&jewelryItems).Error; get_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_err.Error())
+		return
+	}
+
+	// Step 2: Add those items to wishlist
+	buyer := models.Buyer{}
+	if get_buyer_err := database.DatabaseInstance.Gorm.Model(&buyer).Where(&models.Buyer{Id: data["buyerId"][0]}).First(&buyer).Error; get_buyer_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_buyer_err.Error())
+		return
+	}
+
+	if update_err := database.DatabaseInstance.Gorm.Model(&buyer).Association("Wishlist").Append(jewelryItems); update_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, update_err.Error())
+		return
+	}
+	log.Printf("After adding buyer: %+v", buyer)
+	middleware.HandleResponse(w, buyer)
+}
+
+func CheckIfItemInWishlist(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+	vars := mux.Vars(r)
+	buyerId := vars["buyerId"]
+	directoryId := vars["directoryId"]
+
+	var missingFields []string
+	if buyerId == "" {
+		missingFields = append(missingFields, "buyerId")
+	}
+	if directoryId == "" {
+		missingFields = append(missingFields, "directoryId")
+	}
+
+	if len(missingFields) > 0 {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("%s field(s) missing from payload", strings.Join(missingFields, ", ")))
+		return
+	}
+
+	response := map[string]any{}
+	if get_err := database.DatabaseInstance.Gorm.Table("buyer_wishlists").
+		Where("\"buyer_id\" = ?", buyerId).
+		Where("\"jewelry_id\" = ?", directoryId).
+		Limit(1).
+		Scan(&response).Error; get_err != nil {
+		err_string := get_err.Error()
+		if strings.Contains(err_string, "not found") {
+			log.Printf("Cannot get a row from buyer_wishlists table. Possibly due to no record for the given parameters found. Reason: %s", err_string)
+			middleware.HandleResponse(w, map[string]any{
+				"found": false,
+			})
+			return
+		}
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err_string)
+		return
+	}
+	if len(response) == 0 {
+		middleware.HandleResponse(w, map[string]any{
+			"found": false,
+		})
+		return
+	}
+	middleware.HandleResponse(w, map[string]any{
+		"found": true,
+	})
+}
+
 func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
