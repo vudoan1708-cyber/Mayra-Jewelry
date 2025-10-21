@@ -41,7 +41,7 @@ export default function AlreadySignedIn({ userName, userImage, orders }: { userN
                         <div key={`${order.id}-${idx + 1}`} className="flex items-center gap-1 shadow-md">
                           <Image
                             alt={item.itemName}
-                            src={item.media[0].url}
+                            src={item.media.find((file) => file.url.includes('thumbnail'))?.url ?? ''}
                             width="200"
                             height="200"
                             className="rounded-md"

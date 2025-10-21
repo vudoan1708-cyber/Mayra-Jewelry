@@ -4,15 +4,15 @@ import { getBuyerWishlist } from '../../server/data';
 import { userIdOrBase64Email } from '../../helpers';
 
 export default async function Page({ searchParams }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: Promise<{ [key: string]: string | undefined }>
 }) {
   const session = await auth();
   const buyerId = userIdOrBase64Email(session?.user);
   const wishlistItems = buyerId ? await getBuyerWishlist(buyerId) : [];
 
-  const from = searchParams.from;
-  console.log('wishlistItems', wishlistItems);
+  const params = await searchParams;
+  const from = params.from;
   return (
-    <DisplayWishlist from={from} />
+    <DisplayWishlist from={from} wishlistItems={wishlistItems} />
   );
 }

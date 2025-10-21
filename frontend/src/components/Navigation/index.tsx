@@ -24,6 +24,19 @@ export default function Navigation() {
   const shadowY = useMotionValue(0);
   const shadow = useMotionTemplate`drop-shadow(${shadowX}px ${shadowY}px 20px rgba(0,0,0,0.3))`;
 
+  const fillWhenActive = (href: string) => {
+    const iconsNeedStroke = ['/account', '/'];
+    if (pathname === href) {
+      return {
+        fill: 'var(--brand-500)',
+        stroke: iconsNeedStroke.includes(pathname) ? 'white' : 'var(--brand-500)',
+      };
+    }
+    return {
+      fill: 'none',
+    };
+  };
+
   useEffect(() => {
     const result = localStorage.getItem(SAVE_TO_CART);
     try {
@@ -42,6 +55,16 @@ export default function Navigation() {
         window.location.href.replace('#_=_', '')
       );
     }
+    // Force full reload on browser back button
+    const handlePopState = () => {
+      window.location.reload();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
   }, []);
   return (
     <>
@@ -64,13 +87,13 @@ export default function Navigation() {
           src="/images/logo.webp"
           className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
           onClick={() => { router.push('/'); }} />
-        <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_120px] sm:gap-0 sm:justify-center sm:items-center">
+        <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_125px] sm:gap-0 sm:justify-center sm:items-center">
           <NavItem href="/">
-            <House />
+            <House {...fillWhenActive('/')} />
             Home
           </NavItem>
           <NavItem href="/search">
-            <Search />
+            <Search {...fillWhenActive('/search')} />
             Search
           </NavItem>
 
@@ -86,7 +109,7 @@ export default function Navigation() {
                   cy="50"
                   r="48"
                   fill="transparent"
-                  stroke="#0A1E4F"
+                  stroke="var(--brand-500)"
                   strokeWidth="4"
                   strokeLinecap="round"
                   strokeDasharray={2 * Math.PI * 48} // exact circumference ≈ 295
@@ -109,7 +132,7 @@ export default function Navigation() {
                 }}
                 style={{ filter: shadow }}
                 className={`absolute top-[50%] bg-white w-lg rounded-full p-2 shadow-lg`}>
-                <ShoppingCart />
+                <ShoppingCart {...fillWhenActive('/cart')} />
                 {items.length > 0 && (
                   <motion.aside
                     className={`absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white ${pathname === '/cart' && 'text-brand-500'}`}>
@@ -121,7 +144,7 @@ export default function Navigation() {
           </NavItem>
 
           <NavItem href="/wishlist">
-            <Heart />
+            <Heart {...fillWhenActive('/wishlist')} />
             Wishlist
           </NavItem>
           <NavItem href="/account">
@@ -140,7 +163,7 @@ export default function Navigation() {
               )
               : (
                 <>
-                  <CircleUser/>
+                  <CircleUser {...fillWhenActive('/account')} />
                   My Account
                 </>
               )

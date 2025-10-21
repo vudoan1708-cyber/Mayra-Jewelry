@@ -12,7 +12,6 @@ export default async function Product({ params }: { params: Promise<{ id: string
 
   const buyerId = userIdOrBase64Email(session?.user);
   const buyerWishlist = buyerId ? await checkIfItemInWishlist(buyerId, decodedId) : { found: false };
-
   // As soon as this page loads, it means the view count of this produce has increased
   await updateJewelry({ directoryId: decodedId, views: jewelryItem.views + 1 });
   return (

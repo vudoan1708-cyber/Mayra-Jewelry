@@ -12,7 +12,7 @@
     "@lottiefiles/dotlottie-react": "^0.17.1",
     "framer-motion": "^12.23.22",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.544.0",
+    "lucide-react": "^0.546.0",
     "next": "^15.5.4",
     "next-auth": "^5.0.0-beta.29",
     "react": "^19.1.1",
