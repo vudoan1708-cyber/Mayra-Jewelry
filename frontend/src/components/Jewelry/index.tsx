@@ -13,7 +13,11 @@ export default async function Jewelry() {
         <BestSeller />
       </div>
 
+      <hr />
+
       <WeddingRingSection />
+
+      <hr />
 
       <div className="text-3xl">
         <h3 className="px-6 py-3 font-medium text-brand-500">Bộ sưu tập nổi bật trong năm</h3>

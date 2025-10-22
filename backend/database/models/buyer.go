@@ -19,15 +19,23 @@ const (
 	Shipped             OrderStatus = "shipped"
 )
 
+type OrderJewelryItem struct {
+	OrderId   string `json:"orderId" gorm:"column:orderId;primaryKey"`
+	JewelryId string `json:"jewelryId" gorm:"column:jewelryId;primaryKey"`
+	Quantity  uint   `json:"quantity" gorm:"column:quantity"`
+}
+
 type Order struct {
-	Id                   string            `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	JewelryItems         []JewelryItemInfo `json:"jewelryItems" gorm:"many2many:order_jewelry_items;joinForeignKey:OrderId;joinReferences:JewelryId"`
-	Status               OrderStatus       `json:"status" gorm:"column:status"`
-	PendingAt            time.Time         `json:"pendingAt" gorm:"column:pendingAt;not null;default:now()"`
-	FailedVerificationAt *time.Time        `json:"failedVerificationAt" gorm:"column:failedVerificationAt"`
-	VerifiedAt           *time.Time        `json:"verifiedAt" gorm:"column:verifiedAt"`
-	ShipAt               *time.Time        `json:"shipAt" gorm:"column:shipAt"`
-	BuyerId              string            `json:"buyerId" gorm:"column:buyerId"`
+	Id                   string             `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	JewelryItems         []JewelryItemInfo  `json:"jewelryItems" gorm:"-"`
+	Status               OrderStatus        `json:"status" gorm:"column:status"`
+	IsGift               bool               `json:"isGift" gorm:"column:isGift"`
+	PendingAt            time.Time          `json:"pendingAt" gorm:"column:pendingAt;not null;default:now()"`
+	FailedVerificationAt *time.Time         `json:"failedVerificationAt" gorm:"column:failedVerificationAt"`
+	VerifiedAt           *time.Time         `json:"verifiedAt" gorm:"column:verifiedAt"`
+	ShipAt               *time.Time         `json:"shipAt" gorm:"column:shipAt"`
+	BuyerId              string             `json:"buyerId" gorm:"column:buyerId"`
+	OrderJewelryItems    []OrderJewelryItem `json:"orderJewelryItems" gorm:"foreignKey:OrderId;references:Id"`
 }
 
 type Buyer struct {

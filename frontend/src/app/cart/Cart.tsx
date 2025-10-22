@@ -84,7 +84,7 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
           userEmail={userEmail}
           amount={String(cartItems.reduce((acc, prev) => acc + (prev?.sum ?? 0), 0))}
           info={info}
-          items={cartItems.map<Partial<JewelryItemInfo>>((item) => ({
+          items={useCartCount.getState().items.map<Partial<JewelryItemInfo>>((item) => ({
             directoryId: item.id,
             itemName: item.itemName,
           }))}

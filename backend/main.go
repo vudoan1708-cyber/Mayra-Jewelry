@@ -27,7 +27,10 @@ func main() {
 	allowedOrigin := os.Getenv("FRONTEND_URL")
 
 	cloudflare.CloudflareInstance.Init()
-	database.DatabaseInstance.Init()
+	_, init_err := database.DatabaseInstance.Init()
+	if init_err != nil {
+		log.Fatal("Cannot initialise database")
+	}
 	if migration_err := database.DatabaseInstance.AutoMigrate(); migration_err != nil {
 		log.Fatal("Cannot auto-migrate database")
 	}

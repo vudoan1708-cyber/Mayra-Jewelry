@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -83,7 +82,7 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 	pendingOrder := models.Order{}
 	var orderId string
 	var buyerId string
-	database.DatabaseInstance.Gorm.Preload("JewelryItems.Prices").Model(&models.Order{}).
+	database.DatabaseInstance.Gorm.Preload("OrderJewelryItems").Model(&pendingOrder).
 		Where(&models.Order{Id: encryptionData.OrderId, BuyerId: encryptionData.BuyerId}).
 		Find(&pendingOrder)
 
@@ -91,24 +90,38 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 	verifiedAt := time.Now()
 	pendingOrder.Status = models.Verified
 	pendingOrder.VerifiedAt = &verifiedAt
-	log.Printf("pendingOrder value: %+v", pendingOrder)
 	// Step 4: Get all jewelry items from the pending order
-	var jewelryItems []models.JewelryItemInfo = pendingOrder.JewelryItems
+	jewelryItems := []models.JewelryItemInfo{}
+	if get_jewelry_err := database.DatabaseInstance.Gorm.Preload("Prices").Model(&models.JewelryItemInfo{}).
+		Where(helpers.MapFunc(pendingOrder.OrderJewelryItems, func(item models.OrderJewelryItem, _ int) models.JewelryItemInfo {
+			return models.JewelryItemInfo{DirectoryId: item.JewelryId}
+		})).
+		Find(&jewelryItems).Error; get_jewelry_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_jewelry_err.Error())
+		return
+	}
 
 	// Step 5: Add points and upgrade tier if necessary
 	var mayraPoint float32
-	str_to_float, conv_err := strconv.ParseFloat(encryptionData.TotalAmount, 32)
-	if conv_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, conv_err.Error())
-		return
-	}
-	for _, item := range jewelryItems {
+	for idx, item := range jewelryItems {
 		// TODO: This only counts the first item (Silver) in the Prices array, needs further expanding if other materials become relevant
-		afterDiscount := float32(str_to_float) * (1 - helpers.FalsyFallback(item.Prices[0].Discount, 0))
+		afterDiscount := float32(item.Prices[0].Amount*int32(pendingOrder.OrderJewelryItems[idx].Quantity)) * (1 - helpers.FalsyFallback(item.Prices[0].Discount, 0))
 		mayraPoint += afterDiscount / 10000
 	}
 
 	if tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
+		// Step 6: Update number of purchases for the items
+		for idx, item := range jewelryItems {
+			newPurchaseCount := item.Purchases + pendingOrder.OrderJewelryItems[idx].Quantity
+			if update_err := tx.Model(&models.JewelryItemInfo{}).
+				Where("\"directoryId\" = ?", item.DirectoryId).
+				Select("purchases").
+				// jewelryItems is mapped from OrderJewelryItems so they share the same length
+				Update("purchases", newPurchaseCount).Error; update_err != nil {
+				log.Printf("Error when updating purchases for ordered items. Reason: %s", update_err.Error())
+				return update_err
+			}
+		}
 		buyer := models.Buyer{}
 		// Get a buyer with a provided ID
 		if get_error := getOneBuyer(tx, buyerId, &buyer, "*"); get_error != nil {
@@ -122,17 +135,15 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 				return get_error
 			}
 		}
-		// Update Order database table based on column ID conflict
+		// Step 7: Update Order database table based on column ID conflict
 		if jewelry_db_err := tx.Model(&pendingOrder).
 			Where(&models.Order{Id: orderId, BuyerId: buyerId}).
 			Select([]string{"status", "verifiedAt"}).
 			Updates(&pendingOrder).Error; jewelry_db_err != nil {
 			return jewelry_db_err
 		}
-		if association_err := tx.Model(&pendingOrder).Association("JewelryItems").Append(jewelryItems); association_err != nil {
-			return association_err
-		}
 
+		// Step 8: Update Buyer points and tier
 		if update_err := tx.Model(&buyer).
 			Where(&models.Buyer{Id: buyerId}).
 			Select([]string{"tier", "mayraPoint"}).
@@ -143,7 +154,7 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 			return update_err
 		}
 
-		// Non-MVP: Sending Notification to the user saying the pending order has been approved
+		// Non-MVP step: Sending Notification to the user saying the pending order has been approved
 		// productNames := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
 		// 	return item.ItemName
 		// })

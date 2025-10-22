@@ -20,6 +20,7 @@ func (db *Database) AutoMigrate() error {
 		&models.Buyer{},
 		&models.Order{},
 		&models.JewelryItemInfo{},
+		&models.OrderJewelryItem{},
 		&models.JewelryPrice{},
 	}
 	if auto_migrate_err := db.Gorm.AutoMigrate(allModels...); auto_migrate_err != nil {

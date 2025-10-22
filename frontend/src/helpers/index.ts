@@ -110,6 +110,10 @@ export const ENGLISH_TO_VIETNAMESE = {
   Silver: 'Bạc',
   Gold: 'Vàng',
   'White Gold': 'Vàng trắng',
+  'pending-verification': 'Đang xác thực thanh toán',
+  'failed-verification': 'Lỗi xác thực thanh toán',
+  'verified': 'Thành công xác thực thanh toán',
+  'shipped': 'Đã giao hàng',
 };
 
 export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';

@@ -29,19 +29,20 @@ func (JewelryPrice) TableName() string {
 }
 
 type JewelryItemInfo struct {
-	DirectoryId       string         `json:"directoryId" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
-	ItemName          string         `json:"itemName" gorm:"column:itemName"`                  // Name of the jewelry item
-	Description       string         `json:"description"`                                      // Description of the jewelry item
-	Purchases         uint           `json:"purchases"`                                        // Number of purchases
-	FeatureCollection string         `json:"featureCollection" gorm:"column:featureCollection"`
-	BestSeller        bool           `json:"bestSeller" gorm:"column:bestSeller"`
-	Type              JewelryType    `json:"type"`
-	ViewCount         uint           `json:"views" gorm:"column:views"`
-	Currency          string         `json:"currency"`
-	InStock           bool           `json:"inStock" gorm:"column:inStock"`
-	Giftable          bool           `json:"giftable" gorm:"column:giftable"`
-	Prices            []JewelryPrice `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
-	Media             []MediaLink    `json:"media" gorm:"-"`
+	DirectoryId       string             `json:"directoryId" gorm:"primaryKey;column:directoryId"` // base64 representation of the name of the jewelry item as a directory name containing images
+	ItemName          string             `json:"itemName" gorm:"column:itemName"`                  // Name of the jewelry item
+	Description       string             `json:"description"`                                      // Description of the jewelry item
+	Purchases         uint               `json:"purchases"`                                        // Number of purchases
+	FeatureCollection string             `json:"featureCollection" gorm:"column:featureCollection"`
+	BestSeller        bool               `json:"bestSeller" gorm:"column:bestSeller"`
+	Type              JewelryType        `json:"type"`
+	ViewCount         uint               `json:"views" gorm:"column:views"`
+	Currency          string             `json:"currency"`
+	InStock           bool               `json:"inStock" gorm:"column:inStock"`
+	Giftable          bool               `json:"giftable" gorm:"column:giftable"`
+	Prices            []JewelryPrice     `json:"prices" gorm:"foreignKey:JewelryItemInfoId;references:DirectoryId"`
+	Media             []MediaLink        `json:"media" gorm:"-"`
+	OrderJewelryItems []OrderJewelryItem `json:"orderJewelryItems" gorm:"foreignKey:JewelryId;references:DirectoryId"`
 }
 
 func (JewelryItemInfo) TableName() string {

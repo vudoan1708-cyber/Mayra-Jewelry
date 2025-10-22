@@ -427,11 +427,11 @@ func sendEmail(buyerName string, lastFourDigits string, productName string, amou
 	params := &resend.SendEmailRequest{
 		From:    "Mayra Payments <onboarding@resend.dev>",
 		To:      []string{os.Getenv("MERCHANT_EMAIL")},
-		Subject: fmt.Sprintf("Confirm payment for %s from %s", productName, buyerName),
+		Subject: fmt.Sprintf("Em bé uiii, confirm đơn hàng %s từ người mua %s nhaaaaaaa", productName, buyerName),
 		Html: fmt.Sprintf(
 			`<div>
-				<span>Buyer named: <strong>%s</strong>, with the last 5 digits on their account as <strong>%s</strong> spent <strong>%s</strong> to buy <strong>%s</strong></span><br />
-				<a href='%s'>Confirm here</a>
+				<span>Người đặt hàng: <strong>%s</strong>, với 5 số cuối từ tài khoản ngân hàng là <strong>%s</strong> đã dành ra <strong>%s</strong> để mua <strong>%s</strong></span><br />
+				<a bgcolor="#001B3D" style="padding:4px; margin-top:2px;" href='%s'>Nhấn để confirm</a>
 			</div>`,
 			buyerName, lastFourDigits, amount, productName, confirmUrl,
 		),
@@ -500,17 +500,6 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	directoryIds := helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) string {
-		return __item.DirectoryId
-	})
-	if get_many_jewelry_err := database.DatabaseInstance.Gorm.
-		Preload("Prices").Model([]models.JewelryItemInfo{}).
-		Where("\"directoryId\" IN ?", directoryIds).
-		Find(&jewelryItems).Error; get_many_jewelry_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_many_jewelry_err.Error())
-		return
-	}
-
 	// PendingAt has a default value to now() so no need to fill it in the struct
 	orderPayload := models.Order{
 		Status:  models.PendingVerification,
@@ -535,7 +524,21 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		if jewelry_db_err := tx.Model(&models.Order{}).Create(&orderPayload).Error; jewelry_db_err != nil {
 			return jewelry_db_err
 		}
-		if association_err := tx.Model(&orderPayload).Association("JewelryItems").Append(jewelryItems); association_err != nil {
+
+		// Use map to remove duplicate and update Quantity count if necessary
+		occurence := make(map[string]uint)
+		var joinedOrderJewelry []models.OrderJewelryItem
+		for _, item := range jewelryItems {
+			occurence[item.DirectoryId] += 1
+		}
+		for key, value := range occurence {
+			joinedOrderJewelry = append(joinedOrderJewelry, models.OrderJewelryItem{
+				OrderId:   orderPayload.Id,
+				JewelryId: key,
+				Quantity:  value,
+			})
+		}
+		if association_err := tx.Model(&orderPayload).Association("OrderJewelryItems").Append(joinedOrderJewelry); association_err != nil {
 			return association_err
 		}
 

@@ -33,9 +33,16 @@ export type VeriyingOrderPayload = {
   totalAmount: string;
 };
 
+type OrderJewelryItems = {
+  jewelryId: string;
+  orderId: string;
+  quantity: number;
+};
+
 export type Order = {
   id: string;
   jewelryItems: Array<JewelryItemInfo>;
+  orderJewelryItems: Array<OrderJewelryItems>;
   status: 'pending-verification' | 'failed-verification' | 'verified' | 'shipped';
   pendingAt: string;
   failedVerificationAt?: string;
