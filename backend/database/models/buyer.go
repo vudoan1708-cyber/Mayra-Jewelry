@@ -35,6 +35,7 @@ type Order struct {
 	FailedVerificationAt *time.Time         `json:"failedVerificationAt" gorm:"column:failedVerificationAt"`
 	VerifiedAt           *time.Time         `json:"verifiedAt" gorm:"column:verifiedAt"`
 	ShipAt               *time.Time         `json:"shipAt" gorm:"column:shipAt"`
+	CancelledAt          *time.Time         `json:"cancelledAt" gorm:"column:cancelledAt"`
 	BuyerId              string             `json:"buyerId" gorm:"column:buyerId"`
 	OrderJewelryItems    []OrderJewelryItem `json:"orderJewelryItems" gorm:"foreignKey:OrderId;references:Id"`
 }

@@ -35,8 +35,10 @@ func (fac *SessionFactory) GetSessionByUserId(userId string) (*Session, bool) {
 	return found, ok
 }
 func (fac *SessionFactory) GetSessionByCypherText(ct []byte) (*Session, bool) {
-	for _, value := range fac.sessions {
+	for key, value := range fac.sessions {
 		if subtle.ConstantTimeCompare(value.CypherText, ct) == 1 {
+			// Once this is retrieved, it is immediately removed for security
+			delete(fac.sessions, key)
 			return value, true
 		}
 	}

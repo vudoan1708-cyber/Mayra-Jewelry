@@ -40,6 +40,21 @@ func sendPaymentVerifiedEmail(buyerEmail, productName string) error {
 	return nil
 }
 
+func convertMayraPointToTier(mayraPoint float32) models.Tier {
+	switch {
+	case mayraPoint < 100:
+		return models.SilverTier
+	case mayraPoint < 600:
+		return models.GoldTier
+	case mayraPoint < 1200:
+		return models.PlatinumTier
+	case mayraPoint >= 1200:
+		return models.DiamondTier
+	default:
+		return ""
+	}
+}
+
 func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")

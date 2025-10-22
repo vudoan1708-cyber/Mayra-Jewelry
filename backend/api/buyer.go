@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/resend/resend-go/v2"
@@ -22,21 +23,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
-
-func convertMayraPointToTier(mayraPoint float32) models.Tier {
-	switch {
-	case mayraPoint < 100:
-		return models.SilverTier
-	case mayraPoint < 600:
-		return models.GoldTier
-	case mayraPoint < 1200:
-		return models.PlatinumTier
-	case mayraPoint < 2000:
-		return models.DiamondTier
-	default:
-		return ""
-	}
-}
 
 func getOneBuyer(db *gorm.DB, buyerId string, buyerModel *models.Buyer, selector string) error {
 	return db.Model(&models.Buyer{}).Preload("Wishlist.Prices").Preload("Wishlist").Preload("OrderHistory").
@@ -578,5 +564,40 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	middleware.HandleResponse(w, nil)
+}
+
+func RemoveBuyerOrder(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
+		return
+	}
+
+	r.ParseMultipartForm(10 << 20)
+
+	data := r.MultipartForm.Value
+
+	var missingFields []string
+	if data["buyerId"] == nil || data["buyerId"][0] == "" {
+		missingFields = append(missingFields, "buyerId")
+	}
+	if data["orderId"] == nil || data["orderId"][0] == "" {
+		missingFields = append(missingFields, "orderId")
+	}
+
+	if len(missingFields) > 0 {
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("%s field(s) missing from payload", strings.Join(missingFields, ", ")))
+		return
+	}
+
+	order := models.Order{}
+	now := time.Now()
+	if update_err := database.DatabaseInstance.Gorm.Model(&order).
+		Where(&models.Order{Id: data["orderId"][0], BuyerId: data["buyerId"][0]}).
+		Select("cancelledAt").
+		Update("cancelledAt", &now).Error; update_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, update_err.Error())
+		return
+	}
 	middleware.HandleResponse(w, nil)
 }
