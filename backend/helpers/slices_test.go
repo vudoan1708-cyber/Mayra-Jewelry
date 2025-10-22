@@ -118,3 +118,23 @@ func TestFlatFunc(t *testing.T) {
 		t.Errorf("TestFlatFunc: want: %+v does not equal got: %+v", want, got)
 	}
 }
+
+func TestReduceFunc(t *testing.T) {
+	var array = []Item{
+		{Id: "12312", Value: 1000},
+		{Id: "test", Value: 2000},
+		{Id: "more test", Value: 5000},
+		{Id: "more test 2", Value: 6000},
+	}
+
+	want := 14000
+
+	initial := 0
+	got := ReduceFunc(array, func(accumulator int, item Item, _ int) int {
+		return accumulator + item.Value
+	}, initial)
+
+	if want != got {
+		t.Errorf("TestReduceFunc: want: %d does not equal got: %d", want, got)
+	}
+}

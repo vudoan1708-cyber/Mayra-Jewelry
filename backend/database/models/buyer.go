@@ -8,6 +8,7 @@ const (
 	SilverTier   Tier = "silver"
 	GoldTier     Tier = "gold"
 	PlatinumTier Tier = "platinum"
+	DiamondTier  Tier = "diamond"
 )
 
 type OrderStatus string

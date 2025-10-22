@@ -29,8 +29,10 @@ func convertMayraPointToTier(mayraPoint float32) models.Tier {
 		return models.SilverTier
 	case mayraPoint < 600:
 		return models.GoldTier
-	case mayraPoint >= 1200:
+	case mayraPoint < 1200:
 		return models.PlatinumTier
+	case mayraPoint < 2000:
+		return models.DiamondTier
 	default:
 		return ""
 	}
@@ -427,7 +429,7 @@ func sendEmail(buyerName string, lastFourDigits string, productName string, amou
 	params := &resend.SendEmailRequest{
 		From:    "Mayra Payments <onboarding@resend.dev>",
 		To:      []string{os.Getenv("MERCHANT_EMAIL")},
-		Subject: fmt.Sprintf("Em bé uiii, confirm đơn hàng %s từ người mua %s nhaaaaaaa", productName, buyerName),
+		Subject: "Em bé uiii, confirm đơn hàng nhaaaaaaa",
 		Html: fmt.Sprintf(
 			`<div>
 				<span>Người đặt hàng: <strong>%s</strong>, với 5 số cuối từ tài khoản ngân hàng là <strong>%s</strong> đã dành ra <strong>%s</strong> để mua <strong>%s</strong></span><br />
@@ -527,9 +529,11 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 
 		// Use map to remove duplicate and update Quantity count if necessary
 		occurence := make(map[string]uint)
+		productCountByName := make(map[string]uint)
 		var joinedOrderJewelry []models.OrderJewelryItem
 		for _, item := range jewelryItems {
 			occurence[item.DirectoryId] += 1
+			productCountByName[item.ItemName] += 1
 		}
 		for key, value := range occurence {
 			joinedOrderJewelry = append(joinedOrderJewelry, models.OrderJewelryItem{
@@ -543,9 +547,10 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Sending Notification to an admin
-		productNames := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, nil int) string {
-			return item.ItemName
-		})
+		var productNames []string
+		for key, value := range productCountByName {
+			productNames = append(productNames, fmt.Sprintf("%d cái %s", value, key))
+		}
 
 		// Create an encryption session ID to send an email to an admin
 		buyerName := data["buyerName"][0]

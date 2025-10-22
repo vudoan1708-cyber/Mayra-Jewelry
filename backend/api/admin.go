@@ -92,15 +92,15 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 	pendingOrder.VerifiedAt = &verifiedAt
 	// Step 4: Get all jewelry items from the pending order
 	jewelryItems := []models.JewelryItemInfo{}
+	directoryIds := helpers.MapFunc(pendingOrder.OrderJewelryItems, func(item models.OrderJewelryItem, _ int) string {
+		return item.JewelryId
+	})
 	if get_jewelry_err := database.DatabaseInstance.Gorm.Preload("Prices").Model(&models.JewelryItemInfo{}).
-		Where(helpers.MapFunc(pendingOrder.OrderJewelryItems, func(item models.OrderJewelryItem, _ int) models.JewelryItemInfo {
-			return models.JewelryItemInfo{DirectoryId: item.JewelryId}
-		})).
+		Where("\"directoryId\" IN ?", directoryIds).
 		Find(&jewelryItems).Error; get_jewelry_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_jewelry_err.Error())
 		return
 	}
-
 	// Step 5: Add points and upgrade tier if necessary
 	var mayraPoint float32
 	for idx, item := range jewelryItems {
@@ -116,7 +116,6 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 			if update_err := tx.Model(&models.JewelryItemInfo{}).
 				Where("\"directoryId\" = ?", item.DirectoryId).
 				Select("purchases").
-				// jewelryItems is mapped from OrderJewelryItems so they share the same length
 				Update("purchases", newPurchaseCount).Error; update_err != nil {
 				log.Printf("Error when updating purchases for ordered items. Reason: %s", update_err.Error())
 				return update_err
@@ -144,12 +143,13 @@ func ConfirmPaymentAndVerifyOrder(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Step 8: Update Buyer points and tier
+		totalPoint := buyer.MayraPoint + mayraPoint
 		if update_err := tx.Model(&buyer).
 			Where(&models.Buyer{Id: buyerId}).
 			Select([]string{"tier", "mayraPoint"}).
 			Updates(map[string]any{
-				"tier":       convertMayraPointToTier(mayraPoint),
-				"mayraPoint": mayraPoint,
+				"tier":       convertMayraPointToTier(totalPoint),
+				"mayraPoint": totalPoint,
 			}).Error; update_err != nil {
 			return update_err
 		}

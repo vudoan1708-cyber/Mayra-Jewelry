@@ -38,3 +38,12 @@ func FlatFunc[T any](array [][]T) []T {
 	}
 	return flat
 }
+
+func ReduceFunc[T any, A any](array []T, callback func(A, T, int) A, initialValue A) A {
+	accumulator := initialValue
+	for index, item := range array {
+		accumulator = callback(accumulator, item, index)
+	}
+
+	return accumulator
+}
