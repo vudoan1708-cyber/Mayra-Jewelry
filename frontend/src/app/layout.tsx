@@ -20,11 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.cdnfonts.com/css/cocobiker" rel="stylesheet" />
+      </head>
       <body>
         <SessionProvider>
           <Navigation />
           
-          <main id="root" className="grid flex-1">{children}</main>
+          <main id="root" className="grid flex-1 snap-y snap-mandatory h-screen scroll-smooth">{children}</main>
 
           <Floating />
 

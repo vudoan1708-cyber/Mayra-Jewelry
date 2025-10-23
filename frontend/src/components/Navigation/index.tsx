@@ -68,25 +68,17 @@ export default function Navigation() {
   }, []);
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative bg-brand-500 text-white p-1 w-full text-center uppercase"
-        id="extra_nav_info">
-        <span className="font-semibold text-lg">📢 </span>
-        Giảm giá 10% các mẫu nhẫn từ ngày <span className="border-b border-b-1 border-b-brand-200">5/10 - 20/10</span>
-      </motion.div>
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-transparent-white backdrop-blur-sm sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
-        <motion.img
+        className={`backdrop-blur-sm ${pathname === '/' ? 'fixed' : 'sticky'} top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] bg-transparent sm:shadow-lg`}>
+        {/* <motion.img
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           alt="Mayra logo"
           src="/images/logo.webp"
           className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
-          onClick={() => { router.push('/'); }} />
+          onClick={() => { router.push('/'); }} /> */}
         <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_125px] sm:gap-0 sm:justify-center sm:items-center">
           <NavItem href="/">
             <House {...fillWhenActive('/')} />
@@ -131,7 +123,7 @@ export default function Navigation() {
                   ease: 'easeInOut',
                 }}
                 style={{ filter: shadow }}
-                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 shadow-lg`}>
+                className={`absolute top-[50%] w-lg rounded-full p-2 shadow-lg`}>
                 <ShoppingCart {...fillWhenActive('/cart')} />
                 {items.length > 0 && (
                   <motion.aside
