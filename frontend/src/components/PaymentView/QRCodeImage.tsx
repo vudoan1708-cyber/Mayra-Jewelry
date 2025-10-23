@@ -3,13 +3,14 @@
 import Image from 'next/image';
 import { useState, type DOMAttributes } from 'react';
 
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import Button from '../Button';
 import Modal from '../Modal/Modal';
 
 import { requestVerifyingOrder } from '../../server/data';
 import type { JewelryItemInfo } from '../../../types';
+import { useRouter } from 'next/navigation';
 
 export default function QRCodeImage({
   qrCode,
@@ -28,9 +29,11 @@ export default function QRCodeImage({
   totalAmount: string;
   onSuccessfulConfirmation?: () => void;
 }) {
+  const router = useRouter();
   const [confirmModal, setOpenConfirmModal] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
   const [verifying, setVerifying] = useState<boolean>(false);
+  const [showWarning, setShowWarning] = useState<boolean>(!userId);
 
   const [partialAccountNumber, setPartialAccountNumber] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -58,9 +61,10 @@ export default function QRCodeImage({
   const sendConfirmation = async () => {
     try {
       setVerifying(true);
+      console.log('userEmail', userEmail)
       await requestVerifyingOrder({
-        buyerId: userId ?? window.btoa(userEmail),
-        buyerEmail: userEmail,
+        buyerId: userId || (userEmail ? window.btoa(userEmail) : 'anonymous'),
+        buyerEmail: userEmail || 'anonymous',
         buyerName: name,
         digits: partialAccountNumber,
         jewelryItems: items,
@@ -80,8 +84,22 @@ export default function QRCodeImage({
   if (loading) return null;
   if (!qrCode) return null;
   return (
-    <section className="w-full md:w-auto flex flex-col items-center md:items-start">
+    <section className="relative w-full md:w-auto flex flex-col items-center md:items-start">
       <Image src={qrCode} alt="Test" width="450" height="450" className="bg-transparent" />
+      {showWarning && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="absolute w-full h-full bg-transparent-white flex flex-col gap-3 items-center justify-center text-center text-black p-1 rounded-md">
+          <div className="grid grid-rows-2 p-1 bg-[rgba(255,255,255,.75)] rounded-lg">
+            <h3>Bạn có thể theo dõi trạng thái order nếu đăng nhập trước khi mua hàng.</h3>
+            <span className="inline-grid gap-1 items-center ">
+              <Button variant="secondary" onClick={() => { setShowWarning(false); }}>Không cần</Button>
+              <Button variant="primary" onClick={() => { router.push(`/account?autoSignin=true&from=${window.btoa(window.location.href)}`); }}>Đăng nhập</Button>
+            </span>
+          </div>
+        </motion.div>
+      )}
       <div className="flex gap-1 items-center justify-center w-full">
         <Button variant="primary" onClick={() => { setOpenConfirmModal(true); }}>
           Xác nhận chuyển khoản

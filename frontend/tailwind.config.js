@@ -40,6 +40,28 @@ export default {
       transitionDuration: {
         DEFAULT: '200ms',
       },
+      keyframes: {
+        glow: {
+          '0%': {
+            transform: 'scale(1)',
+            boxShadow:
+              '0 0 6px 0 rgba(250,204,21,0.25), 0 0 12px 0 rgba(250,204,21,0.25)'
+          },
+          '50%': {
+            transform: 'scale(1.12)',
+            boxShadow:
+              '0 0 12px 6px rgba(250,204,21,0.3), 0 0 36px 12px rgba(250,204,21,0.3)'
+          },
+          '100%': {
+            transform: 'scale(1)',
+            boxShadow:
+              '0 0 6px 0 rgba(250,204,21,0.25), 0 0 12px 0 rgba(250,204,21,0.25)'
+          },
+        }
+      },
+      animation: {
+        glow: 'glow 1.8s ease-in-out infinite'
+      },
     },
   },
   plugins: [],

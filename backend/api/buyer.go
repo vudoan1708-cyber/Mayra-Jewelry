@@ -457,7 +457,7 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if data["buyerEmail"] == nil || data["buyerEmail"][0] == "" {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerEmail is missing from the payload")
+		log.Println("buyerEmail is missing from the payload, but is not critical. Moving on...")
 		return
 	}
 

@@ -106,14 +106,21 @@ export const minPrice = (prices: Prices[]) => {
   return currentPrice;
 };
 
+export const ORDER_STATUS = {
+  PENDING_VERIFICATION: 'pending-verification',
+  FAILED_VERIFICATION: 'failed-verification',
+  VERIFIED: 'verified',
+  SHIPPED: 'shipped',
+};
+
 export const ENGLISH_TO_VIETNAMESE = {
   Silver: 'Bạc',
   Gold: 'Vàng',
   'White Gold': 'Vàng trắng',
-  'pending-verification': 'Đang xác thực thanh toán',
-  'failed-verification': 'Lỗi xác thực thanh toán',
-  'verified': 'Thành công xác thực thanh toán',
-  'shipped': 'Đã giao hàng',
+  [ORDER_STATUS.PENDING_VERIFICATION]: 'Đang xác thực thanh toán',
+  [ORDER_STATUS.FAILED_VERIFICATION]: 'Lỗi xác thực thanh toán',
+  [ORDER_STATUS.VERIFIED]: 'Thành công xác thực thanh toán',
+  [ORDER_STATUS.SHIPPED]: 'Đã giao hàng',
 };
 
 export const LOGO_SCROLLED_PASSED_EVENT = 'logo_scrolled_passed';

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { signIn } from 'next-auth/react';
 
@@ -8,8 +8,16 @@ import { motion } from 'framer-motion';
 
 import Button from '../Button';
 
-export default function LoginForm({ title, redirectTo = '/' }: { title: string, redirectTo?: string }) {
+export default function LoginForm({ title, redirectTo = '/', autoSignIn = false }: { title: string; redirectTo?: string; autoSignIn?: boolean }) {
   const [clicked, setClicked] = useState<boolean>(false);
+
+  useEffect(() => {
+    const signInImmediately = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      autoSignIn && await signIn('facebook', { redirectTo });
+    };
+    signInImmediately();
+  }, [autoSignIn]);
   return (
     <motion.form
       key="scale-and-fade"
@@ -25,6 +33,7 @@ export default function LoginForm({ title, redirectTo = '/' }: { title: string, 
         variant="secondary"
         className="items-center justify-center text-facebook border-facebook py-1"
         working={clicked}
+        disabled={clicked}
         onClick={() => {
           setClicked(true);
         }}>

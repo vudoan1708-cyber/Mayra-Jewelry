@@ -23,7 +23,7 @@ export default function AlreadySignedIn({ userName, userImage, orders }: { userN
           )
           : (
             <>
-              <div className="flex gap-1 items-center bg-transparent-white shadow-sm">
+              <div className="sticky flex gap-1 items-center bg-transparent-white shadow-sm">
                 <Image
                   alt="user profile image"
                   src={userImage}
