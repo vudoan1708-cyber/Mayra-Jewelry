@@ -42,13 +42,17 @@ export default function GridItem({
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
         <figure className="text-sm h-96 overflow-hidden">
           {/* Original ratio: 1080 - 1280 */}
-          <Image
-            src={thumbnail}
-            alt={alt}
-            width="520"
-            height="520"
-            style={{ width: "auto", height: "auto" }}
-            className="object-contain h-full w-full rounded-md hover:scale-105 transition-all" />
+          <motion.div
+            whileHover={{ scale: 1.05, transition: { type: 'spring' } }}
+          >
+            <Image
+              src={thumbnail}
+              alt={alt}
+              width="520"
+              height="520"
+              style={{ width: "auto", height: "auto" }}
+              className="object-contain h-full w-full rounded-md hover:scale-105 transition-all" />
+          </motion.div>
           {children && (
             <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
               {children}

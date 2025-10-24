@@ -12,6 +12,7 @@ import type { Order as OrderType, Tier } from '../../../types';
 import Tabs, { type Tab } from '../../components/Tabs/Tabs';
 import { useState } from 'react';
 import { convertMayraPointToTier, convertTierToTextColour } from '../../helpers';
+import MayraPointProgress from './MayraPointProgress';
 
 const TABS = [
   { id: 1, label: 'Đơn hàng', active: true },
@@ -54,7 +55,9 @@ export default function AlreadySignedIn({
     }
     return (
       <>
-        <div>
+        <MayraPointProgress current={userPoint} />
+
+        <div className="mt-1">
           <p>Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{userName}</b> và đang tích điểm Mayra Point.</p>
           <p>Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.</p>
         </div>
@@ -72,7 +75,7 @@ export default function AlreadySignedIn({
   };
   
   return (
-    <div className="relative flex items-start justfy-center my-4">
+    <div className="relative flex items-start justfy-center my-4 overflow-hidden">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

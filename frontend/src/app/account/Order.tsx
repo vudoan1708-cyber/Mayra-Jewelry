@@ -3,6 +3,9 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+
+import { motion } from 'framer-motion';
+
 import { format } from 'date-fns';
 
 import type { JewelryItemInfo, Order } from '../../../types';
@@ -26,16 +29,20 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
   };
   return (
     <div className="flex items-start gap-1 overflow-hidden border border-top-1 rounded-md">
-      <div className="cursor-pointer hover:scale-105 transition-all">
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1, transition: { duration: .4, type: 'keyframes' } }}
+        whileHover={{ scale: 1.05, transition: { type: 'spring' } }}
+        className="cursor-pointer">
         <Image
           alt={item.itemName}
           src={item.media.find((file) => file.url.includes('thumbnail'))?.url ?? ''}
           width="250"
           height="250"
-          className="relative object-cover rounded-md "
+          className="relative object-cover rounded-md hover:scale-105 transition-all"
           onClick={() => { router.push(`/product/${item.directoryId}`); }}
       />
-      </div>
+      </motion.div>
       <div className="flex flex-col gap-1 w-full">
         <h3 className="text-lg">{item.itemName}</h3>
         <hr className="relative w-full" />
