@@ -40,7 +40,29 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	buyerId := vars["buyerId"]
 
+	queryParams := r.URL.Query()
+	filters := queryParams.Get("filters")
+	parts := strings.Split(filters, ",")
+
 	buyer := models.Buyer{}
+
+	if len(parts) > 0 {
+		if err := database.DatabaseInstance.Gorm.Model(&models.Buyer{}).
+			Where(&models.Buyer{Id: buyerId}).
+			Select(parts).
+			First(&buyer).Error; err != nil {
+			err_string := err.Error()
+			var statusCode int = http.StatusInternalServerError
+			if strings.Contains(err_string, "not found") {
+				statusCode = http.StatusNotFound
+				err_string = fmt.Sprintf("buyer Id: %s might not exist. %s", buyerId, err_string)
+			}
+			middleware.HandleErrorResponse(w, statusCode, err_string)
+			return
+		}
+		middleware.HandleResponse(w, buyer)
+		return
+	}
 
 	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "*"); err != nil {
 		err_string := err.Error()
@@ -457,7 +479,7 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if data["buyerEmail"] == nil || data["buyerEmail"][0] == "" {
-		log.Println("buyerEmail is missing from the payload, but is not critical. Moving on...")
+		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerEmail is missing from the payload")
 		return
 	}
 

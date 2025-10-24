@@ -51,10 +51,11 @@ export type Order = {
   buyerId: string;
 };
 
+export type Tier = 'silver' | 'gold' | 'platinum' | 'diamond';
 export type Buyer = {
   id: string;
   wishlist: Array<JewelryItemInfo>;
   orderHistory: Array<Order>;
-  tier: 'silver' | 'gold' | 'platinum';
+  tier: Tier;
   mayraPoint: number;
 };

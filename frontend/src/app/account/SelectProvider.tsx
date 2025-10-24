@@ -1,19 +1,24 @@
-'use client'
-
 import type { Session } from 'next-auth';
 import { AnimatePresence } from 'framer-motion';
 
 import LoginForm from '../../components/LoginForm/LoginForm';
 import AlreadySignedIn from './AlreadySignedIn';
-import type { Order } from '../../../types';
-import { useEffect, useState } from 'react';
+import type { Buyer, Order } from '../../../types';
 
-export default function SelectProvider({ session, orders, autoSignIn = false, redirection }: { session: Session | null; orders?: Array<Order>; autoSignIn: boolean; redirection?: string }) {
-  const [redirectTo, setRedirectTo] = useState<string | undefined>('');
-
-  useEffect(() => {
-    setRedirectTo(window.atob(redirection ?? '') ?? undefined);
-  }, []);
+export default function SelectProvider({
+  session,
+  orders,
+  buyer,
+  autoSignIn = false,
+  redirection = undefined,
+}: {
+  session: Session | null;
+  orders?: Array<Order>;
+  buyer: Buyer;
+  autoSignIn: boolean;
+  redirection?: string;
+}) {
+  const redirectTo = Buffer.from(redirection ?? '', 'base64').toString('utf-8') ?? undefined;
   if (!session || !orders) {
     return (
       <AnimatePresence mode="wait">
@@ -23,6 +28,11 @@ export default function SelectProvider({ session, orders, autoSignIn = false, re
   }
 
   return (
-    <AlreadySignedIn userName={session.user?.name ?? ''} userImage={session.user?.image ?? ''} orders={orders} />
+    <AlreadySignedIn
+      userName={session.user?.name ?? ''}
+      userImage={session.user?.image ?? ''}
+      userPoint={buyer.mayraPoint}
+      userTier={buyer.tier}
+      orders={orders} />
   )
 }

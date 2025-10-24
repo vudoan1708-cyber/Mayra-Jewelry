@@ -38,7 +38,7 @@ export default function GridItem({
       whileInView={{ opacity: 1 }}
       whileHover={{ opacity: .9 }}
       transition={{ type: 'spring', stiffness: 300 }}
-      className="relative cursor-pointer">
+      className="relative cursor-pointer overflow-hidden">
       <NavItem href="/product" withBorder={false} withHover={false} onClick={navigate}>
         <figure className="text-sm h-96 overflow-hidden">
           {/* Original ratio: 1080 - 1280 */}
@@ -48,7 +48,7 @@ export default function GridItem({
             width="520"
             height="520"
             style={{ width: "auto", height: "auto" }}
-            className="object-contain h-full w-full rounded-md" />
+            className="object-contain h-full w-full rounded-md hover:scale-105 transition-all" />
           {children && (
             <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
               {children}

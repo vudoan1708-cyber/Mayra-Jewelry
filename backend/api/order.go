@@ -9,6 +9,7 @@ import (
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database/models"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/middleware"
+	"gorm.io/gorm/clause"
 )
 
 func GetOrdersByBuyerId(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +30,7 @@ func GetOrdersByBuyerId(w http.ResponseWriter, r *http.Request) {
 	if err := database.DatabaseInstance.Gorm.Preload("OrderJewelryItems").Model(&response).
 		Where(&models.Order{BuyerId: buyerId}).
 		Select("*").
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "verifiedAt"}, Desc: true}).
 		Find(&response).Error; err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return

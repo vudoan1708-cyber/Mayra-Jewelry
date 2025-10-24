@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { format } from 'date-fns';
+
 import type { JewelryItemInfo, Order } from '../../../types';
 import { ENGLISH_TO_VIETNAMESE, ORDER_STATUS } from '../../helpers';
 
@@ -10,7 +12,7 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
   const router = useRouter();
   const DotStatus = () => {
     if (order.status === ORDER_STATUS.PENDING_VERIFICATION) {
-      return <div className="rounded-full w-[20px] h-[20px] p-1 bg-yellow-400 animate-glow"></div>
+      return <div className="rounded-full w-[20px] h-[20px] p-1 ml-[10px] bg-yellow-400 animate-glow"></div>
     }
 
     return (
@@ -23,25 +25,36 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
     )
   };
   return (
-    <div className="flex items-start gap-1 overflow-hidden">
+    <div className="flex items-start gap-1 overflow-hidden border border-top-1 rounded-md">
       <div className="cursor-pointer hover:scale-105 transition-all">
         <Image
           alt={item.itemName}
           src={item.media.find((file) => file.url.includes('thumbnail'))?.url ?? ''}
-          width="200"
-          height="200"
+          width="250"
+          height="250"
           className="relative object-cover rounded-md "
           onClick={() => { router.push(`/product/${item.directoryId}`); }}
       />
       </div>
-      <div className="flex flex-col gap-1">
-        <strong>{item.itemName}</strong>
+      <div className="flex flex-col gap-1 w-full">
+        <h3 className="text-lg">{item.itemName}</h3>
+        <hr className="relative w-full" />
         <span><strong>Số lượng mua:</strong> {order.orderJewelryItems[idx].quantity}</span>
+        <span><strong>Ngày mua:</strong> {format(new Date(order.pendingAt), 'dd/MM/yyyy')}</span>
         <div className="flex flex-col gap-1">
           <strong>Trạng thái đơn hàng:</strong> 
-          <div className="flex gap-2 items-center flex-wrap">
-            <DotStatus />
-            {ENGLISH_TO_VIETNAMESE[order.status]}
+          <div>
+            <div className="flex gap-2 items-center flex-wrap">
+              <DotStatus />
+              {ENGLISH_TO_VIETNAMESE[order.status]}
+            </div>
+
+            {order.status === ORDER_STATUS.VERIFIED && (
+              <div className="flex gap-2 items-center flex-wrap">
+                <DotStatus />
+                Hàng đang được chuẩn bị để ship
+              </div>
+            )}
           </div>
         </div>
       </div>

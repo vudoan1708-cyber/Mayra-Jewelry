@@ -106,6 +106,40 @@ export const minPrice = (prices: Prices[]) => {
   return currentPrice;
 };
 
+const BuyerTier = {
+  SilverTier: 'silver',
+  GoldTier: 'gold',
+  PlatinumTier: 'platinum',
+  DiamondTier: 'diamond',
+};
+export const convertTierToTextColour = (tier: string) => {
+  if (tier === BuyerTier.SilverTier) {
+    return 'text-gray-500';
+  }
+  if (tier === BuyerTier.GoldTier) {
+    return 'text-yellow-500';
+  }
+  if (tier === BuyerTier.PlatinumTier) {
+    return 'text-gray-400';
+  }
+  return 'text-blue-500';
+};
+
+export const convertMayraPointToTier = (mayraPoint: number) => {
+  switch (true) {
+	case mayraPoint < 100:
+		return BuyerTier.SilverTier;
+	case mayraPoint < 600:
+		return BuyerTier.GoldTier
+	case mayraPoint < 1200:
+		return BuyerTier.PlatinumTier
+	case mayraPoint >= 1200:
+		return BuyerTier.DiamondTier
+	default:
+		return ""
+	}
+};
+
 export const ORDER_STATUS = {
   PENDING_VERIFICATION: 'pending-verification',
   FAILED_VERIFICATION: 'failed-verification',

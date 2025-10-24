@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.17.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.22",
     "lodash": "^4.17.21",
     "lucide-react": "^0.546.0",

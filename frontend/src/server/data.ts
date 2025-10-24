@@ -116,6 +116,14 @@ export const getOrdersByBuyerId = (buyerId: string): Promise<Array<Order>> => {
 };
 
 // Buyers
+export const getBuyer = (buyerId: string, filters: Array<string> = []): Promise<Buyer> => {
+  const stringFilters = filters.length > 0 ? `?filters=${filters.join(',')}` : '';
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/${buyerId}${stringFilters}`;
+  return doFetch({
+    url,
+    method: 'GET',
+  });
+};
 export const getBuyerWishlist = (buyerId: string): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/${buyerId}/wishlist`;
   return doFetch({
