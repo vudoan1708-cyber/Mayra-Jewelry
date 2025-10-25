@@ -79,7 +79,7 @@ export default function Navigation() {
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-transparent-white backdrop-blur-sm sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
+        className="bg-white backdrop-blur-sm sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
         <motion.img
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
