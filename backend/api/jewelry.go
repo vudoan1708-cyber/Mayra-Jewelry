@@ -197,12 +197,12 @@ func GetJewelryMostViews(w http.ResponseWriter, r *http.Request) {
 
 	jewelryItems := []models.JewelryItemInfo{}
 
-	subQuery := database.DatabaseInstance.Gorm.Model(&models.JewelryItemInfo{}).Select("SUM(views)")
+	// subQuery := database.DatabaseInstance.Gorm.Model(&models.JewelryItemInfo{}).Select("SUM(views)")
 
 	if err := database.DatabaseInstance.Gorm.
 		Preload("Prices").
 		Model(&models.JewelryItemInfo{}).
-		Where("views * 100.0 / (?) > ?", subQuery, 30).
+		Where("views > ?", 30).
 		Where("\"directoryId\" <> ?", directoryId).
 		Select("*").
 		Find(&jewelryItems).Error; err != nil {

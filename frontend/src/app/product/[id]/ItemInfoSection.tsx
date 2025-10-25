@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEventHandler } from 'react';
 
 import { motion } from 'framer-motion';
 
@@ -30,6 +30,7 @@ export default function ItemInfoSection({
   description,
   featureCollection,
   type,
+  purchases,
   imgUrls,
   availableVariations,
   selectedVariation,
@@ -42,6 +43,7 @@ export default function ItemInfoSection({
   description: string;
   featureCollection: string;
   type: 'ring' | 'bracelet';
+  purchases: number;
   imgUrls: string[];
   availableVariations: Array<JewelryVariation>;
   selectedVariation: JewelryVariation;
@@ -60,8 +62,11 @@ export default function ItemInfoSection({
 
   const [hasItemWishlisted, setItemWishlisted] = useState<boolean>(buyerWishlistFound);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showZoom, setShowZoom] = useState<boolean>(false);
+  const [zoom] = useState<number>(3);
 
-  const numberOfPurchases = 7;
+  const imgRef = useRef<HTMLImageElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
 
   const { addItem } = useCartCount();
 
@@ -113,6 +118,53 @@ export default function ItemInfoSection({
     }
   };
 
+  const enterImage = () => {
+    setShowZoom(true);
+  };
+
+  const unhoverImage = () => {
+    setShowZoom(false);
+  };
+  
+  const hoverImage: MouseEventHandler<HTMLImageElement> = (e) => {
+    if (!imgRef.current || !zoomRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+
+    const getCursorPos = () => {
+      let x = e.pageX - rect.left;
+      let y = e.pageY - rect.top;
+  
+      // Consider any page scrolling
+      x -= window.scrollX;
+      y -= window.scrollY;
+      return { x, y };
+    };
+
+    zoomRef.current.style.backgroundSize = `${imgRef.current.width * zoom}px ${imgRef.current.height * zoom}px`;
+
+    const w = zoomRef.current.offsetWidth / 2;
+    const h = zoomRef.current.offsetHeight / 2;
+
+    const moveMagnifier = () => {
+      if (!imgRef.current || !zoomRef.current) return;
+      e.preventDefault();
+
+      const bw = 3;
+      const pos = getCursorPos();
+      let { x, y } = pos;
+
+      // Prevent the magnifier glass from being positioned outside the image
+      if (x > imgRef.current.width - (w / zoom)) { x = imgRef.current.width - (w / zoom); }
+      if (x < w / zoom) { x = w / zoom; }
+      if (y > imgRef.current.height - (h / zoom)) { y = imgRef.current.height - (h / zoom); }
+      if (y < h / zoom) { y = h / zoom; }
+
+      zoomRef.current.style.backgroundPosition = `-${(x * zoom) - w + bw}px -${(y * zoom) - h + bw}px`;
+    };
+
+    moveMagnifier();
+  };
+
   useEffect(() => {
     setItemWishlisted(buyerWishlistFound);
   }, [buyerWishlistFound]);
@@ -129,12 +181,28 @@ export default function ItemInfoSection({
         {loadingImg
           ? <Loading />
           : (
-            <Image
-              src={imgUrls[0]}
-              alt={itemName}
-              width="520"
-              height="520"
-              className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover" />
+            <div className="relative w-full h-full flex justify-center">
+              <Image
+                ref={imgRef}
+                src={imgUrls[0]}
+                alt={itemName}
+                width="520"
+                height="520"
+                className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover"
+                onMouseEnter={enterImage}
+                onMouseMove={hoverImage}
+                onMouseOut={unhoverImage} />
+              {showZoom && (
+                <div
+                  ref={zoomRef}
+                  style={{
+                    backgroundImage: `url('${imgRef.current?.src}')`,
+                    backgroundRepeat: 'no-repeat',
+                  }}
+                  className="hidden md:block absolute left-[100%] top-0 h-full min-w-[320px] min-h-[320px] w-full rounded-lg z-10 shadow-lg">
+                </div>
+              )}
+            </div>
           )
         }
         <div className="flex gap-2 justify-start items-center mt-2">
@@ -147,7 +215,7 @@ export default function ItemInfoSection({
       <div className="self-start grid gap-2">
         <h2 className="text-3xl text-brand-500 font-semibold">{itemName}</h2>
         <small>
-          <b className="font-bold text-brand-500">{numberOfPurchases} lượt</b> mua món hàng này
+          <b className="font-bold text-brand-500">{purchases} lượt</b> mua món hàng này
           <motion.hr
             initial={{ width: 0 }}
             animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}

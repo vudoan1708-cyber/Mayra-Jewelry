@@ -28,6 +28,7 @@ export default function Wrapper({
   type,
   description,
   prices,
+  purchases,
   session,
   buyerWishlistFound,
 }: {
@@ -37,6 +38,7 @@ export default function Wrapper({
   type: 'ring' | 'bracelet';
   description: string;
   prices: Prices[];
+  purchases: number;
   session: Session | null;
   buyerWishlistFound: boolean;
 }) {
@@ -83,6 +85,7 @@ export default function Wrapper({
           description={description}
           featureCollection={featureCollection}
           type={type}
+          purchases={purchases}
           amount={parseInt(searchParams.get('amount') ?? amount.toString())}
           imgUrls={imgUrls}
           availableVariations={availableVariations}

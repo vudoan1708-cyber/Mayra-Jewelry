@@ -7,7 +7,7 @@ export default function MayraPointProgress({ current, max = 1200 }: { current: n
   const segments = max / distance;
   return (
     <div className="pt-1">
-      <h3>Điểm Mayra Point của bạn</h3>
+      <h3>Thang điểm Mayra Point</h3>
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: '100%', transition: { duration: .25 } }}
