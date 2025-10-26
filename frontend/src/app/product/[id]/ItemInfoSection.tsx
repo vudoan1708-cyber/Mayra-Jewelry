@@ -126,13 +126,13 @@ export default function ItemInfoSection({
     setShowZoom(false);
   };
   
-  const hoverImage: MouseEventHandler<HTMLImageElement> = (e) => {
+  const mouseMoveOnImage: MouseEventHandler<HTMLImageElement> = (e) => {
     if (!imgRef.current || !zoomRef.current) return;
     const rect = imgRef.current.getBoundingClientRect();
 
     const getCursorPos = () => {
-      let x = e.pageX - rect.left;
-      let y = e.pageY - rect.top;
+      let x = e.clientX - rect.left;
+      let y = e.clientY - rect.top;
   
       // Consider any page scrolling
       x -= window.scrollX;
@@ -190,7 +190,7 @@ export default function ItemInfoSection({
                 height="520"
                 className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover"
                 onMouseEnter={enterImage}
-                onMouseMove={hoverImage}
+                onMouseMove={mouseMoveOnImage}
                 onMouseOut={unhoverImage} />
               {showZoom && (
                 <div

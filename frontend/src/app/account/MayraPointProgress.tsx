@@ -18,7 +18,11 @@ export default function MayraPointProgress({ current, max = 1200 }: { current: n
           style={{
             background: 'linear-gradient(to right, var(--brand-200), var(--brand-500))',
           }}
-          className={`relative h-[20px] rounded-md`}></motion.div>
+          className="relative h-[20px] rounded-md">
+          <span className="absolute right-0 top-0 text-white bg-[rgba(255,255,255,.25)] h-[inherit] flex items-center p-1 rounded-md font-bold">
+            {current}
+          </span>
+        </motion.div>
       </motion.div>
 
       <motion.div className="relative w-full h-[20px] with-after">

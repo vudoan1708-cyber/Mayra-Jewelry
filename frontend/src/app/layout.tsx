@@ -39,7 +39,7 @@ export default function RootLayout({
           <Navigation />
 
           <main id="root" className="grid flex-1">
-            <div id="portal-before-anchor"></div>
+            <div id="portal-before-anchor" className="absolute"></div>
             {children}
           </main>
 

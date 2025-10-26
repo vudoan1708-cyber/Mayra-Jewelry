@@ -96,6 +96,8 @@ export const base64ToArrayBuffer = (base64: string) => {
   return buffer;
 };
 
+export const isMobile = () => window.matchMedia('(pointer: coarse)');
+
 export const userIdOrBase64Email = (user: Session['user']) => user?.id ?? Buffer.from(user?.email ?? '', 'utf8').toString('base64');
 
 export const minPrice = (prices: Prices[]) => {
