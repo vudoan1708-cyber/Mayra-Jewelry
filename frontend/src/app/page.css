@@ -31,6 +31,14 @@
   }
 }
 
+@layer utilities {
+  .bg-dots {
+    background-image: radial-gradient(circle, rgba(68, 68, 68, 0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
+    height: 100%;
+  }
+}
+
 :root {
   font-family: "Futura PT", sans-serif;
   line-height: 1.5;

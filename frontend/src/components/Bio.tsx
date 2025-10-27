@@ -63,7 +63,7 @@ export default function Bio() {
           transition: {
             ...bounceTransition, 
             duration: 0.4,
-            delay: 0.2 + ((letters.length * 0.1 )+ 0.2),
+            delay: 0.5 + ((letters.length * 0.25) + 0.2),
           },
         });
       };
@@ -77,12 +77,14 @@ export default function Bio() {
         transition: { duration: 0.2 },
       });
     };
+
+    const randomSize = idx % 2 === 0 ? 'md:text-[120px]' : 'md:text-[72px]';
     return (
       <motion.h3
         initial={{ opacity: 0, y: -10, scale: 1 }}
         animate={controls[idx]}
         whileHover={{ scale: 1.2, transition: { ...bounceTransition } }}
-        className="text-5xl md:text-7xl font-medium text-white tracking-wide drop-shadow-lg font-[CocoBiker]"
+        className={`text-5xl ${randomSize} font-medium text-white tracking-wide drop-shadow-lg font-[CocoBiker]`}
         style={{
           WebkitTextStroke: '0.2px var(--brand-300)',
         }}
@@ -119,7 +121,7 @@ export default function Bio() {
           end: '+=150%',
           pin: true,
           scrub: true,
-          anticipatePin: 1,
+          // anticipatePin: 1,
         },
       });
 
@@ -141,8 +143,8 @@ export default function Bio() {
 
       <section
         ref={headerSectionRef}
-        className="relative h-screen bg-cover bg-center">
-        <div className="sticky top-0 flex flex-col items-center justify-center h-dvh">
+        className="relative w-dvw h-dvh">
+        <div className="sticky top-0 flex flex-col items-center justify-center w-full h-full">
           <header ref={headerRef} className="flex gap-[1px] items-end cursor-default z-10">
             {letters.map((letter, idx) => (
               <Letter key={idx} letter={letter} idx={idx} />
@@ -151,7 +153,7 @@ export default function Bio() {
         </div>
       </section>
 
-      <section className="relative flex justify-center items-center h-screen">
+      <section className="relative flex justify-center items-center h-[200dvh]">
         <motion.aside
           ref={asideRef}
           initial={{ opacity: 0, y: 50 }}

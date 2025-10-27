@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.17.1",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.4.0",
     "@studio-freight/lenis": "^1.0.42",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.22",
@@ -20,6 +22,7 @@
     "next-auth": "^5.0.0-beta.29",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "three": "^0.180.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
