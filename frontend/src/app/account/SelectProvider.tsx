@@ -14,12 +14,12 @@ export default function SelectProvider({
 }: {
   session: Session | null;
   orders?: Array<Order>;
-  buyer: Buyer;
+  buyer?: Buyer;
   autoSignIn: boolean;
   redirection?: string;
 }) {
   const redirectTo = Buffer.from(redirection ?? '', 'base64').toString('utf-8') ?? undefined;
-  if (!session || !orders) {
+  if (!session || !orders || !buyer) {
     return (
       <AnimatePresence mode="wait">
         <LoginForm title="Hãy đăng nhập để lưu trữ<br /> các món đồ yêu thích của bạn" autoSignIn={autoSignIn} redirectTo={redirectTo} />

@@ -33,7 +33,6 @@ export default function LoginForm({ title, redirectTo = '/', autoSignIn = false 
         variant="secondary"
         className="items-center justify-center text-facebook border-facebook py-1"
         working={clicked}
-        disabled={clicked}
         onClick={() => {
           setClicked(true);
         }}>

@@ -7,7 +7,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
   const [session, params] = await Promise.all([auth(), searchParams]);
 
   const buyerId = userIdOrBase64Email(session?.user);
-  const buyer = await getBuyer(buyerId, ['tier', 'mayraPoint']);
+  const buyer = buyerId ? await getBuyer(buyerId, ['tier', 'mayraPoint']) : undefined;
   const orders = buyerId ? await getOrdersByBuyerId(userIdOrBase64Email(session?.user)) : undefined;
   return <SelectProvider
     session={session}

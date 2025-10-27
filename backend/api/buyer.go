@@ -43,7 +43,7 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	filters := queryParams.Get("filters")
 	parts := strings.Split(filters, ",")
-
+	log.Printf("parts: %s", parts)
 	buyer := models.Buyer{}
 
 	if len(parts) > 0 {

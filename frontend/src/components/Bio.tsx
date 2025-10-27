@@ -1,29 +1,30 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-
 import { useSession } from 'next-auth/react';
 
+import { useEffect, useRef } from 'react';
+
+import gsap from 'gsap';
+
+import { HopOff, Percent, Phone, TrendingUp } from 'lucide-react';
+
 import { motion, useAnimation, type LegacyAnimationControls } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
 
 import Button from './Button';
 import { LOGO_SCROLLED_PASSED_EVENT } from '../helpers';
-import { HopOff, Percent, Phone, TrendingUp } from 'lucide-react';
 
-const PROMOTION_INFO = 'extra_nav_info';
 const letters = [ 'M', 'a' , 'y', 'r', 'a', '&nbsp;', 'J', 'e', 'w', 'e', 'l', 'r', 'y' ];
 
 export default function Bio() {
   const session = useSession();
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const headerSectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLHeadElement>(null);
-  const hasAnimated = useRef(false);
+  const asideRef = useRef<HTMLElement>(null);
   const controls: Array<LegacyAnimationControls> = [];
-  const [titleTopPosition, setTitleTopPosition] = useState<string>('sm:absolute sm:top-[104px]');
 
-  const finalState = { opacity: 1, y: 0, scale: 1 };
   const bounceTransition = useRef({
     type: 'spring',
     stiffness: 180,
@@ -35,10 +36,6 @@ export default function Bio() {
   const Letter = ({ letter, idx }: { letter: string, idx: number }) => {
     controls[idx] = useAnimation();
     useEffect(() => {
-      if (hasAnimated.current) {
-        controls[idx].set(finalState);
-        return;
-      }
       const sequence = async () => {
         // Step 1: fade + move in (delayed by idx)
         await controls[idx].start({
@@ -46,7 +43,7 @@ export default function Bio() {
           y: 0,
           transition: {
             duration: 0.3,
-            delay: 1.9,
+            delay: 0.2,
           },
         });
 
@@ -57,10 +54,18 @@ export default function Bio() {
           transition: {
             ...bounceTransition, 
             duration: 0.4,
-            delay: (idx * 0.1) + 0.2},
+            delay: (idx * 0.1) + 0.2
+          },
         });
-
-        hasAnimated.current = true;
+        // Step 3: reinforce the theme colour
+        await controls[idx].start({
+          color: ['#001B3D'],
+          transition: {
+            ...bounceTransition, 
+            duration: 0.4,
+            delay: 0.2 + ((letters.length * 0.1 )+ 0.2),
+          },
+        });
       };
 
       sequence();
@@ -68,7 +73,7 @@ export default function Bio() {
 
     const updateLetter = (action: 'hover' | 'leave') => {
       controls[idx].start({
-        color: action === 'hover' ? 'var(--brand-500)' : '#fff',
+        color: action === 'hover' ? '#fff' : 'var(--brand-500)',
         transition: { duration: 0.2 },
       });
     };
@@ -90,10 +95,6 @@ export default function Bio() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.target?.id === PROMOTION_INFO) {
-        setTitleTopPosition(!entry.isIntersecting ? 'sm:fixed sm:top-[60px]' : 'sm:absolute sm:top-[104px]');
-        return;
-      }
       if (!entry.isIntersecting) {
         window.postMessage({
           event: LOGO_SCROLLED_PASSED_EVENT,
@@ -110,76 +111,79 @@ export default function Bio() {
     }, { threshold: 0 });
     if (buttonRef.current) observer.observe(buttonRef.current);
 
-    observer.observe(document.getElementById(PROMOTION_INFO) as HTMLElement);
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: headerSectionRef.current,
+          start: 'center center',
+          end: '+=150%',
+          pin: true,
+          scrub: true,
+          anticipatePin: 1,
+        },
+      });
+
+      // Animate the header fade-out before next content scrolls
+      tl.to(headerRef.current, { opacity: 0, scale: 0.9, y: -100, duration: 1 })
+        .to(asideRef.current, { opacity: 1, y: 0, duration: 1.5 }, '>-0.2');
+    }, headerSectionRef);
 
     return () => {
       observer.disconnect();
+      ctx.revert();
     };
   }, []);
   return (
-    <div className="w-full">
+    <div className="relative w-full overflow-hidden">
       <style>
-        @import url('https://fonts.cdnfonts.com/css/cocobiker');
+        {`@import url('https://fonts.cdnfonts.com/css/cocobiker');`}
       </style>
-      <motion.img
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { duration: 0.4, delay: 0.5 } }}
-        src="/images/pixabay-landing-img.webp"
-        className="w-dvw h-dvh select-none object-cover"
-        alt="Landing image" />
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: '100%', transition: { duration: .7, delay: 1, type: 'tween' } }}
-        className={`flex items-center justify-center absolute top-[20%] ${titleTopPosition} left-[0] h-[80px] sm:h-[100px] bg-white/25 shadow-md z-10`}>
-        <header ref={headerRef} className="flex gap-2 items-end w-max cursor-default">
-          <div className="flex gap-[1px]">
+
+      <section
+        ref={headerSectionRef}
+        className="relative h-screen bg-cover bg-center">
+        <div className="sticky top-0 flex flex-col items-center justify-center h-dvh">
+          <header ref={headerRef} className="flex gap-[1px] items-end cursor-default z-10">
             {letters.map((letter, idx) => (
               <Letter key={idx} letter={letter} idx={idx} />
             ))}
-          </div>
-        </header>
-      </motion.div>
-      <motion.aside
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { duration: 0.4, delay: 1 } }}
-        className="absolute bottom-0 md:bottom-auto md:top-[40%] left-[0] md:left-[10%] max-w-screen-sm md:max-w-lg p-2 grid grid-rows-1 gap-2">
-        <ul className="flex flex-col gap-1 bg-transparent-white md:bg-transparent rounded [list-style-type:none] p-2 list-inside leading-relaxed">
-          <motion.li
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 1.4 } }}
-            className="text-2xl text-brand-600">
-            Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra
-          </motion.li>
+          </header>
+        </div>
+      </section>
 
-          <motion.li
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 1.6 } }}
-            className="flex gap-1 items-center text-brand-500 mt-2">
-            <span className="border border-brand-500 p-1 rounded-[100%]"><Phone /></span>Tư vấn 24/7, phục vụ tận tình
-          </motion.li>
-          <motion.li
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 1.8 } }}
-            className="flex gap-1 items-center text-brand-500 ">
-            <span className="border border-brand-500 p-1 rounded-[100%]"><HopOff /></span>Miễn phí hoàn trả trong vòng 24h
-          </motion.li>
-          <motion.li
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 2 } }}
-            className="flex gap-1 items-center text-brand-500 ">
-            <span className="border border-brand-500 p-1 rounded-[100%]"><Percent /></span>Giảm giá cực mạnh khi đăng hình trang sức lên mạng xã hội
-          </motion.li>
-          <motion.li
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 2.2 } }}
-            className="flex gap-1 items-center text-brand-500 ">
-            <span className="border border-brand-500 p-1 rounded-[100%]"><TrendingUp /></span>Tích điểm mỗi khi mua hàng từ Mayra để được giảm giá
-          </motion.li>
-        </ul>
-        {session.status !== 'authenticated' && (
-          <Button ref={buttonRef} variant="secondary" className="mt-2" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>Đăng nhập ngay để nhận ưu đãi</Button>
-        )}
-      </motion.aside>
+      <section className="relative flex justify-center items-center h-screen">
+        <motion.aside
+          ref={asideRef}
+          initial={{ opacity: 0, y: 50 }}
+          className="max-w-xl bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 space-y-3 text-brand-500"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
+            className="text-2xl md:text-3xl font-semibold leading-snug"
+          >
+            Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại{' '}
+            <span className="text-[#001B3D] font-bold">Mayra</span>
+          </motion.p>
+          <ul className="flex flex-col gap-1 bg-transparent-white md:bg-transparent rounded [list-style-type:none] p-2 list-inside leading-relaxed">
+            <li className="flex gap-1 items-center text-brand-500 mt-2">
+              <span className="border border-brand-500 p-1 rounded-[100%]"><Phone /></span>Tư vấn 24/7, phục vụ tận tình
+            </li>
+            <li className="flex gap-1 items-center text-brand-500 ">
+              <span className="border border-brand-500 p-1 rounded-[100%]"><HopOff /></span>Miễn phí hoàn trả trong vòng 24h
+            </li>
+            <li className="flex gap-1 items-center text-brand-500 ">
+              <span className="border border-brand-500 p-1 rounded-[100%]"><Percent /></span>Giảm giá cực mạnh khi đăng hình trang sức lên mạng xã hội
+            </li>
+            <li className="flex gap-1 items-center text-brand-500 ">
+              <span className="border border-brand-500 p-1 rounded-[100%]"><TrendingUp /></span>Tích điểm mỗi khi mua hàng từ Mayra để được giảm giá
+            </li>
+          </ul>
+          {session.status !== 'authenticated' && (
+            <Button ref={buttonRef} variant="secondary" className="mt-2" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>Đăng nhập ngay để nhận ưu đãi</Button>
+          )}
+        </motion.aside>
+      </section>
     </div>
   )
 }

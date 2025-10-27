@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="sm:overflow-clip">
         <SessionProvider>
           <SmoothScroller />
           <Navigation />
