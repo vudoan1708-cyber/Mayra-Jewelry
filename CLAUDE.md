@@ -1,0 +1,1 @@
+- Do not read any env file, assume values are populated and only work with env variable name only.

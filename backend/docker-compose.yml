@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mayra-jewelry
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     volumes:
