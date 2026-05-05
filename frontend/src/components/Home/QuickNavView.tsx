@@ -57,9 +57,9 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
                 </h2>
               </div>
               <Link
-                href="/search"
+                href="/browse"
                 style={{ color: 'var(--accent-300)' }}
-                className="hidden sm:inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium hover:opacity-80 transition-opacity"
+                className="hidden sm:inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] font-medium [text-decoration:none] hover:opacity-80 transition-opacity"
               >
                 {t('quickNav.browseAll')}
                 <ArrowRight className="size-4" />
@@ -74,7 +74,7 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
               <Link
                 key={cat.key}
                 href={cat.href}
-                className={`group relative block overflow-hidden rounded-2xl bg-accent-100/60 border border-accent-300/40 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 ${
+                className={`group relative block overflow-hidden rounded-2xl bg-accent-100/60 border border-accent-300/40 [text-decoration:none] focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 ${
                   isHero
                     ? 'sm:col-span-2 sm:row-span-2 aspect-[4/5] sm:aspect-auto'
                     : 'aspect-[4/3] sm:aspect-auto'
@@ -148,7 +148,7 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
                       >
                         <Link
                           href={card.href}
-                          className="group relative block overflow-hidden rounded-2xl bg-accent-100 border border-accent-300/30 shadow-xl shadow-black/40 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2"
+                          className="group relative block overflow-hidden rounded-2xl bg-accent-100 border border-accent-300/30 shadow-xl shadow-black/40 [text-decoration:none] focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2"
                         >
                           <figure className="relative aspect-[4/5] bg-accent-100 overflow-hidden">
                             <Image
@@ -162,13 +162,13 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
                           <figcaption className="px-4 py-3 flex items-baseline justify-between gap-2">
                             <div className="min-w-0">
                               {card.eyebrow && (
-                                <p className="text-[10px] uppercase tracking-[0.3em] text-accent-200 truncate">
+                                <p className="text-[10px] uppercase tracking-[0.3em] text-accent-600 truncate">
                                   {card.eyebrow}
                                 </p>
                               )}
-                              <p className="text-sm md:text-base font-semibold text-brand-100 truncate">{card.name}</p>
+                              <p className="text-sm md:text-base font-semibold text-brand-700 truncate">{card.name}</p>
                             </div>
-                            <p className="text-sm font-semibold text-brand-100 shrink-0">
+                            <p className="text-sm font-semibold text-brand-700 shrink-0">
                               <Money amount={card.price} currency={card.currency} />
                             </p>
                           </figcaption>
@@ -197,7 +197,7 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
             </p>
             <Link
               href="/collections/wedding-rings"
-              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-300 text-brand-700 text-sm font-semibold hover:bg-accent-200 transition-colors focus-visible:ring-2 focus-visible:ring-accent-200 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-500"
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-300 text-brand-700 text-sm font-semibold [text-decoration:none] hover:bg-accent-200 transition-colors focus-visible:ring-2 focus-visible:ring-accent-200 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-500"
             >
               {t('editorial.cta')}
               <ArrowRight className="size-4" />

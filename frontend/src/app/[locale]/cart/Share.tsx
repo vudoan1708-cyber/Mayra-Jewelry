@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { PAYMENT_INFO } from '../../../helpers';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button';
 import { AnimatePresence } from 'framer-motion';
 
 export default function Share({ encodedId, itemName, itemAmount, itemVariation }: { encodedId: string; itemName: string; itemAmount: number; itemVariation: string }) {
+  const t = useTranslations('cart.share');
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [copyState, setCopyState] = useState<boolean>(false);
 
@@ -45,14 +48,14 @@ export default function Share({ encodedId, itemName, itemAmount, itemVariation }
   }, []);
   return (
     <>
-      <a onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenModal(true);  }}>Chia sẻ</a>
+      <a onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenModal(true);  }}>{t('trigger')}</a>
       <AnimatePresence mode="wait">
         {openModal && (
-          <Modal title="Chia sẻ với bạn bè của bạn" className="min-w-[340px] md:min-w-[36em]" onClose={() => { setOpenModal(false); }}>
+          <Modal title={t('title')} className="min-w-[340px] md:min-w-[36em]" onClose={() => { setOpenModal(false); }}>
             <div className="flex gap-2 items-center w-full border border-gray-500 p-1 px-2 rounded-md">
               <div className="whitespace-nowrap overflow-hidden text-ellipsis w-[200px] md:w-[25em]">{sharePath}</div>
               <Button variant="secondary" className="text-sm" onClick={() => { copyToClipboard(sharePath); }}>
-                {copyState ? 'Đã sao chép' : 'Sao chép link'}
+                {copyState ? t('copied') : t('copy')}
               </Button>
             </div>
           </Modal>

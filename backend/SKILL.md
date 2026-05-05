@@ -145,10 +145,8 @@ Targets: catalog responses < 200ms p95 cold, < 50ms warm.
 
 **Fix the obvious N+1s first** — they dominate every other concern:
 
-1. **`getMediaFilesAndUpdateResponsePayload`** ([api/jewelry.go](api/jewelry.go)) calls Cloudflare `ListObjects` and `GetPresignedUrl` per item. For a 50-item catalog page, that's 50+ S3 round-trips. Two fixes, do both:
-   - Cache presigned URLs in Redis keyed by `(item_id, variant)` with a TTL just under the URL's expiration.
-   - Store the manifest of media keys *in Postgres* alongside the item. R2 then becomes a CDN-fronted blob store, not a queryable index. Generate presigned URLs in batch (the AWS SDK supports parallelism — use `errgroup` with bounded concurrency).
-2. **`GetOrdersByBuyerId`** ([api/order.go](api/order.go)) loads orders, then loops fetching jewelry items per order, then loops calling S3 per item. Use GORM `Preload("OrderJewelryItems.JewelryItem")` to collapse it into one DB round-trip, then resolve media in one parallel S3 batch.
+1. **`getMediaFilesAndUpdateResponsePayload`** ([api/jewelry.go](api/jewelry.go)) still calls Cloudflare `ListObjectsV2` per item to enumerate media keys. URL construction itself is now free (`BuildPublicUrl` is string concat — see Section 8), but the list call is one Class A op per item per request. For a 50-item catalog page that's 50 round-trips and 50 ops. Fix: store the manifest of media keys *in Postgres* alongside the item (`MediaLink` already exists as a model — wire it up so admin uploads write the manifest, then reads never list R2). This is the single biggest remaining cost lever and is a prerequisite for the CMS work.
+2. **`GetOrdersByBuyerId`** ([api/order.go](api/order.go)) loads orders, then loops fetching jewelry items per order, then loops calling S3 per item. Use GORM `Preload("OrderJewelryItems.JewelryItem")` to collapse it into one DB round-trip; once the DB-backed media manifest from #1 lands, the S3 round-trips disappear entirely.
 3. **`GetBuyer`** ([api/buyer.go](api/buyer.go)) does the same per-wishlist-item S3 dance. Same fix.
 
 **Database:**
@@ -162,8 +160,8 @@ Targets: catalog responses < 200ms p95 cold, < 50ms warm.
 - Pagination on `GET /api/jewelry` is missing — keyset pagination on `directory_id` (preferred over LIMIT/OFFSET) before the catalog grows past a few hundred items.
 
 **Caching layer:**
-- Add Redis. Cache: VietQR bank list (24h TTL — it's static), feature collections (5m TTL, invalidate on PATCH), presigned R2 URLs (TTL just under expiry).
-- Use `singleflight` (`golang.org/x/sync/singleflight`) around cache-miss work so a thundering herd on a popular item issues one S3 call, not a hundred.
+- Add Redis. Cache: VietQR bank list (24h TTL — it's static), feature collections (5m TTL, invalidate on PATCH). Public R2 URLs are stable so no caching layer is needed for them — the browser, Next.js Image, and Cloudflare's edge handle it.
+- Use `singleflight` (`golang.org/x/sync/singleflight`) around cache-miss work so a thundering herd on a popular item issues one DB call, not a hundred.
 
 **Concurrency:**
 - File uploads in [api/jewelry.go](api/jewelry.go) are sequential. Use `errgroup` with `SetLimit(4)` to upload in parallel without saturating R2.
@@ -174,7 +172,49 @@ Targets: catalog responses < 200ms p95 cold, < 50ms warm.
 
 ---
 
-## 8. Deployment & operability
+## 8. R2 media storage & the future CMS
+
+The bucket is **public-read** via a Cloudflare custom domain (or `*.r2.dev`). GET URLs are stable, non-expiring, CDN-cached at Cloudflare's edge, and served at zero egress cost. Any change here must preserve those properties or it's not worth doing.
+
+### Current shape
+
+- **Reads** — `cloudflare.BuildPublicUrl(key)` ([api/cloudflare/cloudflare.go](api/cloudflare/cloudflare.go)) returns `${CLOUDFLARE_PUBLIC_BUCKET_URL}/${url-escaped-key}`. No I/O, no signing, no expiry. Used by all `GET` flows in [api/jewelry.go](api/jewelry.go).
+- **Writes** — admin uploads still use presigned `PUT` via `GetPresignedUrl(..., Procedure: PUT)`. Keep it that way; public access is read-only at the bucket level.
+- **Required env** — `CLOUDFLARE_PUBLIC_BUCKET_URL` on backend (URL composition) and frontend (`next.config.mjs` `images.remotePatterns`). No trailing slash; the helper trims one if present.
+- **Frontend cache** — `localStorage[<directoryId>]` stores the `Media[]` array; the cart reads from it. Stable URLs make this cache correct indefinitely.
+
+### Why this beats presigned GET
+
+- Presigned URLs include a request-unique signature, which **defeats Cloudflare's CDN cache** — every browser fetch round-trips to R2 (a Class B op). Public URLs are identical across users, so the edge serves repeats for free.
+- R2 has **zero egress fees** regardless. Bandwidth was never the lever; cache hit-rate is.
+
+### Things to look out for when building the CMS
+
+1. **Drafts are world-readable the moment they hit the bucket.** Anyone with the key can fetch the file. Two paths:
+   - *Path convention:* one bucket, prefix unpublished assets (`drafts/<id>/...`) and never reference them on the storefront. Security-by-obscurity — fine for product photos, **not** for anything sensitive.
+   - *Two buckets:* keep a separate private bucket for drafts that uses presigned-GET, then move-on-publish into the public bucket. Cleaner. Required if drafts ever contain anything you wouldn't want leaked (internal notes baked into images, customer-specific renders, etc.).
+
+2. **Cache invalidation on edit/replace is the real footgun.** Cloudflare's edge and every browser will keep serving the old image after admin replaces a file at the same key. Pick one strategy and apply it consistently:
+   - **Versioned keys (recommended):** upload as `<directoryId>/<filename>-<contentHash>.<ext>`, never overwrite. Old orders keep their image references; cache-busting becomes free; deletes can be lazy. This is also why the DB-backed media manifest in Section 7 #1 matters — the manifest is the source of truth for which version is current.
+   - **Purge on write:** call Cloudflare's cache-purge API after every `PUT`. Free up to a quota, adds an external dependency, and you have to be sure to call it on *every* write path including bulk imports.
+   
+   Versioned keys + DB manifest is the combination that scales.
+
+3. **Don't put anything sensitive in the public bucket.** Customer photos, order screenshots, internal documents — none of those go here. If the CMS grows to handle that kind of content, route it to a separate private bucket and presign on demand. Naming the public bucket something obviously-public (e.g., `mayra-public-media`) keeps reviewers honest.
+
+4. **Image transformations come for free.** Public URLs unlock Cloudflare Image Resizing (`/cdn-cgi/image/width=600,quality=80/<original-url>`) and Next.js `<Image>` optimization. The CMS can store one high-res original and serve thumb/medium/large variants on the fly — no re-upload pipeline needed.
+
+5. **Listing must die before the catalog grows.** [api/jewelry.go](api/jewelry.go) currently calls `ListObjectsV2` on every product, grid, and detail request to enumerate media keys. Each call is a Class A op ($4.50/M). The CMS work *must* include writing media keys to Postgres on upload (the `MediaLink` model exists; wire it up at the `handleUploadFiles` callsite) and reading from Postgres at query time. After that change, R2 sees zero ops on the read path.
+
+6. **Signed-PUT lifetime.** When the CMS issues upload URLs to the admin browser, presigned `PUT` defaults to the SDK's 15 min. That's fine. If batch-uploading from a slow connection, bump to 1h max via `s3.WithPresignExpires` — never longer. Section 9 checklist enforces this.
+
+7. **Migration of existing localStorage entries.** Frontend users with prior visits have stale presigned `*.r2.cloudflarestorage.com` URLs cached. They keep 403'ing until the user revisits the product page (at which point [GridItem.tsx](../frontend/src/components/Jewelry/GridItem.tsx) overwrites the entry). If telemetry shows a long tail of broken-image hits, add a one-time cache wipe in the cart that drops entries whose URL contains `r2.cloudflarestorage.com`.
+
+8. **Bucket-policy review.** Re-confirm in the Cloudflare dashboard that the public bucket allows only `GET` and `HEAD` from the internet, and that `PUT`/`DELETE`/`LIST` require S3 API authentication. The IAM key the backend uses is the only thing that should be able to write — rotate it on the Section 4 schedule.
+
+---
+
+## 9. Deployment & operability
 
 - **Dockerfile** runs as root and `air` (live reload) is the entrypoint. Build a separate production stage: multi-stage `FROM golang:1.25 AS build` → static binary → `FROM gcr.io/distroless/static`. Add a non-root `USER`. Drop `air` from prod.
 - **Graceful shutdown**: [main.go](main.go) calls `srv.ListenAndServe()` and never traps signals. On SIGTERM the pod gets killed mid-request. Use the canonical `signal.NotifyContext` + `srv.Shutdown(ctx)` pattern.
@@ -184,7 +224,7 @@ Targets: catalog responses < 200ms p95 cold, < 50ms warm.
 
 ---
 
-## 9. Security checklist (run this against every PR that touches a handler)
+## 10. Security checklist (run this against every PR that touches a handler)
 
 - [ ] Does the route require auth? If yes, is the middleware applied?
 - [ ] Does the handler enforce that `claims.Sub` matches any user ID in the path?
@@ -192,13 +232,13 @@ Targets: catalog responses < 200ms p95 cold, < 50ms warm.
 - [ ] Are mutable columns whitelisted (no mass-assignment from form/JSON)?
 - [ ] Are GORM queries parameterized (no string-concat into `Where`)?
 - [ ] Is any user input interpolated into an email body, log line, or SQL — and HTML/SQL/log-escaped if so?
-- [ ] Are presigned URLs given a short expiration (≤ 1h for write, ≤ 24h for read)?
+- [ ] If introducing a new presigned URL: it's `PUT` only (admin upload), expiration ≤ 1h, and the object lands in the public bucket only after publish? GET should never be presigned — use `BuildPublicUrl`.
 - [ ] Is the response going through [middleware/index.go](middleware/index.go), not raw `w.Write`?
 - [ ] If touching payment: idempotent? state-machine guarded? audit-logged?
 
 ---
 
-## 10. Definition of done (per PR)
+## 11. Definition of done (per PR)
 
 1. `go vet ./...` and `staticcheck ./...` clean.
 2. `go test ./... -race` passes.

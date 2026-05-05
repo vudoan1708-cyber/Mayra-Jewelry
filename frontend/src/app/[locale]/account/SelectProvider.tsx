@@ -1,5 +1,8 @@
+'use client';
+
 import type { Session } from 'next-auth';
 import { AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import LoginForm from '../../../components/LoginForm/LoginForm';
 import AlreadySignedIn from './AlreadySignedIn';
@@ -18,11 +21,12 @@ export default function SelectProvider({
   autoSignIn: boolean;
   redirection?: string;
 }) {
+  const t = useTranslations('loginForm');
   const redirectTo = Buffer.from(redirection ?? '', 'base64').toString('utf-8') ?? undefined;
   if (!session || !orders || !buyer) {
     return (
       <AnimatePresence mode="wait">
-        <LoginForm title="Hãy đăng nhập để lưu trữ<br /> các món đồ yêu thích của bạn" autoSignIn={autoSignIn} redirectTo={redirectTo} />
+        <LoginForm title={t.raw('wishlistTitle')} autoSignIn={autoSignIn} redirectTo={redirectTo} />
       </AnimatePresence>
     )
   }

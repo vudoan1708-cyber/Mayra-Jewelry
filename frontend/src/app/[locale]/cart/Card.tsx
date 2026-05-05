@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import throttle from 'lodash/throttle';
 
@@ -16,10 +17,10 @@ import Variation from '../../../components/Jewelry/Variation';
 
 import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../../helpers';
 import { useCartCount, type CartItem } from '../../../stores/CartCountProvider';
+import { getJewelryItem } from '../../../server/data';
 import Share from './Share';
 import Money from '../../../components/Money/Money';
 import NavItem from '../../../components/Navigation/NavItem';
-import type { Media } from '../../../../types';
 
 export default function Card({
   item, idx, getTheLatestCartItems, router,
@@ -27,19 +28,30 @@ export default function Card({
   item: CartItem; idx: number; getTheLatestCartItems: () => void; router: AppRouterInstance;
 }) {
   const { addItem, removeItem, removeAllByItemName } = useCartCount();
-  const [imgUrls, setImgUrls] = useState<Array<string>>([]);
+  const t = useTranslations('cart');
+  const tCommon = useTranslations('common');
+  const [imgUrls, setImgUrls] = useState<Array<string>>(item.imgUrls ?? []);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(item.id);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setImgUrls(parsed.map((value: Media) => value.url));
-      }
-    } catch (e) {
-      console.error(e);
+    let cancelled = false;
+    if (item.imgUrls && item.imgUrls.length > 0) {
+      setImgUrls(item.imgUrls);
+      return;
     }
-  }, []);
+    (async () => {
+      try {
+        const fresh = await getJewelryItem(item.id);
+        if (cancelled) return;
+        const urls = (fresh?.media ?? []).map((m) => m.url);
+        if (urls.length > 0) setImgUrls(urls);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [item.id, item.imgUrls]);
 
   const updateCart = (item: CartItem, action: 'decrease' | 'increase' | 'removeAll' = 'increase') => {
     const listOfActions = {
@@ -84,8 +96,8 @@ export default function Card({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0, transition: { delay: (idx + 1) * 0.2 } }}
         exit={{ opacity: 0, y: -10 }}
-        className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-white shadow-lg cursor-pointer md:max-h-[300px]"
-        title="Xem thông tin món đồ"
+        className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-accent-100 border border-accent-300/40 shadow-lg shadow-black/20 cursor-pointer md:max-h-[300px]"
+        title={t('viewItem')}
         onClick={() => { router.push(`/product/${item.id ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
         <div className="flex flex-col gap-1 h-full justify-between items-center col-start-1">
           {imgUrls.map((url, idx) => (
@@ -101,9 +113,9 @@ export default function Card({
             />
           ))}
           <span className="flex gap-3 items-center">
-            <Button variant="circle" tooltip="Bớt 1" className="p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
+            <Button variant="circle" tooltip={t('decrease')} className="p-1 border-1 border-red-400 bg-accent-100 !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
             <span className="">{item.count}</span>
-            <Button variant="circle" tooltip="Thêm 1" className="p-1 border-1 border-brand-500 bg-white !text-brand-600" onClick={() => { throttleIncrement(item); }}>+</Button>
+            <Button variant="circle" tooltip={t('increase')} className="p-1 border-1 border-brand-500 bg-accent-100 !text-brand-600" onClick={() => { throttleIncrement(item); }}>+</Button>
           </span>
         </div>
 
@@ -111,10 +123,10 @@ export default function Card({
           <h3 className="text-lg md:text-xl text-brand-500 font-semibold">{item.itemName}</h3>
           {item.featureCollection && (
             <span className="flex gap-[4px] items-center">
-              <b>Bộ sưu tập: </b><NavItem href={`/collections/${item.featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{item.featureCollection}</NavItem>
+              <b>{tCommon('collection')}: </b><NavItem href={`/collections/${item.featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{item.featureCollection}</NavItem>
             </span>
           )}
-          <p className="text-gray-500">Miễn phí ship hàng</p>
+          <p className="text-gray-500">{t('freeShipping')}</p>
           <div>
             {item.variation && (
               <span className="flex items-center gap-0.5 md:gap-[4px]">
@@ -125,7 +137,7 @@ export default function Card({
           </div>
           <label htmlFor="gift" onClick={(e) => { e.stopPropagation(); }}>
             <input name="gift" type="checkbox" onChange={(e) => {}} />
-            Gói quà lại giúp mình
+            {t('wrapAsGift')}
           </label>
 
           <span>
@@ -140,8 +152,8 @@ export default function Card({
 
           <Button
             variant="circle"
-            tooltip="Bỏ hết"
-            className="relative bottom-0 right-0 mb-[1px] mr-[1px] p-1 border-1 border-red-400 bg-white !text-red-500 hover:border-red-400 focus:border-red-400"
+            tooltip={t('removeAll')}
+            className="relative bottom-0 right-0 mb-[1px] mr-[1px] p-1 border-1 border-red-400 bg-accent-100 !text-red-500 hover:border-red-400 focus:border-red-400"
             onClick={() => { throttleRemoveAll(item); }}>
             <Trash2 />
           </Button>

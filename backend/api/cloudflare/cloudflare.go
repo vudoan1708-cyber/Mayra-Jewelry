@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -24,9 +26,10 @@ type CloudflareProxy interface {
 }
 
 type Cloudflare struct {
-	__s3         *s3.Client
-	PresignedUrl string `json:"presignedUrl"`
-	BucketName   string `json:"bucketName"`
+	__s3          *s3.Client
+	PresignedUrl  string `json:"presignedUrl"`
+	BucketName    string `json:"bucketName"`
+	PublicBaseUrl string `json:"publicBaseUrl"`
 }
 
 var once sync.Once
@@ -41,6 +44,7 @@ func (cf *Cloudflare) Init() (*Cloudflare, error) {
 		accessKeySecret := os.Getenv("CLOUDFLARE_SECRET_KEY")
 
 		cf.BucketName = os.Getenv("CLOUDFLARE_BUCKET_NAME")
+		cf.PublicBaseUrl = strings.TrimRight(os.Getenv("CLOUDFLARE_PUBLIC_BUCKET_URL"), "/")
 
 		configObj, err := config.LoadDefaultConfig(
 			context.TODO(),
@@ -117,6 +121,20 @@ func (cf *Cloudflare) GetPresignedUrl(bucketName string, payload PresignedUrlPay
 
 	cf.PresignedUrl = *presignedUrl
 	return presignedUrl, nil
+}
+
+// BuildPublicUrl constructs a stable, non-expiring URL for a public R2 object.
+// The bucket must be exposed via a Cloudflare custom domain or the *.r2.dev URL,
+// configured through CLOUDFLARE_PUBLIC_BUCKET_URL.
+func (cf *Cloudflare) BuildPublicUrl(key string) (string, error) {
+	if cf.PublicBaseUrl == "" {
+		return "", fmt.Errorf("CLOUDFLARE_PUBLIC_BUCKET_URL is not set")
+	}
+	parts := strings.Split(key, "/")
+	for i, p := range parts {
+		parts[i] = url.PathEscape(p)
+	}
+	return fmt.Sprintf("%s/%s", cf.PublicBaseUrl, strings.Join(parts, "/")), nil
 }
 
 func (cf *Cloudflare) ListObjectsInBucket(bucketName string, prefix *string) ([]types.Object, error) {

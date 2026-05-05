@@ -1,3 +1,5 @@
+import { getTranslations } from 'next-intl/server';
+
 import Money from '../Money/Money';
 import Grid from './Grid';
 import GridItem from './GridItem';
@@ -7,6 +9,7 @@ import { minPrice } from '../../helpers';
 
 export default async function BestSeller() {
   const bestSellerItems = await getBestSellers();
+  const t = await getTranslations('jewelry');
 
   return (
     <>
@@ -32,7 +35,7 @@ export default async function BestSeller() {
         : (
           <div className="m-6">
             <p className="text-[70px] text-center select-none">🥹</p>
-            <p className="text-center text-base !font-light">Shop chưa bán được nhiều nên chưa hiện thông tin này được. Ủng hộ shop với nhé</p>
+            <p className="text-center text-base !font-light">{t('noItemsYet')}</p>
           </div>
         )
       }

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, type DOMAttributes } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import Button from '../Button';
 import Modal from '../Modal/Modal';
@@ -30,6 +31,7 @@ export default function QRCodeImage({
   onSuccessfulConfirmation?: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations('payment');
   const [confirmModal, setOpenConfirmModal] = useState<boolean>(false);
   const [disabled, setDisabled] = useState<boolean>(true);
   const [verifying, setVerifying] = useState<boolean>(false);
@@ -84,42 +86,76 @@ export default function QRCodeImage({
   if (loading) return null;
   if (!qrCode) return null;
   return (
-    <section className="relative w-full md:w-auto flex flex-col items-center md:items-start">
-      <Image src={qrCode} alt="Test" width="450" height="450" className="bg-transparent" />
+    <section className="relative w-full md:w-auto flex flex-col items-center md:items-start gap-3">
+      <div className="relative bg-accent-100 rounded-2xl p-2 shadow-xl shadow-black/30 border border-accent-300/40">
+        <Image src={qrCode} alt="Test" width="450" height="450" className="bg-transparent rounded-lg" />
+      </div>
       {showWarning && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute w-full h-full bg-transparent-white flex flex-col gap-3 items-center justify-center text-center text-black p-1 rounded-md">
-          <div className="grid grid-rows-2 p-1 bg-[rgba(255,255,255,.75)] rounded-lg">
-            <h3>Bạn có thể theo dõi trạng thái order nếu đăng nhập trước khi mua hàng.</h3>
-            <span className="inline-grid gap-1 items-center ">
-              <Button variant="secondary" onClick={() => { setShowWarning(false); }}>Không cần</Button>
-              <Button variant="primary" onClick={() => { router.push(`/account?autoSignin=true&from=${window.btoa(window.location.href)}`); }}>Đăng nhập</Button>
+          className="absolute inset-0 bg-brand-700/70 backdrop-blur-sm flex flex-col gap-3 items-center justify-center text-center p-2 rounded-lg">
+          <div className="grid grid-rows-[auto_auto] gap-3 p-4 bg-accent-100 border border-accent-300/40 rounded-2xl shadow-xl shadow-black/40 max-w-[300px] text-brand-700">
+            <h3 className="text-base leading-snug">{t('loginPromptForOrders')}</h3>
+            <span className="inline-grid gap-2 items-center">
+              <Button
+                variant="secondary"
+                className="!text-brand-700 !border-accent-500/40 hover:!text-brand-700 hover:!border-accent-500 hover:bg-accent-300/40 text-xs uppercase tracking-[0.25em] py-2"
+                onClick={() => { setShowWarning(false); }}
+              >
+                {t('later')}
+              </Button>
+              <Button
+                variant="primary"
+                className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_5px_var(--accent-500)] text-xs uppercase tracking-[0.25em] py-2"
+                onClick={() => { router.push(`/account?autoSignin=true&from=${window.btoa(window.location.href)}`); }}
+              >
+                {t('signIn')}
+              </Button>
             </span>
           </div>
         </motion.div>
       )}
       <div className="flex gap-1 items-center justify-center w-full">
-        <Button variant="primary" onClick={() => { setOpenConfirmModal(true); }}>
-          Xác nhận chuyển khoản
+        <Button
+          variant="primary"
+          className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_8px_var(--accent-500)] uppercase tracking-[0.25em] text-sm py-3 px-6"
+          onClick={() => { setOpenConfirmModal(true); }}
+        >
+          {t('confirmTransfer')}
         </Button>
       </div>
 
       <AnimatePresence mode="wait">
         {confirmModal && (
-          <Modal title="Xác nhận chuyển khoản" className="w-[320px]" onClose={() => { closeModal(); }}>
+          <Modal title={t('confirmModalTitle')} className="w-[320px]" onClose={() => { closeModal(); }}>
             <div>
               <header>
-                Để shop có thể xác minh việc chuyển khoản, xin vui lòng ghi chú <b>tên của người chuyển khoản</b> và <b>5 số cuối </b>
-                trên số tài khoản bạn đã sử dụng cho việc chuyển khoản để shop kiểm chứng lại
+                {t('confirmModalBodyPrefix')} <b>{t('confirmModalBodySender')}</b> {t('confirmModalBodyAnd')} <b>{t('confirmModalBodyDigits')} </b>
+                {t('confirmModalBodySuffix')}
               </header>
-              <input type="text" placeholder="Đoàn Khánh Hương" pattern="/[a-zA-Z]/gi" className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" autoFocus onInput={onNameInput} />
+              <input type="text" placeholder={t('namePlaceholder')} pattern="/[a-zA-Z]/gi" className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" autoFocus onInput={onNameInput} />
               <input type="text" placeholder="01234" pattern="/[0-9]/g" maxLength={5} className="my-1 h-[50px] p-1 text-2xl font-semibold text-center rounded-sm w-full" onInput={onDigitInput } />
             </div>
-            <div className="w-full flex gap-1 items-center justify-end mt-1">
-              <Button variant="secondary" className="p-1" disabled={verifying} working={verifying} onClick={() => { closeModal(); }}>Huỷ</Button>
-              <Button variant="primary" className="p-1" disabled={disabled || verifying} working={verifying} onClick={() => { sendConfirmation(); }}>Xác nhận</Button>
+            <div className="w-full flex gap-2 items-center justify-end mt-2">
+              <Button
+                variant="secondary"
+                className="!text-brand-700 !border-accent-500/40 hover:!text-brand-700 hover:!border-accent-500 hover:bg-accent-300/40 text-xs uppercase tracking-[0.25em] py-2 px-4"
+                disabled={verifying}
+                working={verifying}
+                onClick={() => { closeModal(); }}
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                variant="primary"
+                className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_5px_var(--accent-500)] text-xs uppercase tracking-[0.25em] py-2 px-4"
+                disabled={disabled || verifying}
+                working={verifying}
+                onClick={() => { sendConfirmation(); }}
+              >
+                {t('confirm')}
+              </Button>
             </div>
           </Modal>
         )}

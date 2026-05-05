@@ -1,13 +1,15 @@
 'use client'
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function MayraPointProgress({ current, max = 1200 }: { current: number, max?: number }) {
+  const t = useTranslations('account');
   const distance = 300;
   const segments = max / distance;
   return (
     <div className="pt-1">
-      <h3>Thang điểm Mayra Point</h3>
+      <h3>{t('pointsHeading')}</h3>
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: '100%', transition: { duration: .25 } }}

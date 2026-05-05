@@ -3,9 +3,9 @@
 import Image from 'next/image';
 
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
-import { Heart, House, Search, ShoppingCart, CircleUser } from 'lucide-react';
+import { Heart, House, Compass, ShoppingCart, CircleUser } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
@@ -18,7 +18,11 @@ import { useCartCount } from '../../stores/CartCountProvider';
 
 export default function Navigation() {
   const t = useTranslations('nav');
+  const locale = useLocale();
   const session = useSession();
+  const navGridCols = locale === 'vi'
+    ? 'sm:[grid-template-columns:repeat(4,125px)_150px]'
+    : 'sm:[grid-template-columns:repeat(4,100px)_125px]';
   const router = useRouter();
   const pathname = usePathname();
   const { items, setTo } = useCartCount();
@@ -97,14 +101,14 @@ export default function Navigation() {
             MAYRA
           </span>
         </motion.button>
-        <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_125px] sm:gap-0 sm:justify-center sm:items-center">
+        <ul className={`hidden sm:w-full sm:grid ${navGridCols} sm:gap-x-3 sm:justify-center sm:items-center`}>
           <NavItem href="/">
             <House {...fillWhenActive('/')} />
             {t('home')}
           </NavItem>
-          <NavItem href="/search">
-            <Search {...fillWhenActive('/search')} />
-            {t('search')}
+          <NavItem href="/browse">
+            <Compass {...fillWhenActive('/browse')} />
+            {t('browse')}
           </NavItem>
 
           <NavItem href="/cart" withBorder={false}>

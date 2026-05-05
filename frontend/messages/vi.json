@@ -6,7 +6,7 @@
   },
   "nav": {
     "home": "Trang chủ",
-    "search": "Tìm kiếm",
+    "browse": "Khám phá",
     "cart": "Giỏ hàng",
     "wishlist": "Yêu thích",
     "account": "Tài khoản",
@@ -20,6 +20,28 @@
     "blurb": "Trang sức được chế tác thủ công, dành cho những khoảnh khắc đáng giữ trọn đời.",
     "rights": "Mayra Jewelry · Sài Gòn",
     "craft": "Chế tác bằng cả tâm huyết"
+  },
+  "common": {
+    "backToHome": "Quay về trang chủ",
+    "collection": "Bộ sưu tập"
+  },
+  "notFound": {
+    "message": "Trang này không tồn tại.",
+    "back": "Quay về trang chủ"
+  },
+  "floating": {
+    "signInForOffers": "Đăng nhập để nhận ưu đãi"
+  },
+  "privacy": {
+    "body": "Shop chỉ lưu trữ hình ảnh và tên của bạn trên Facebook cho mục đích đăng nhập trên Mayra."
+  },
+  "delete": {
+    "body": "Để xoá thông tin dữ liệu về bạn, hãy liên lạc trực tiếp với shop hoặc vào mục cài đặt trên Facebook và xoá trang web này."
+  },
+  "loginForm": {
+    "facebook": "Đăng nhập bằng Facebook",
+    "wishlistTitle": "Hãy đăng nhập để lưu trữ<br /> các món đồ yêu thích của bạn",
+    "featureTitle": "Hãy đăng nhập để sử dụng chức năng này"
   },
   "home": {
     "bio": {
@@ -64,5 +86,90 @@
       "body": "Được chế tác thủ công bởi những nghệ nhân tận tâm, mỗi thiết kế của Mayra là sự cân bằng giữa truyền thống và đường nét hiện đại — dành cho những khoảnh khắc bạn muốn giữ trọn đời.",
       "cta": "Khám phá bộ sưu tập"
     }
+  },
+  "jewelry": {
+    "noItemsYet": "Shop chưa bán được nhiều nên chưa hiện thông tin này được. Ủng hộ shop với nhé",
+    "featuredHeading": "Bộ sưu tập nổi bật trong năm",
+    "collectionSuffix": "Collection",
+    "wedding": {
+      "heading": "Đám cưới sắp tới rồi, mình phải làm sao?",
+      "intro": "Không gì phải lo cả, đã có Mayra lo liệu.",
+      "contactPrefix": "",
+      "contactLink": "Liên lạc trực tiếp với shop",
+      "contactSuffix": "để được tư vấn cụ thể về nhẫn trùng với sở thích màu sắc, và cá tính của bạn ạ.",
+      "exploreHint": "Nếu bạn đã biết được loại nhẫn mà bản thân muốn sở hữu, hãy nhấp vào nút bên dưới để khám phá ạ.",
+      "cta": "Tham khảo thêm các loại nhẫn cưới"
+    }
+  },
+  "product": {
+    "purchasesCount": "{count} lượt",
+    "purchasesSuffix": "mua món hàng này",
+    "collection": "Bộ sưu tập:",
+    "info": "Thông tin sản phẩm",
+    "selectedMaterial": "Bạn đã chọn chất liệu",
+    "addToCart": "Thêm vào giỏ đồ",
+    "removeFromWishlist": "Bỏ ra khỏi Wishlist",
+    "addToWishlist": "Thêm vào Wishlist",
+    "frequentlyViewed": "Những món hàng được view thường xuyên"
+  },
+  "cart": {
+    "viewItem": "Xem thông tin món đồ",
+    "decrease": "Bớt 1",
+    "increase": "Thêm 1",
+    "removeAll": "Bỏ hết",
+    "freeShipping": "Miễn phí ship hàng",
+    "wrapAsGift": "Gói quà lại giúp mình",
+    "empty": "Giỏ đồ của bạn đang trống.",
+    "emptyCta": "để chọn thêm các món đồ vào giỏ đồ điện tử của bạn",
+    "share": {
+      "trigger": "Chia sẻ",
+      "title": "Chia sẻ với bạn bè của bạn",
+      "copy": "Sao chép link",
+      "copied": "Đã sao chép"
+    }
+  },
+  "wishlist": {
+    "empty": "Danh sách yêu thích của bạn đang trống.",
+    "emptySuffix": "để chọn thêm các món đồ vào danh sách của bạn"
+  },
+  "account": {
+    "tabs": {
+      "orders": "Đơn hàng",
+      "account": "Tài khoản"
+    },
+    "orderId": "Mã đơn #{id}",
+    "loggedInVia": "Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{name}</b> và đang tích điểm Mayra Point.",
+    "logoutHint": "Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.",
+    "logoutCta": "Đăng xuất",
+    "missingFb": "Shop không thể lấy được tên hoặc hình ảnh đại diện từ Facebook của bạn 🥲",
+    "pointsHeading": "Thang điểm Mayra Point"
+  },
+  "order": {
+    "quantity": "Số lượng mua:",
+    "purchasedAt": "Ngày mua:",
+    "status": "Trạng thái đơn hàng:",
+    "preparingShip": "Hàng đang được chuẩn bị để ship",
+    "statuses": {
+      "pending-verification": "Đang xác thực thanh toán",
+      "failed-verification": "Lỗi xác thực thanh toán",
+      "verified": "Thành công xác thực thanh toán",
+      "shipped": "Đã giao hàng"
+    }
+  },
+  "payment": {
+    "qrTab": "Quét mã QR",
+    "loginPromptForOrders": "Bạn có thể theo dõi trạng thái order nếu đăng nhập trước khi mua hàng.",
+    "later": "Không cần",
+    "signIn": "Đăng nhập",
+    "confirmTransfer": "Xác nhận chuyển khoản",
+    "confirmModalTitle": "Xác nhận chuyển khoản",
+    "confirmModalBodyPrefix": "Để shop có thể xác minh việc chuyển khoản, xin vui lòng ghi chú",
+    "confirmModalBodySender": "tên của người chuyển khoản",
+    "confirmModalBodyAnd": "và",
+    "confirmModalBodyDigits": "5 số cuối",
+    "confirmModalBodySuffix": "trên số tài khoản bạn đã sử dụng cho việc chuyển khoản để shop kiểm chứng lại",
+    "namePlaceholder": "Đoàn Khánh Hương",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận"
   }
 }

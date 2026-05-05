@@ -6,7 +6,7 @@
   },
   "nav": {
     "home": "Home",
-    "search": "Search",
+    "browse": "Browse",
     "cart": "Cart",
     "wishlist": "Wishlist",
     "account": "Account",
@@ -20,6 +20,28 @@
     "blurb": "Hand-finished jewelry, built for moments worth keeping.",
     "rights": "Mayra Jewelry · Saigon",
     "craft": "Crafted with care"
+  },
+  "common": {
+    "backToHome": "Back to homepage",
+    "collection": "Collection"
+  },
+  "notFound": {
+    "message": "This page does not exist.",
+    "back": "Back to homepage"
+  },
+  "floating": {
+    "signInForOffers": "Sign in to unlock offers"
+  },
+  "privacy": {
+    "body": "Mayra only stores your Facebook profile picture and name for the purpose of signing in to Mayra."
+  },
+  "delete": {
+    "body": "To delete your data, please contact the shop directly or remove this app from your Facebook settings."
+  },
+  "loginForm": {
+    "facebook": "Sign in with Facebook",
+    "wishlistTitle": "Sign in to save<br /> your favourite pieces",
+    "featureTitle": "Sign in to use this feature"
   },
   "home": {
     "bio": {
@@ -64,5 +86,90 @@
       "body": "Hand-finished by attentive craftspeople, each Mayra design balances heritage with a contemporary line — built for moments you'll want to keep for a lifetime.",
       "cta": "Explore the collection"
     }
+  },
+  "jewelry": {
+    "noItemsYet": "We haven't sold many pieces yet, so there's nothing here to show. Stay with us!",
+    "featuredHeading": "Featured collections of the year",
+    "collectionSuffix": "Collection",
+    "wedding": {
+      "heading": "A wedding is coming up — what should I do?",
+      "intro": "Don't worry, Mayra has it covered.",
+      "contactPrefix": "",
+      "contactLink": "Reach out to the shop directly",
+      "contactSuffix": "for personalised advice on rings that match your taste, palette, and personality.",
+      "exploreHint": "If you already know the style you want, click the button below to explore.",
+      "cta": "Browse more wedding rings"
+    }
+  },
+  "product": {
+    "purchasesCount": "{count}",
+    "purchasesSuffix": "people purchased this piece",
+    "collection": "Collection:",
+    "info": "Product information",
+    "selectedMaterial": "You selected the material",
+    "addToCart": "Add to cart",
+    "removeFromWishlist": "Remove from wishlist",
+    "addToWishlist": "Add to wishlist",
+    "frequentlyViewed": "Frequently viewed pieces"
+  },
+  "cart": {
+    "viewItem": "View item details",
+    "decrease": "Remove 1",
+    "increase": "Add 1",
+    "removeAll": "Remove all",
+    "freeShipping": "Free shipping",
+    "wrapAsGift": "Wrap it as a gift for me",
+    "empty": "Your cart is empty.",
+    "emptyCta": "to add more pieces to your cart",
+    "share": {
+      "trigger": "Share",
+      "title": "Share with your friends",
+      "copy": "Copy link",
+      "copied": "Copied"
+    }
+  },
+  "wishlist": {
+    "empty": "Your wishlist is empty.",
+    "emptySuffix": "to add more pieces to your list"
+  },
+  "account": {
+    "tabs": {
+      "orders": "Orders",
+      "account": "Account"
+    },
+    "orderId": "Order #{id}",
+    "loggedInVia": "You're signed in to Mayra with your Facebook account <b>{name}</b> and earning Mayra Points.",
+    "logoutHint": "Press the button below if you want to sign out of Mayra.",
+    "logoutCta": "Sign out of Mayra",
+    "missingFb": "Mayra couldn't fetch your name or profile picture from Facebook 🥲",
+    "pointsHeading": "Mayra Point progress"
+  },
+  "order": {
+    "quantity": "Quantity:",
+    "purchasedAt": "Purchase date:",
+    "status": "Order status:",
+    "preparingShip": "Your order is being prepared for shipping",
+    "statuses": {
+      "pending-verification": "Verifying payment",
+      "failed-verification": "Payment verification failed",
+      "verified": "Payment verified",
+      "shipped": "Shipped"
+    }
+  },
+  "payment": {
+    "qrTab": "Scan QR Code",
+    "loginPromptForOrders": "Sign in before purchasing to track your order status.",
+    "later": "Not now",
+    "signIn": "Sign in",
+    "confirmTransfer": "Confirm transfer",
+    "confirmModalTitle": "Confirm transfer",
+    "confirmModalBodyPrefix": "To verify your transfer, please note",
+    "confirmModalBodySender": "the sender's name",
+    "confirmModalBodyAnd": "and",
+    "confirmModalBodyDigits": "the last 5 digits",
+    "confirmModalBodySuffix": "of the account you used so the shop can cross-check.",
+    "namePlaceholder": "Your full name",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   }
 }

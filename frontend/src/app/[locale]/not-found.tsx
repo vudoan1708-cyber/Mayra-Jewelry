@@ -2,9 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function Custom404() {
   const router = useRouter();
+  const t = useTranslations('notFound');
   return (
     <div className="flex flex-col items-center justify-center w-screen h-dvh p-2 bg-gray-100 text-center">
       <motion.h1
@@ -22,11 +24,11 @@ export default function Custom404() {
         transition={{ delay: 0.3 }}
         className="text-lg text-gray-600 mb-8"
       >
-        Trang này không tồn tại.
+        {t('message')}
       </motion.p>
 
       <a onClick={() => { router.push('/'); }}>
-          Quay về trang chủ
+          {t('back')}
       </a>
     </div>
   )

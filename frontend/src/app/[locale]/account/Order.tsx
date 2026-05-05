@@ -3,16 +3,18 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { useTranslations } from 'next-intl';
 
 import { motion } from 'framer-motion';
 
 import { format } from 'date-fns';
 
 import type { JewelryItemInfo, Order } from '../../../../types';
-import { ENGLISH_TO_VIETNAMESE, ORDER_STATUS } from '../../../helpers';
+import { ORDER_STATUS } from '../../../helpers';
 
 export default function Order({ item, order, idx }: { item: JewelryItemInfo; order: Order, idx: number }) {
   const router = useRouter();
+  const t = useTranslations('order');
   const DotStatus = () => {
     if (order.status === ORDER_STATUS.PENDING_VERIFICATION) {
       return <div className="rounded-full w-[20px] h-[20px] p-1 ml-[10px] bg-yellow-400 animate-glow"></div>
@@ -46,20 +48,20 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
       <div className="flex flex-col gap-1 w-full">
         <h3 className="text-lg">{item.itemName}</h3>
         <hr className="relative w-full" />
-        <span><strong>Số lượng mua:</strong> {order.orderJewelryItems[idx].quantity}</span>
-        <span><strong>Ngày mua:</strong> {format(new Date(order.pendingAt), 'dd/MM/yyyy')}</span>
+        <span><strong>{t('quantity')}</strong> {order.orderJewelryItems[idx].quantity}</span>
+        <span><strong>{t('purchasedAt')}</strong> {format(new Date(order.pendingAt), 'dd/MM/yyyy')}</span>
         <div className="flex flex-col gap-1">
-          <strong>Trạng thái đơn hàng:</strong> 
+          <strong>{t('status')}</strong>
           <div>
             <div className="flex gap-2 items-center flex-wrap">
               <DotStatus />
-              {ENGLISH_TO_VIETNAMESE[order.status]}
+              {t(`statuses.${order.status}` as 'statuses.pending-verification')}
             </div>
 
             {order.status === ORDER_STATUS.VERIFIED && (
-              <div className="flex gap-2 items-center flex-wrap">
+              <div className="flex gap-2 items-center">
                 <DotStatus />
-                Hàng đang được chuẩn bị để ship
+                {t('preparingShip')}
               </div>
             )}
           </div>

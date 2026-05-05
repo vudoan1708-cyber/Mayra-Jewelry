@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import { signOut } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import { motion } from 'framer-motion';
@@ -15,11 +16,6 @@ import type { Order as OrderType, Tier } from '../../../../types';
 import Tabs, { type Tab } from '../../../components/Tabs/Tabs';
 import { convertMayraPointToTier, convertTierToTextColour } from '../../../helpers';
 import MayraPointProgress from './MayraPointProgress';
-
-const TABS = [
-  { id: 1, label: 'Đơn hàng', active: true },
-  { id: 2, label: 'Tài khoản', active: false },
-];
 
 export default function AlreadySignedIn({
   userName,
@@ -34,6 +30,11 @@ export default function AlreadySignedIn({
   userPoint: number;
   userTier: Tier;
 }) {
+  const t = useTranslations('account');
+  const TABS = useMemo<Tab[]>(() => [
+    { id: 1, label: t('tabs.orders'), active: true },
+    { id: 2, label: t('tabs.account'), active: false },
+  ], [t]);
   const [activeTab, setActiveTab] = useState<Tab>(() => TABS.find((tab) => tab.active) as Tab);
   const [root, setRoot] = useState<HTMLElement | null>(null);
 
@@ -79,7 +80,7 @@ export default function AlreadySignedIn({
             <ul className="grid grid-cols-1 gap-4 items-center justify-center list-none overflow-visible">
               {orders.map((order) => (
                 <li key={order.id} className="flex flex-col gap-1 border-radius-[0_6px_6px_0] p-1">
-                  <h3>Mã đơn #{order.id.split('-').join('')}</h3>
+                  <h3>{t('orderId', { id: order.id.split('-').join('') })}</h3>
                   {order.jewelryItems.map((item, idx) => (
                     <Order key={`${order.id}-${idx + 1}`} item={item} order={order} idx={idx} />
                   ))}
@@ -95,17 +96,22 @@ export default function AlreadySignedIn({
         <MayraPointProgress current={userPoint} />
 
         <div className="mt-1">
-          <p>Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{userName}</b> và đang tích điểm Mayra Point.</p>
-          <p>Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.</p>
+          <p>
+            {t.rich('loggedInVia', {
+              name: userName,
+              b: (chunks) => <b>{chunks}</b>,
+            })}
+          </p>
+          <p>{t('logoutHint')}</p>
         </div>
-        
+
         <Button
           variant="secondary"
           className="border-red-500 text-red-500 hover:border-red-400 hover:text-red-400"
           onClick={async () => {
             await signOut({ redirectTo: '/' });
           }}>
-          Đăng xuất khỏi Mayra
+          {t('logoutCta')}
         </Button>
       </>
     )
@@ -119,7 +125,7 @@ export default function AlreadySignedIn({
         className="w-full bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-4 md:p-6 grid grid-cols-1 items-center gap-2 text-brand-700">
         {(!userName || !userImage)
           ? (
-            <p>Shop không thể lấy được tên hoặc hình ảnh đại diện từ Facebook của bạn 🥲</p>
+            <p>{t('missingFb')}</p>
           )
           : (
             <>

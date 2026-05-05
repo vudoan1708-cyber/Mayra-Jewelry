@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { useEffect, useState } from 'react';
 
@@ -12,6 +13,7 @@ import TawkChat from '../../components/TawkChat/TawkChat';
 import { LOGO_SCROLLED_PASSED_EVENT } from '../../helpers';
 
 export default function Floating() {
+  const t = useTranslations('floating');
   const session = useSession();
   const router = useRouter();
   const [logoIntersected, setLogoIntersected] = useState<boolean>(false);
@@ -23,7 +25,7 @@ export default function Floating() {
       }
     });
   }, []);
-  
+
   return (
     <>
       <FloatingButton anchorBottom anchorRight>
@@ -31,7 +33,7 @@ export default function Floating() {
       </FloatingButton>
       {session.status !== 'authenticated' && logoIntersected && (
         <FloatingButton type="division" anchorBottom anchorLeft width="auto">
-          <Button variant="primary" onClick={() => { router.push('/account'); }}>Đăng nhập để nhận ưu đãi</Button>
+          <Button variant="primary" onClick={() => { router.push('/account'); }}>{t('signInForOffers')}</Button>
         </FloatingButton>
       )}
     </>

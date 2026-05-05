@@ -22,9 +22,9 @@ export default async function MostViewed({ id }: { id: string }) {
                   height="360"
                   style={{ objectFit: "contain", width: "auto", height: "auto" }}
                   className="border rounded-lg max-w-[360px] max-h-[360px] cursor-pointer hover:opacity-90 hover:scale-105 transition-all" />
-                <figcaption className="absolute bottom-0 w-full bg-transparent-white flex justify-between items-center px-2 py-1">
-                  <b className="text-lg text-gray-800">{item.itemName}</b>
-                  <b><Money amount={minPrice(item.prices)} currency={item.currency} /></b>
+                <figcaption className="absolute bottom-0 w-full bg-accent-100/95 backdrop-blur-sm flex justify-between items-center gap-2 px-2 py-1.5">
+                  <b className="text-base text-brand-700 truncate">{item.itemName}</b>
+                  <b className="text-brand-700 font-bold shrink-0"><Money amount={minPrice(item.prices)} currency={item.currency} /></b>
                 </figcaption>
               </figure>
             </NavItem>

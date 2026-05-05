@@ -53,12 +53,9 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 	var mediaLinks []models.MediaLink
 	var currentDir string
 	for idx, obj := range objects {
-		url, err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
-			FileName:  *obj.Key,
-			Procedure: "GET",
-		})
+		publicUrl, err := cloudflare.CloudflareInstance.BuildPublicUrl(*obj.Key)
 		if err != nil {
-			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, err.Error()))
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot build public url for object: %s. Reason: %s", *obj.Key, err.Error()))
 			log.Fatal(err)
 			return
 		}
@@ -76,7 +73,7 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		mediaLinks = append(mediaLinks, models.MediaLink{
-			URL:      *url,
+			URL:      publicUrl,
 			FileName: *obj.Key,
 		})
 
@@ -133,18 +130,15 @@ func getMediaFilesAndUpdateResponsePayload(w http.ResponseWriter, jewelryItems [
 			continue
 		}
 		for _, obj := range objects {
-			url, url_err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
-				FileName:  *obj.Key,
-				Procedure: "GET",
-			})
+			publicUrl, url_err := cloudflare.CloudflareInstance.BuildPublicUrl(*obj.Key)
 			if url_err != nil {
-				middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, url_err.Error()))
+				middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot build public url for object: %s. Reason: %s", *obj.Key, url_err.Error()))
 				log.Fatal(url_err)
 				return
 			}
 
 			responsePlaceholder.Media = append(responsePlaceholder.Media, models.MediaLink{
-				URL:      *url,
+				URL:      publicUrl,
 				FileName: *obj.Key,
 			})
 		}
@@ -307,16 +301,13 @@ func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, obj := range objects {
-		url, url_err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
-			FileName:  *obj.Key,
-			Procedure: "GET",
-		})
+		publicUrl, url_err := cloudflare.CloudflareInstance.BuildPublicUrl(*obj.Key)
 		if url_err != nil {
-			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, url_err.Error()))
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot build public url for object: %s. Reason: %s", *obj.Key, url_err.Error()))
 			return
 		}
 		response.Media = append(response.Media, models.MediaLink{
-			URL:      *url,
+			URL:      publicUrl,
 			FileName: *obj.Key,
 		})
 	}

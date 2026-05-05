@@ -109,37 +109,60 @@ export default function Bio() {
         </div>
       </section>
 
-      <section className="relative flex justify-center items-start h-[120dvh] pt-2 px-4">
+      <section className="relative flex justify-center items-start h-[120dvh] pt-2 px-4 sm:px-6">
         <motion.aside
           ref={asideRef}
           initial={{ opacity: 0, y: 50 }}
-          className="max-w-xl bg-accent-100 rounded-2xl shadow-2xl shadow-black/50 border border-accent-300/40 p-6 md:p-8 space-y-4"
+          className="relative max-w-4xl w-full mx-auto pt-12 sm:pt-20 pb-10 px-2 sm:px-6 text-accent-100"
         >
+          <div className="flex items-center gap-3 text-[10px] sm:text-[11px] uppercase tracking-[0.45em] text-accent-300/85 mb-6 sm:mb-8">
+            <span aria-hidden className="block h-px w-10 sm:w-14 bg-gradient-to-r from-transparent to-accent-500/70" />
+            {t('eyebrow')}
+          </div>
+
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
-            className="text-xl md:text-2xl font-normal leading-snug text-brand-700"
+            className="font-serif font-light leading-[1.1] tracking-[0.005em] text-3xl sm:text-4xl md:text-5xl text-accent-100 max-w-3xl"
           >
             {t.rich('tagline', {
-              brand: (chunks) => <span className="text-brand-700 font-bold">{chunks}</span>,
+              brand: (chunks) => <span className="italic font-medium text-accent-300">{chunks}</span>,
             })}
           </motion.p>
-          <ul style={{ color: 'var(--brand-700)' }} className="flex flex-col gap-2 [list-style-type:none] text-sm md:text-base leading-relaxed">
-            <li className="flex gap-3 items-center">
-              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><Phone className="size-3.5" /></span>{t('perks.support')}
+
+          <span aria-hidden className="block h-px w-24 sm:w-32 bg-gradient-to-r from-accent-500/60 via-accent-500/30 to-transparent mt-8 sm:mt-12" />
+
+          <ul className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 sm:gap-x-12 gap-y-5 [list-style-type:none] text-sm md:text-[15px] leading-relaxed text-accent-100/85">
+            <li className="flex gap-3 items-start">
+              <span className="text-accent-300 shrink-0 mt-0.5"><Phone className="size-4" strokeWidth={1.5} /></span>
+              {t('perks.support')}
             </li>
-            <li className="flex gap-3 items-center">
-              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><HopOff className="size-3.5" /></span>{t('perks.returns')}
+            <li className="flex gap-3 items-start">
+              <span className="text-accent-300 shrink-0 mt-0.5"><HopOff className="size-4" strokeWidth={1.5} /></span>
+              {t('perks.returns')}
             </li>
-            <li className="flex gap-3 items-center">
-              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><Percent className="size-3.5" /></span>{t('perks.social')}
+            <li className="flex gap-3 items-start">
+              <span className="text-accent-300 shrink-0 mt-0.5"><Percent className="size-4" strokeWidth={1.5} /></span>
+              {t('perks.social')}
             </li>
-            <li className="flex gap-3 items-center">
-              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><TrendingUp className="size-3.5" /></span>{t('perks.points')}
+            <li className="flex gap-3 items-start">
+              <span className="text-accent-300 shrink-0 mt-0.5"><TrendingUp className="size-4" strokeWidth={1.5} /></span>
+              {t('perks.points')}
             </li>
           </ul>
+
           {session.status !== 'authenticated' && (
-            <Button ref={buttonRef} variant="secondary" className="mt-2 px-4 py-2 rounded-full" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>{t('signInCta')}</Button>
+            <div className="mt-10 sm:mt-12">
+              <Button
+                ref={buttonRef}
+                variant="secondary"
+                className="!text-accent-300 !border-accent-500/40 hover:!text-brand-700 hover:!bg-accent-300 hover:!border-accent-300 uppercase tracking-[0.3em] text-[11px] sm:text-xs px-6 py-3 rounded-full"
+                transitionOption={{ delay: 2.4 }}
+                onClick={() => { router.push('/account'); }}
+              >
+                {t('signInCta')}
+              </Button>
+            </div>
           )}
         </motion.aside>
       </section>

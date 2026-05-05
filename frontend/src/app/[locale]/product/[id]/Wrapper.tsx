@@ -67,7 +67,7 @@ export default function Wrapper({
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { delay: 0.8, duration: 0.2 } }}
-        className="relative grid grid-cols-1 md:[grid-template-columns:repeat(2,1fr)] gap-1 items-start mt-8"
+        className="relative grid grid-cols-1 md:[grid-template-columns:repeat(2,1fr)] gap-3 items-start mt-8 px-3 md:px-6 max-w-7xl mx-auto"
       >
         <ItemInfoSection
           id={id}

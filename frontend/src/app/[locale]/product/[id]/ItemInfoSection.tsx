@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, type MouseEventHandler } from 'react';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import { Heart, ShoppingCart } from 'lucide-react';
 
@@ -51,6 +52,7 @@ export default function ItemInfoSection({
   buyerWishlistFound: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations('product');
   const [variation, setSelectedVariation] = useState<JewelryVariation>(selectedVariation);
 
   const [loadingImg, setLoadingImg] = useState<boolean>(true);
@@ -78,6 +80,7 @@ export default function ItemInfoSection({
     addItem({
       id,
       itemName,
+      imgUrls: imgUrlRef.current,
       featureCollection,
       type,
       variation,
@@ -177,7 +180,7 @@ export default function ItemInfoSection({
 
   return (
     <>
-      <div className="relative flex flex-col justify-center items-center !w-[100%]">
+      <div className="relative flex flex-col justify-center items-center !w-[100%] bg-accent-100 border border-accent-300/40 rounded-2xl shadow-xl shadow-black/30 p-4 md:p-6 text-brand-700">
         {loadingImg
           ? <Loading />
           : (
@@ -188,7 +191,7 @@ export default function ItemInfoSection({
                 alt={itemName}
                 width="520"
                 height="520"
-                className="border rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover"
+                className="border border-accent-300/40 rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover bg-white"
                 onMouseEnter={enterImage}
                 onMouseMove={mouseMoveOnImage}
                 onMouseOut={unhoverImage} />
@@ -199,62 +202,71 @@ export default function ItemInfoSection({
                     backgroundImage: `url('${imgRef.current?.src}')`,
                     backgroundRepeat: 'no-repeat',
                   }}
-                  className="hidden md:block absolute left-[100%] top-0 h-full min-w-[320px] min-h-[320px] w-full rounded-lg z-10 shadow-lg">
+                  className="hidden md:block absolute left-[100%] top-0 h-full min-w-[320px] min-h-[320px] w-full rounded-lg z-10 shadow-lg bg-white">
                 </div>
               )}
             </div>
           )
         }
-        <div className="flex gap-2 justify-start items-center mt-2">
+        <div className="flex gap-2 justify-start items-center mt-3">
           {availableVariations.map((variation) => (
             <Variation key={`${imgUrls[0]}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
           ))}
         </div>
       </div>
 
-      <div className="self-start grid gap-2">
-        <h2 className="text-3xl text-brand-500 font-semibold">{itemName}</h2>
-        <small>
-          <b className="font-bold text-brand-500">{purchases} lượt</b> mua món hàng này
+      <div className="self-start grid gap-3 bg-accent-100 border border-accent-300/40 rounded-2xl shadow-xl shadow-black/30 p-5 md:p-7 text-brand-700">
+        <h2 className="text-3xl text-brand-700 font-semibold leading-tight">{itemName}</h2>
+        <small className="text-brand-500/80">
+          <b className="font-bold text-brand-700">{t('purchasesCount', { count: purchases })}</b> {t('purchasesSuffix')}
           <motion.hr
             initial={{ width: 0 }}
             animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
-            className="border-0 border-b border-b-transparent-black mt-1" />
+            className="border-0 border-b border-accent-500/30 mt-1" />
         </small>
 
-        <h2 className="text-xl">
+        <h2 className="text-2xl text-brand-700 font-semibold">
           <Money amount={amount} />
         </h2>
         <motion.hr
           initial={{ width: 0 }}
           animate={{ width: '100%', transition: { duration: 1, delay: 1.6 } }}
-          className="border-0 border-b border-b-transparent-black" />
+          className="border-0 border-b border-accent-500/30" />
 
-        <div className="flex gap-1 items-center">
-          <h2>Bộ sưu tập: </h2>
-          <NavItem href={`/collections/${featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{featureCollection}</NavItem>
-        </div>
+        {featureCollection && (
+          <div className="flex gap-1 items-center text-brand-700">
+            <h2 className="text-base font-semibold">{t('collection')}</h2>
+            <NavItem
+              href={`/collections/${featureCollection}`}
+              withBorder={false}
+              className="!underline decoration-accent-500/70 underline-offset-4 !text-sm !text-brand-500 hover:!text-accent-600 hover:decoration-accent-600"
+              onClick={(e) => { e.stopPropagation(); }}
+            >
+              {featureCollection}
+            </NavItem>
+          </div>
+        )}
 
         {/* Item Description */}
-        <h2 className="text-2xl">Thông tin sản phẩm</h2>
-        <ul className="flex flex-1 flex-col list-none">
+        <h2 className="text-2xl text-brand-700 font-semibold mt-1">{t('info')}</h2>
+        <ul className="flex flex-1 flex-col list-none text-brand-700/90 leading-relaxed">
           {description.split('\n').map((line, idx) => (
             <li key={idx}>{line}</li>
           ))}
         </ul>
 
-        <div>
-          <div className="flex gap-1 items-center my-2">
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="flex gap-1 items-center text-brand-700">
             <Variation key={`${imgUrls[0]}_slected_${selectedVariation.key}`} variation={selectedVariation} />
-            Bạn đã chọn chất liệu <b>{selectedVariation.label}</b>
+            {t('selectedMaterial')} <b className="text-brand-700">{selectedVariation.label}</b>
           </div>
-          <Button variant="tertiary" className="justify-self-start" onClick={throttleIncrement}>
+          <Button variant="tertiary" className="justify-self-start !text-brand-700 hover:!text-brand-500" onClick={throttleIncrement}>
             <ShoppingCart />
-            Thêm vào giỏ đồ
+            {t('addToCart')}
           </Button>
-          <Button variant="tertiary" className={`justify-self-start ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
-            <Heart fill={hasItemWishlisted ? 'var(--brand-500)' : 'none'} />
-            {hasItemWishlisted ? 'Bỏ ra khỏi Wishlist' : 'Thêm vào Wishlist'}
+          <Button variant="tertiary" className={`justify-self-start !text-brand-700 hover:!text-brand-500 ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
+            <Heart fill={hasItemWishlisted ? 'var(--brand-700)' : 'none'} />
+            {hasItemWishlisted ? t('removeFromWishlist') : t('addToWishlist')}
           </Button>
         </div>
       </div>

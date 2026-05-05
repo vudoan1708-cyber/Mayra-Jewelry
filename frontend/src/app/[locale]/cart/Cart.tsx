@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import { useCartCount, type CartItem } from '../../../stores/CartCountProvider';
 import Card from './Card';
@@ -14,6 +15,8 @@ import type { JewelryItemInfo } from '../../../../types';
 export default function Cart({ userId, userEmail }: { userId: string; userEmail: string }) {
   const router = useRouter();
   const { removeAll } = useCartCount();
+  const t = useTranslations('cart');
+  const tCommon = useTranslations('common');
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
@@ -95,7 +98,7 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col justify-center items-center h-full">
       <p className="text-[100px] text-center select-none">🛒</p>
-      <p>Giỏ đồ của bạn đang trống. <a onClick={() => { router.push('/'); }}>Quay về trang chủ</a> để chọn thêm các món đồ vào giỏ đồ điện tử của bạn</p>
+      <p>{t('empty')} <a onClick={() => { router.push('/'); }}>{tCommon('backToHome')}</a> {t('emptyCta')}</p>
     </motion.div>
   );
 }

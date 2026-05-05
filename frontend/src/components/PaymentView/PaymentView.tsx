@@ -1,8 +1,9 @@
 'use client'
 
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 import { TriangleAlert } from 'lucide-react';
 
@@ -14,17 +15,15 @@ import Loading from '../Loading/Loading';
 import { PAYMENT_INFO } from '../../helpers';
 import type { JewelryItemInfo } from '../../../types';
 
-const tabs: Array<Tab> = [
-  // { label: 'Thẻ tín dụng', id: 1, active: true },
-  // API: https://www.vietqr.io/danh-sach-api/link-tao-ma-nhanh/api-tao-ma-qr#operation/generate
-  { label: 'Quét mã QR', id: 'qr', active: true },
-];
-
 export default function PaymentView({
   amount, info, items, userId, userEmail, onSuccessfulConfirmation,
 }: {
   amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string; userEmail: string; onSuccessfulConfirmation?: () => void;
 }) {
+  const t = useTranslations('payment');
+  const tabs = useMemo<Array<Tab>>(() => [
+    { label: t('qrTab'), id: 'qr', active: true },
+  ], [t]);
   const [activeTab, setActiveTab] = useState<Tab>(() => tabs.find((tab) => tab.id === 'qr') as Tab);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,7 +59,7 @@ export default function PaymentView({
     <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { delay: 1, duration: 0.2 } }}
-      className="relative flex flex-col items-start"
+      className="relative flex flex-col items-start gap-4 text-accent-100"
     >
       <Tabs items={tabs} onSelect={onTabSelected} />
 
