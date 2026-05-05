@@ -23,12 +23,12 @@ export default function LoginForm({ title, redirectTo = '/', autoSignIn = false 
       key="scale-and-fade"
       initial={{ opacity: 0, scale: 1.09 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col gap-4 h-max self-center text-brand-100 rounded-md shadow-lg p-3 max-w-[400px]"
+      className="flex flex-col gap-4 h-max self-center bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-6 max-w-[400px] mt-12"
       action={async () => {
         await signIn('facebook', { redirectTo });
       }}
     >
-      <h2 className="text-2xl text-center text-gray-600" dangerouslySetInnerHTML={{ __html: title }}></h2>
+      <h2 className="text-2xl text-center text-brand-700" dangerouslySetInnerHTML={{ __html: title }}></h2>
       <Button
         variant="secondary"
         className="items-center justify-center text-facebook border-facebook py-1"

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { useEffect, useRef } from 'react';
 
@@ -9,91 +10,19 @@ import gsap from 'gsap';
 
 import { HopOff, Percent, Phone, TrendingUp } from 'lucide-react';
 
-import { motion, useAnimation, type LegacyAnimationControls } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import Button from './Button';
 import { LOGO_SCROLLED_PASSED_EVENT } from '../helpers';
 
-const letters = [ 'M', 'a' , 'y', 'r', 'a', '&nbsp;', 'J', 'e', 'w', 'e', 'l', 'r', 'y' ];
-
 export default function Bio() {
+  const t = useTranslations('home.bio');
   const session = useSession();
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const headerSectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLHeadElement>(null);
   const asideRef = useRef<HTMLElement>(null);
-  const controls: Array<LegacyAnimationControls> = [];
-
-  const bounceTransition = useRef({
-    type: 'spring',
-    stiffness: 180,
-    damping: 10,
-    mass: 0.8,
-    duration: 0.2,
-  });
-
-  const Letter = ({ letter, idx }: { letter: string, idx: number }) => {
-    controls[idx] = useAnimation();
-    useEffect(() => {
-      const sequence = async () => {
-        // Step 1: fade + move in (delayed by idx)
-        await controls[idx].start({
-          opacity: 1,
-          y: 0,
-          transition: {
-            duration: 0.3,
-            delay: 0.2,
-          },
-        });
-
-        // Step 2: scale bounce && color animation
-        await controls[idx].start({
-          scale: [1, 1.2, 1],
-          color: ['#ffffff', '#001B3D', '#ffffff'],
-          transition: {
-            ...bounceTransition, 
-            duration: 0.4,
-            delay: (idx * 0.1) + 0.2
-          },
-        });
-        // Step 3: reinforce the theme colour
-        await controls[idx].start({
-          color: ['#001B3D'],
-          transition: {
-            ...bounceTransition, 
-            duration: 0.4,
-            delay: 0.5 + ((letters.length * 0.25) + 0.2),
-          },
-        });
-      };
-
-      sequence();
-    }, []);
-
-    const updateLetter = (action: 'hover' | 'leave') => {
-      controls[idx].start({
-        color: action === 'hover' ? '#fff' : 'var(--brand-500)',
-        transition: { duration: 0.2 },
-      });
-    };
-
-    const randomSize = idx % 2 === 0 ? 'md:text-[120px]' : 'md:text-[72px]';
-    return (
-      <motion.h3
-        initial={{ opacity: 0, y: -10, scale: 1 }}
-        animate={controls[idx]}
-        whileHover={{ scale: 1.2, transition: { ...bounceTransition } }}
-        className={`text-5xl ${randomSize} font-medium text-white tracking-wide drop-shadow-lg font-[CocoBiker]`}
-        style={{
-          WebkitTextStroke: '0.2px var(--brand-300)',
-        }}
-        onMouseEnter={() => { updateLetter('hover'); }}
-        onMouseLeave={() => { updateLetter('leave'); }}
-        dangerouslySetInnerHTML={{ __html: letter }}>
-      </motion.h3>
-    )
-  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -118,16 +47,15 @@ export default function Bio() {
         scrollTrigger: {
           trigger: headerSectionRef.current,
           start: 'center center',
-          end: '+=150%',
+          end: '+=40%',
           pin: true,
           scrub: true,
-          // anticipatePin: 1,
         },
       });
 
-      // Animate the header fade-out before next content scrolls
-      tl.to(headerRef.current, { opacity: 0, scale: 0.9, y: -100, duration: 1 })
-        .to(asideRef.current, { opacity: 1, y: 0, duration: 1.5 }, '>-0.2');
+      tl.to(headerRef.current, { opacity: 0, scale: 0.96, y: -60, duration: 1 })
+        .to(asideRef.current, { opacity: 1, duration: 0.25 }, '>-0.2')
+        .to(asideRef.current, { y: 0, duration: 1.3 }, '<');
     }, headerSectionRef);
 
     return () => {
@@ -135,54 +63,83 @@ export default function Bio() {
       ctx.revert();
     };
   }, []);
+
   return (
     <div className="relative w-full overflow-hidden">
-      <style>
-        {`@import url('https://fonts.cdnfonts.com/css/cocobiker');`}
-      </style>
-
       <section
         ref={headerSectionRef}
         className="relative w-dvw h-dvh">
-        <div className="sticky top-0 flex flex-col items-center justify-center w-full h-full">
-          <header ref={headerRef} className="flex gap-[1px] items-end cursor-default z-10">
-            {letters.map((letter, idx) => (
-              <Letter key={idx} letter={letter} idx={idx} />
-            ))}
+        <div className="sticky top-0 flex flex-col items-center justify-center w-full h-full px-6">
+          <header
+            ref={headerRef}
+            className="flex flex-col items-center text-center gap-3 cursor-default select-none">
+            <motion.span
+              initial={{ opacity: 0, letterSpacing: '0.1em' }}
+              animate={{ opacity: 1, letterSpacing: '0.4em' }}
+              transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              style={{ color: 'var(--accent-100)' }}
+              className="text-xs sm:text-sm uppercase font-medium drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]"
+            >
+              {t('eyebrow')}
+            </motion.span>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              style={{ color: 'var(--accent-300)' }}
+              className="font-light tracking-[0.04em] text-5xl sm:text-7xl md:text-[112px] leading-[1.02] drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+            >
+              Mayra
+              <span
+                style={{ color: 'var(--accent-100)' }}
+                className="block text-xs sm:text-sm md:text-base tracking-[0.6em] mt-4 font-normal uppercase"
+              >
+                Jewelry
+              </span>
+            </motion.h1>
+
+            <motion.span
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="block h-px w-32 sm:w-40 bg-gradient-to-r from-transparent via-accent-500 to-transparent origin-center mt-1"
+            />
           </header>
         </div>
       </section>
 
-      <section className="relative flex justify-center items-center h-[200dvh]">
+      <section className="relative flex justify-center items-start h-[120dvh] pt-2 px-4">
         <motion.aside
           ref={asideRef}
           initial={{ opacity: 0, y: 50 }}
-          className="max-w-xl bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 space-y-3 text-brand-500"
+          className="max-w-xl bg-accent-100 rounded-2xl shadow-2xl shadow-black/50 border border-accent-300/40 p-6 md:p-8 space-y-4"
         >
           <motion.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}
-            className="text-2xl md:text-3xl font-semibold leading-snug"
+            className="text-xl md:text-2xl font-normal leading-snug text-brand-700"
           >
-            Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại{' '}
-            <span className="text-[#001B3D] font-bold">Mayra</span>
+            {t.rich('tagline', {
+              brand: (chunks) => <span className="text-brand-700 font-bold">{chunks}</span>,
+            })}
           </motion.p>
-          <ul className="flex flex-col gap-1 bg-transparent-white md:bg-transparent rounded [list-style-type:none] p-2 list-inside leading-relaxed">
-            <li className="flex gap-1 items-center text-brand-500 mt-2">
-              <span className="border border-brand-500 p-1 rounded-[100%]"><Phone /></span>Tư vấn 24/7, phục vụ tận tình
+          <ul style={{ color: 'var(--brand-700)' }} className="flex flex-col gap-2 [list-style-type:none] text-sm md:text-base leading-relaxed">
+            <li className="flex gap-3 items-center">
+              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><Phone className="size-3.5" /></span>{t('perks.support')}
             </li>
-            <li className="flex gap-1 items-center text-brand-500 ">
-              <span className="border border-brand-500 p-1 rounded-[100%]"><HopOff /></span>Miễn phí hoàn trả trong vòng 24h
+            <li className="flex gap-3 items-center">
+              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><HopOff className="size-3.5" /></span>{t('perks.returns')}
             </li>
-            <li className="flex gap-1 items-center text-brand-500 ">
-              <span className="border border-brand-500 p-1 rounded-[100%]"><Percent /></span>Giảm giá cực mạnh khi đăng hình trang sức lên mạng xã hội
+            <li className="flex gap-3 items-center">
+              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><Percent className="size-3.5" /></span>{t('perks.social')}
             </li>
-            <li className="flex gap-1 items-center text-brand-500 ">
-              <span className="border border-brand-500 p-1 rounded-[100%]"><TrendingUp /></span>Tích điểm mỗi khi mua hàng từ Mayra để được giảm giá
+            <li className="flex gap-3 items-center">
+              <span className="border border-accent-400 text-accent-600 p-1.5 rounded-full shrink-0"><TrendingUp className="size-3.5" /></span>{t('perks.points')}
             </li>
           </ul>
           {session.status !== 'authenticated' && (
-            <Button ref={buttonRef} variant="secondary" className="mt-2" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>Đăng nhập ngay để nhận ưu đãi</Button>
+            <Button ref={buttonRef} variant="secondary" className="mt-2 px-4 py-2 rounded-full" transitionOption={{ delay: 2.4 }} onClick={() => { router.push('/account'); }}>{t('signInCta')}</Button>
           )}
         </motion.aside>
       </section>

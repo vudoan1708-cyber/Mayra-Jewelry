@@ -1,9 +1,9 @@
 'use client'
 
-import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { Heart, House, Search, ShoppingCart, CircleUser } from 'lucide-react';
 import { useEffect } from 'react';
@@ -11,10 +11,13 @@ import { useEffect } from 'react';
 import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 
 import NavItem from './NavItem';
+import LocaleSwitcher from '../LocaleSwitcher';
+import { useRouter, usePathname } from '../../i18n/navigation';
 import { SAVE_TO_CART } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
 
 export default function Navigation() {
+  const t = useTranslations('nav');
   const session = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -25,15 +28,16 @@ export default function Navigation() {
   const shadow = useMotionTemplate`drop-shadow(${shadowX}px ${shadowY}px 20px rgba(0,0,0,0.3))`;
 
   const fillWhenActive = (href: string) => {
-    const iconsNeedStroke = ['/account', '/'];
     if (pathname === href) {
       return {
-        fill: 'var(--brand-500)',
-        stroke: iconsNeedStroke.includes(pathname) ? 'white' : 'var(--brand-500)',
+        fill: 'none',
+        stroke: 'var(--accent-300)',
+        strokeWidth: 2.25,
       };
     }
     return {
       fill: 'none',
+      stroke: 'currentColor',
     };
   };
 
@@ -44,7 +48,6 @@ export default function Navigation() {
       setTo(parsed);
     } catch (e) {
       console.error(e);
-      alert(e);
     }
 
     // Remove hash redirection after signing in from Facebook
@@ -71,30 +74,37 @@ export default function Navigation() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative bg-brand-500 text-white p-1 w-full text-center uppercase"
+        className="relative bg-brand-700 text-accent-100 p-1 w-full text-center uppercase text-xs tracking-[0.15em]"
         id="extra_nav_info">
-        <span className="font-semibold text-lg">📢 </span>
-        Giảm giá 10% các mẫu nhẫn từ ngày <span className="border-b border-b-1 border-b-brand-200">5/10 - 20/10</span>
+        <span className="text-base">📢 </span>
+        {t.rich('promo', {
+          dates: (chunks) => <span className="border-b border-b-1 border-b-accent-300/60 text-accent-300">{chunks}</span>,
+        })}
       </motion.div>
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-white backdrop-blur-sm sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] sm:border-b-2 sm:border-solid sm:shadow-lg">
-        <motion.img
+        className="bg-brand-700/95 backdrop-blur-md text-accent-100 sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] shadow-lg shadow-black/30">
+        <motion.button
+          type="button"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          alt="Mayra logo"
-          src="/images/logo.webp"
-          className="absolute top-0 left-0 w-[57px] select-none cursor-pointer hover:drop-shadow-sm"
-          onClick={() => { router.push('/'); }} />
+          aria-label="Mayra — home"
+          onClick={() => { router.push('/'); }}
+          className="absolute left-5 top-1/2 -translate-y-1/2 select-none cursor-pointer leading-none"
+        >
+          <span className="font-serif font-semibold text-accent-300 text-2xl tracking-[0.32em] pl-[0.32em]">
+            MAYRA
+          </span>
+        </motion.button>
         <ul className="hidden sm:w-full sm:grid sm:[grid-template-columns:repeat(4,100px)_125px] sm:gap-0 sm:justify-center sm:items-center">
           <NavItem href="/">
             <House {...fillWhenActive('/')} />
-            Home
+            {t('home')}
           </NavItem>
           <NavItem href="/search">
             <Search {...fillWhenActive('/search')} />
-            Search
+            {t('search')}
           </NavItem>
 
           <NavItem href="/cart" withBorder={false}>
@@ -109,10 +119,10 @@ export default function Navigation() {
                   cy="50"
                   r="48"
                   fill="transparent"
-                  stroke="var(--brand-500)"
+                  stroke="var(--accent-300)"
                   strokeWidth="4"
                   strokeLinecap="round"
-                  strokeDasharray={2 * Math.PI * 48} // exact circumference ≈ 295
+                  strokeDasharray={2 * Math.PI * 48}
                   initial={{ strokeDashoffset: 2 * Math.PI * 48 }}
                   animate={{ strokeDashoffset: pathname === '/cart' ? 0 : 2 * Math.PI * 48 }}
                   transition={{
@@ -131,11 +141,11 @@ export default function Navigation() {
                   ease: 'easeInOut',
                 }}
                 style={{ filter: shadow }}
-                className={`absolute top-[50%] bg-white w-lg rounded-full p-2 shadow-lg`}>
-                <ShoppingCart {...fillWhenActive('/cart')} />
+                className={`absolute top-[50%] bg-accent-100 text-brand-700 w-lg rounded-full p-2 shadow-lg`}>
+                <ShoppingCart aria-label={t('cart')} fill="none" stroke={pathname === '/cart' ? 'var(--brand-700)' : 'var(--brand-500)'} strokeWidth={pathname === '/cart' ? 2.25 : 2} />
                 {items.length > 0 && (
                   <motion.aside
-                    className={`absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-brand-500 text-white ${pathname === '/cart' && 'text-brand-500'}`}>
+                    className={`absolute top-0 right-0 py-0.5 px-1.5 rounded-full bg-accent-500 text-brand-700 text-xs font-semibold`}>
                     {items.length}
                   </motion.aside>
                 )}
@@ -145,7 +155,7 @@ export default function Navigation() {
 
           <NavItem href="/wishlist">
             <Heart {...fillWhenActive('/wishlist')} />
-            Wishlist
+            {t('wishlist')}
           </NavItem>
           <NavItem href="/account">
             {session.status === 'authenticated'
@@ -158,18 +168,22 @@ export default function Navigation() {
                   height="24"
                   className="rounded-md"
                 />
-                {session.data.user?.name ?? 'My Account'}
+                {session.data.user?.name ?? t('account')}
               </>
               )
               : (
                 <>
                   <CircleUser {...fillWhenActive('/account')} />
-                  My Account
+                  {t('account')}
                 </>
               )
             }
           </NavItem>
         </ul>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
+          <LocaleSwitcher />
+        </div>
+        <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500/35 to-transparent" />
       </motion.nav>
     </>
   )

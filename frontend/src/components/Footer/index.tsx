@@ -1,34 +1,67 @@
 'use client'
 
-import { ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
-import Button from '../Button';
-import NavItem from '../Navigation/NavItem';
+import LocaleSwitcher from '../LocaleSwitcher';
 
 export default function Footer() {
-  return (
-    <footer className="relative w-full">
-      <Button
-        variant="tertiary"
-        className="w-full !bg-gray-200 hover:!bg-gray-300 rounded-b-none"
-        onClick={() => { document?.getElementById('extra_nav_info')?.scrollIntoView({ behavior: 'smooth' }); }}>
-        <div className="text-black flex gap-2 justify-center font-serif">
-          NHẢY LÊN TRÊN
-          <ChevronUp />
-        </div>
-      </Button>
+  const t = useTranslations('footer');
+  const year = new Date().getFullYear();
 
-      <div className="bg-gray-100">
-        <nav className="flex gap-36 justify-center p-8 text-black">
-          <div className="flex flex-col gap-2">
-            <h3 className="font-semibold text-lg">Follow us</h3>
-            <ul>
-              <NavItem href="https://www.facebook.com/mayrajewelry.insaigon" target="_blank" externalLink withBorder={false}>
-                <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 fill-facebook"><title>Facebook</title><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
-              </NavItem>
-            </ul>
+  return (
+    <footer className="relative w-full bg-brand-700 text-accent-100">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-accent-500/40 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 py-10 sm:py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
+          <div className="flex flex-col gap-3 sm:items-start items-center text-center sm:text-left">
+            <span className="font-serif font-semibold text-accent-300 text-2xl tracking-[0.32em] pl-[0.32em]">
+              MAYRA
+            </span>
+            <p className="text-[11px] uppercase tracking-[0.35em] text-accent-100/70">
+              {t('tagline')}
+            </p>
+            <p className="mt-1 max-w-xs text-sm text-accent-100/65 leading-relaxed">
+              {t('blurb')}
+            </p>
           </div>
-        </nav>
+
+          <div className="flex flex-col gap-4 sm:items-start items-center">
+            <h3 className="text-[11px] uppercase tracking-[0.35em] text-accent-100/70">
+              {t('followUs')}
+            </h3>
+            <a
+              href="https://www.facebook.com/mayrajewelry.insaigon"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Mayra on Facebook"
+              className="inline-flex items-center justify-center size-11 rounded-full border border-accent-500/30 text-accent-300 hover:text-brand-700 hover:bg-accent-300 transition-colors"
+            >
+              <svg
+                role="img"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="currentColor"
+              >
+                <title>Facebook</title>
+                <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
+              </svg>
+            </a>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:items-start items-center">
+            <h3 className="text-[11px] uppercase tracking-[0.35em] text-accent-100/70">
+              {t('language')}
+            </h3>
+            <LocaleSwitcher />
+          </div>
+        </div>
+
+        <div className="mt-10 pt-5 border-t border-accent-500/15 flex flex-col sm:flex-row justify-between items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-accent-100/50">
+          <p>© {year} {t('rights')}</p>
+          <p>{t('craft')}</p>
+        </div>
       </div>
     </footer>
   )

@@ -39,9 +39,9 @@ export default function AlreadySignedIn({
 
   const Toolbar = () => {
     return (
-      <div className="sticky top-0 left-0 z-10 bg-white">
-        <div className="flex justify-between items-center bg-transparent-white shadow-sm">
-          <div className="flex gap-1 items-center">
+      <div className="sticky top-0 left-0 z-10 bg-accent-100 border-b border-accent-300/40 shadow-sm">
+        <div className="flex justify-between items-center px-3 py-2">
+          <div className="flex gap-2 items-center">
             <Image
               alt="user profile image"
               src={userImage}
@@ -49,12 +49,14 @@ export default function AlreadySignedIn({
               height="50"
               className="rounded-md"
             />
-            <h3 className="text-2xl">{userName}</h3>
+            <h3 className="text-2xl text-brand-700">{userName}</h3>
           </div>
 
           <span title={convertMayraPointToTier(userPoint)} className={`flex gap-1 text-xl justify-self-end mr-1 ${convertTierToTextColour(userTier)}`}><h3>{userPoint}</h3> 🪙</span>
         </div>
-        <Tabs items={TABS} onSelect={(item) => { setActiveTab(item); }} />
+        <div className="px-3 pb-2">
+          <Tabs items={TABS} onSelect={(item) => { setActiveTab(item); }} />
+        </div>
       </div>
     );
   };
@@ -110,11 +112,11 @@ export default function AlreadySignedIn({
   };
   
   return (
-    <div className="relative flex items-start justfy-center my-4 max-w-[600px] overflow-hidden">
+    <div className="relative flex items-start justify-center my-6 mx-auto w-full max-w-[600px] px-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="w-full bg-white shadow-lg p-3 grid grid-cols-1 items-center gap-2">
+        className="w-full bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-4 md:p-6 grid grid-cols-1 items-center gap-2 text-brand-700">
         {(!userName || !userImage)
           ? (
             <p>Shop không thể lấy được tên hoặc hình ảnh đại diện từ Facebook của bạn 🥲</p>

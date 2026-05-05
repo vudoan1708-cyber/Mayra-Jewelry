@@ -24,6 +24,7 @@ export default async function Product({ params }: { params: Promise<{ id: string
         description={jewelryItem.description}
         prices={jewelryItem.prices}
         purchases={jewelryItem.purchases}
+        media={jewelryItem.media}
         session={session}
         buyerWishlistFound={buyerWishlist.found} />
       <MostViewed id={id} />

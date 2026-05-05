@@ -3,7 +3,7 @@
 import { useEffect, useState, type MouseEventHandler, type ReactNode } from 'react';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '../../i18n/navigation';
 
 import { motion } from 'framer-motion';
 import FullScreenLoading from '../Loading/FullScreenLoading';
@@ -33,10 +33,10 @@ export default function NavItem({ href, target, className, withBorder = true, wi
 
   const onHoverStyling = () => {
     if (withHover) {
-      if (isActive) return 'hover:text-brand-500 hover:cursor-default';
-      return 'group-hover:text-brand-500 group-hover:scale-105';
+      if (isActive) return 'hover:text-accent-300 hover:cursor-default';
+      return 'group-hover:text-accent-300 group-hover:scale-105';
     }
-    return 'hover:text-black';
+    return 'hover:text-accent-300';
   }
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
         <Link
           href={href}
           target={target}
-          className={`${isActive ? 'text-brand-500 font-semibold' : 'text-black'} ${onHoverStyling()} text-xs transition-all flex gap-1 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
+          className={`${isActive ? 'text-accent-300 font-semibold' : 'text-accent-200'} ${onHoverStyling()} text-xs uppercase tracking-[0.18em] transition-all flex gap-1.5 justify-center items-center [text-decoration:inherit] ${className ?? ''}`}
           onClick={patchedOnClick}
         >
           {children}
@@ -61,7 +61,7 @@ export default function NavItem({ href, target, className, withBorder = true, wi
 
         {withBorder && (
           <motion.hr
-            className={`absolute left-[50%] translate-x-[-50%] bottom-[-18px] border-b-2 border-solid ${isActive ? 'w-[calc(100%+1px)] border-brand-500' : 'w-0 group-hover:border-brand-500 group-hover:w-[calc(100%+1px)]'} transition-all`} />
+            className={`absolute left-[50%] translate-x-[-50%] bottom-[-18px] border-b-2 border-solid ${isActive ? 'w-[calc(100%+1px)] border-accent-300' : 'w-0 group-hover:border-accent-300 group-hover:w-[calc(100%+1px)]'} transition-all`} />
         )}
       </li>
 

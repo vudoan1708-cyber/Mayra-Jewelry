@@ -297,6 +297,30 @@ func GetJewelryItemInfoByDirectoryId(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
 		return
 	}
+
+	// Hydrate Media from R2 — list endpoints do this via getMediaFilesAndUpdateResponsePayload;
+	// the detail endpoint must do the same or the product page renders no images.
+	bucketName := cloudflare.CloudflareInstance.BucketName
+	objects, s3_err := cloudflare.CloudflareInstance.ListObjectsInBucket(bucketName, &response.DirectoryId)
+	if s3_err != nil {
+		middleware.HandleErrorResponse(w, http.StatusInternalServerError, s3_err.Error())
+		return
+	}
+	for _, obj := range objects {
+		url, url_err := cloudflare.CloudflareInstance.GetPresignedUrl(bucketName, cloudflare.PresignedUrlPayload{
+			FileName:  *obj.Key,
+			Procedure: "GET",
+		})
+		if url_err != nil {
+			middleware.HandleErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Cannot get presigned url for bucket: %s. Reason: %s", *obj.Key, url_err.Error()))
+			return
+		}
+		response.Media = append(response.Media, models.MediaLink{
+			URL:      *url,
+			FileName: *obj.Key,
+		})
+	}
+
 	middleware.HandleResponse(w, response)
 }
 

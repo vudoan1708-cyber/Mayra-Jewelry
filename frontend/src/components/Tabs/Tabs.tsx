@@ -28,7 +28,7 @@ export default function Tabs({ items, onSelect }: { items: Array<Tab>, onSelect:
           key={item.id}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className={`${(item.disabled && 'disabled cursor-not-allowed') || 'cursor-pointer'} ${(item.active && 'border-b-2 border-b-brand-500 text-brand-500 font-semibold') || 'text-gray-600 hover:bg-gray-200'} rounded-sm px-1 py-[2px] duration-200`}
+          className={`${(item.disabled && 'disabled cursor-not-allowed') || 'cursor-pointer'} ${(item.active && 'border-b-2 border-b-accent-500 text-accent-600 font-semibold') || 'text-brand-500 hover:text-accent-600'} rounded-sm px-2 py-[2px] duration-200`}
           onClick={() => { tabClicked(item); }}>
           {item.label}
         </motion.div>

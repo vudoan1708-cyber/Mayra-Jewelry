@@ -3,5 +3,66 @@
     "title": "Mayra Jewelry",
     "description": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra",
     "ogDescription": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "search": "Tìm kiếm",
+    "cart": "Giỏ hàng",
+    "wishlist": "Yêu thích",
+    "account": "Tài khoản",
+    "promo": "Giảm giá 10% các mẫu nhẫn từ ngày <dates>5/10 - 20/10</dates>"
+  },
+  "footer": {
+    "backToTop": "NHẢY LÊN TRÊN",
+    "followUs": "Theo dõi chúng tôi",
+    "language": "Ngôn ngữ",
+    "tagline": "Atelier Sài Gòn",
+    "blurb": "Trang sức được chế tác thủ công, dành cho những khoảnh khắc đáng giữ trọn đời.",
+    "rights": "Mayra Jewelry · Sài Gòn",
+    "craft": "Chế tác bằng cả tâm huyết"
+  },
+  "home": {
+    "bio": {
+      "eyebrow": "Atelier Sài Gòn",
+      "tagline": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại <brand>Mayra</brand>",
+      "perks": {
+        "support": "Tư vấn 24/7, phục vụ tận tình",
+        "returns": "Miễn phí hoàn trả trong vòng 24h",
+        "social": "Giảm giá cực mạnh khi đăng hình trang sức lên mạng xã hội",
+        "points": "Tích điểm mỗi khi mua hàng từ Mayra để được giảm giá"
+      },
+      "signInCta": "Đăng nhập ngay để nhận ưu đãi"
+    },
+    "quickNav": {
+      "eyebrow": "Bắt đầu khám phá",
+      "title": "Bạn muốn tìm điều gì hôm nay?",
+      "browseAll": "Xem tất cả",
+      "discover": "Khám phá"
+    },
+    "categories": {
+      "wedding": {
+        "eyebrow": "Bộ sưu tập",
+        "name": "Nhẫn cưới"
+      },
+      "bestSellers": {
+        "eyebrow": "Được yêu thích",
+        "name": "Bán chạy nhất"
+      },
+      "featured": {
+        "eyebrow": "Tinh tuyển",
+        "name": "Nổi bật trong năm"
+      }
+    },
+    "featured": {
+      "eyebrow": "Tuyển chọn",
+      "title": "Những thiết kế đáng để dừng lại",
+      "empty": "Hiện chưa có sản phẩm nổi bật. Hãy quay lại sau nhé."
+    },
+    "editorial": {
+      "eyebrow": "Mayra Atelier",
+      "title": "Mỗi chiếc nhẫn là một lời hứa.",
+      "body": "Được chế tác thủ công bởi những nghệ nhân tận tâm, mỗi thiết kế của Mayra là sự cân bằng giữa truyền thống và đường nét hiện đại — dành cho những khoảnh khắc bạn muốn giữ trọn đời.",
+      "cta": "Khám phá bộ sưu tập"
+    }
   }
 }

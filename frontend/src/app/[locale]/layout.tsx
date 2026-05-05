@@ -8,6 +8,7 @@ import { routing } from '../../i18n/routing';
 import SmoothScroller from '../../components/LenisSmoothScrolling/SmoothScroller';
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
+import JewelBackground from '../../components/Background/JewelBackground';
 import Floating from './Floating';
 
 import './page.css';
@@ -54,6 +55,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider>
       <SessionProvider>
+        <JewelBackground />
         <SmoothScroller />
         <Navigation />
 

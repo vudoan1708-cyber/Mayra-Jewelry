@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "watch-docker.js",
   "scripts": {
-    "dev": "node watch-docker.js"
+    "dev": "docker compose up"
   },
   "keywords": [],
   "author": "",

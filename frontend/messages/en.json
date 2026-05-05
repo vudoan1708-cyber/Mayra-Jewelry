@@ -3,5 +3,66 @@
     "title": "Mayra Jewelry",
     "description": "Discover the latest collection of rings — refined and contemporary, only at Mayra",
     "ogDescription": "Discover the latest collection of rings — refined and contemporary, only at Mayra"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "account": "Account",
+    "promo": "10% off all rings from <dates>Oct 5 – Oct 20</dates>"
+  },
+  "footer": {
+    "backToTop": "BACK TO TOP",
+    "followUs": "Follow us",
+    "language": "Language",
+    "tagline": "Atelier Saigon",
+    "blurb": "Hand-finished jewelry, built for moments worth keeping.",
+    "rights": "Mayra Jewelry · Saigon",
+    "craft": "Crafted with care"
+  },
+  "home": {
+    "bio": {
+      "eyebrow": "Atelier Saigon",
+      "tagline": "Discover the latest collection of rings — refined and contemporary, only at <brand>Mayra</brand>",
+      "perks": {
+        "support": "24/7 attentive support",
+        "returns": "Free returns within 24 hours",
+        "social": "Generous discount when you share your piece on social",
+        "points": "Earn points on every purchase, redeem for discounts"
+      },
+      "signInCta": "Sign in for member-only offers"
+    },
+    "quickNav": {
+      "eyebrow": "Start exploring",
+      "title": "What are you looking for today?",
+      "browseAll": "Browse all",
+      "discover": "Discover"
+    },
+    "categories": {
+      "wedding": {
+        "eyebrow": "Collection",
+        "name": "Wedding rings"
+      },
+      "bestSellers": {
+        "eyebrow": "Most loved",
+        "name": "Best sellers"
+      },
+      "featured": {
+        "eyebrow": "Curated",
+        "name": "Featured this year"
+      }
+    },
+    "featured": {
+      "eyebrow": "Selected",
+      "title": "Pieces worth pausing for",
+      "empty": "No featured pieces yet. Check back soon."
+    },
+    "editorial": {
+      "eyebrow": "Mayra Atelier",
+      "title": "Every ring is a quiet promise.",
+      "body": "Hand-finished by attentive craftspeople, each Mayra design balances heritage with a contemporary line — built for moments you'll want to keep for a lifetime.",
+      "cta": "Explore the collection"
+    }
   }
 }

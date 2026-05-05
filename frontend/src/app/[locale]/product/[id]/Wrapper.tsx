@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useMemo, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
@@ -29,6 +29,7 @@ export default function Wrapper({
   description,
   prices,
   purchases,
+  media,
   session,
   buyerWishlistFound,
 }: {
@@ -39,11 +40,12 @@ export default function Wrapper({
   description: string;
   prices: Prices[];
   purchases: number;
+  media: Media[] | null;
   session: Session | null;
   buyerWishlistFound: boolean;
 }) {
   const searchParams = useSearchParams();
-  const [imgUrls, setImgUrls] = useState<Array<string>>([]);
+  const imgUrls = useMemo(() => (media ?? []).map((m) => m.url), [media]);
 
   const findPrices = (variation: JewelryVariation) => prices.find((price) => variation.label === ENGLISH_TO_VIETNAMESE[price.variation]);
   const [availableVariations] = useState<Array<JewelryVariation>>(() => {
@@ -59,18 +61,6 @@ export default function Wrapper({
 
   const [selectedVariation] = useState<JewelryVariation>(availableVariations.find((variation) => variation.label === preselectedVariation) ?? availableVariations[0]);
   const [amount] = useState<number>(parseInt(searchParams.get('amount') ?? '0') || variationRef.current.amount);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(id);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setImgUrls(parsed.map((value: Media) => value.url));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [id]);
 
   return (
     <Suspense fallback={<Loading />}>

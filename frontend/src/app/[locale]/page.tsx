@@ -1,17 +1,15 @@
 import { LayoutGroup } from 'framer-motion';
 
 import Bio from '../../components/Bio';
-import Jewelry from '../../components/Jewelry';
-import ClothBackground from '../../components/Background/ClothBackground';
+import QuickNav from '../../components/Home/QuickNav';
+import HomeJewelCanvas from '../../components/Background/HomeJewelCanvas';
 
-function App() {
+export default function Home() {
   return (
     <LayoutGroup>
-      <ClothBackground />
+      <HomeJewelCanvas />
       <Bio />
-      <Jewelry />
+      <QuickNav />
     </LayoutGroup>
-  )
+  );
 }
-
-export default App;

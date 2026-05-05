@@ -20,13 +20,17 @@ export default function LocaleSwitcher() {
   };
 
   return (
-    <div className="inline-flex items-center gap-1 text-sm" aria-busy={isPending}>
+    <div className="inline-flex items-center gap-1 text-sm tracking-[0.15em]" aria-busy={isPending}>
       {routing.locales.map((l) => (
         <button
           key={l}
           type="button"
           onClick={() => onChange(l)}
-          className={`px-2 py-1 uppercase ${l === locale ? 'font-semibold underline' : 'opacity-60 hover:opacity-100'}`}
+          className={`px-2 py-1 uppercase transition-colors ${
+            l === locale
+              ? '!font-bold !text-accent-300 underline underline-offset-4 decoration-accent-500/70 decoration-1'
+              : '!font-medium !text-accent-200/70 hover:!text-accent-300'
+          }`}
         >
           {l}
         </button>

@@ -22,6 +22,13 @@
     --brand-500: #001B3D;
     --brand-600: #00122A;
     --brand-700: #000814;
+
+    --accent-100: #fdf6ec;
+    --accent-200: #fbeed4;
+    --accent-300: #e9c8a0;
+    --accent-400: #d4a373;
+    --accent-500: #bfa07a;
+    --accent-600: #8a6f4f;
     --backdrop-color: 0, 0, 0;
     --background-color: 250, 250, 250;
     --transparent-white: rgba(var(--background-color), 0.5);
@@ -99,7 +106,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -138,10 +144,7 @@ label {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+    color: var(--brand-400);
   }
 }
 
