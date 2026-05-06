@@ -3,8 +3,11 @@
 import { motion } from 'framer-motion';
 import { type MouseEventHandler } from 'react';
 
+export type MaterialId = 'Silver' | 'Gold' | 'White Gold';
+
 export type JewelryVariation = {
   key: number;
+  id: MaterialId;
   style: string;
   label: string;
   amount: number;

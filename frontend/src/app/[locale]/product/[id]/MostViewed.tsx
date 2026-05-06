@@ -1,16 +1,20 @@
+import { getLocale } from 'next-intl/server';
+
 import Image from 'next/image';
 import MotionFramerWrapper from './MotionFramerWrapper';
 import { getMostViewedJewelryItems } from '../../../../server/data';
 import NavItem from '../../../../components/Navigation/NavItem';
 import Money from '../../../../components/Money/Money';
 import { minPrice } from '../../../../helpers';
+import { localizeJewelryItem } from '../../../../i18n/productCopy';
 
 export default async function MostViewed({ id }: { id: string }) {
-  const jewelryItems = await getMostViewedJewelryItems(id);
+  const [jewelryItems, locale] = await Promise.all([getMostViewedJewelryItems(id), getLocale()]);
+  const localizedItems = jewelryItems.map((item) => localizeJewelryItem(item, locale));
   return (
     <MotionFramerWrapper>
-      {jewelryItems.length > 0
-        ? jewelryItems.map((item, idx) => (
+      {localizedItems.length > 0
+        ? localizedItems.map((item, idx) => (
             <NavItem key={idx} href={`/product/${item.directoryId}`} withBorder={false} withHover={false}>
               <figure className="text-sm h-80 overflow-hidden">
                 <Image

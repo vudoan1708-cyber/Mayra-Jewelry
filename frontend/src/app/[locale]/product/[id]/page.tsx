@@ -1,14 +1,18 @@
+import { getLocale } from 'next-intl/server';
+
 import Wrapper from './Wrapper';
 import MostViewed from './MostViewed';
 import { auth } from '../../../auth';
 import { checkIfItemInWishlist, getJewelryItem, updateJewelry } from '../../../../server/data';
 import { userIdOrBase64Email } from '../../../../helpers';
+import { localizeJewelryItem } from '../../../../i18n/productCopy';
 
 export default async function Product({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
 
-  const [session, jewelryItem] = await Promise.all([auth(), getJewelryItem(decodedId)]);
+  const [session, jewelryItem, locale] = await Promise.all([auth(), getJewelryItem(decodedId), getLocale()]);
+  const localized = localizeJewelryItem(jewelryItem, locale);
 
   const buyerId = userIdOrBase64Email(session?.user);
   const buyerWishlist = buyerId ? await checkIfItemInWishlist(buyerId, decodedId) : { found: false };
@@ -18,10 +22,10 @@ export default async function Product({ params }: { params: Promise<{ id: string
     <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
       <Wrapper
         id={decodedId}
-        itemName={jewelryItem.itemName}
-        featureCollection={jewelryItem.featureCollection}
+        itemName={localized.itemName}
+        featureCollection={localized.featureCollection}
         type={jewelryItem.type}
-        description={jewelryItem.description}
+        description={localized.description}
         prices={jewelryItem.prices}
         purchases={jewelryItem.purchases}
         media={jewelryItem.media}

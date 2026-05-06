@@ -12,7 +12,6 @@ import { useTranslations } from 'next-intl';
 
 import throttle from 'lodash/throttle';
 
-import Button from '../../../components/Button';
 import Variation from '../../../components/Jewelry/Variation';
 
 import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../../helpers';
@@ -30,6 +29,7 @@ export default function Card({
   const { addItem, removeItem, removeAllByItemName } = useCartCount();
   const t = useTranslations('cart');
   const tCommon = useTranslations('common');
+  const tMaterials = useTranslations('materials');
   const [imgUrls, setImgUrls] = useState<Array<string>>(item.imgUrls ?? []);
 
   useEffect(() => {
@@ -90,75 +90,103 @@ export default function Card({
   const throttleRemoveAll = useMemo(() => throttle((item) => updateCart(item, 'removeAll'), WAIT), []);
 
   const info = `${PAYMENT_INFO} ${item.itemName}`;
+  const variationLabel = item.variation.id ? tMaterials(item.variation.id) : item.variation.label;
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0, transition: { delay: (idx + 1) * 0.2 } }}
-        exit={{ opacity: 0, y: -10 }}
-        className="grid grid-cols-[220px_1fr] md:grid-cols-[240px_2fr_1fr] justify-between items-start gap-3 p-1 rounded-md bg-accent-100 border border-accent-300/40 shadow-lg shadow-black/20 cursor-pointer md:max-h-[300px]"
-        title={t('viewItem')}
-        onClick={() => { router.push(`/product/${item.id ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.label}`); }}>
-        <div className="flex flex-col gap-1 h-full justify-between items-center col-start-1">
-          {imgUrls.map((url, idx) => (
-            <Image
-              key={idx}
-              priority
-              alt={`image is shown with a name of ${item.itemName}`}
-              src={url}
-              width="240"
-              height="240"
-              className="rounded-md md:max-h-[240px] self-start justify-self-start"
-              style={{ objectFit: 'cover' }}
-            />
-          ))}
-          <span className="flex gap-3 items-center">
-            <Button variant="circle" tooltip={t('decrease')} className="p-1 border-1 border-red-400 bg-accent-100 !text-red-500 hover:border-red-400 focus:border-red-400" onClick={() => { throttleDecrement(item); }}>-</Button>
-            <span className="">{item.count}</span>
-            <Button variant="circle" tooltip={t('increase')} className="p-1 border-1 border-brand-500 bg-accent-100 !text-brand-600" onClick={() => { throttleIncrement(item); }}>+</Button>
-          </span>
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0, transition: { delay: (idx + 1) * 0.2 } }}
+      exit={{ opacity: 0, y: -10 }}
+      className="grid grid-cols-[110px_1fr] md:grid-cols-[160px_1fr] gap-3 sm:gap-4 p-3 rounded-2xl bg-accent-100 border border-accent-300/40 shadow-md shadow-black/20 cursor-pointer w-full max-w-[640px]"
+      title={t('viewItem')}
+      onClick={() => { router.push(`/product/${item.id ?? ''}?amount=${item.amount}&info=${info}&variation=${item.variation.id}`); }}>
+      {/* Image + quantity stepper */}
+      <div className="flex flex-col gap-2 items-center col-start-1 row-start-1 md:row-span-2 self-start">
+        {imgUrls[0] && (
+          <Image
+            priority
+            alt={item.itemName}
+            src={imgUrls[0]}
+            width="240"
+            height="240"
+            className="rounded-md w-full aspect-square object-cover"
+          />
+        )}
+        <div
+          className="inline-flex items-center gap-0.5 rounded-full bg-accent-200/40 border border-accent-500/30 p-0.5"
+          onClick={stop}
+        >
+          <button
+            type="button"
+            aria-label={t('decrease')}
+            title={t('decrease')}
+            className="w-7 h-7 rounded-full text-brand-700 hover:bg-accent-300/50 flex items-center justify-center transition leading-none text-lg"
+            onClick={() => { throttleDecrement(item); }}
+          >
+            −
+          </button>
+          <span className="min-w-[20px] text-center text-sm font-semibold text-brand-700">{item.count}</span>
+          <button
+            type="button"
+            aria-label={t('increase')}
+            title={t('increase')}
+            className="w-7 h-7 rounded-full bg-accent-300 text-brand-700 hover:bg-accent-200 flex items-center justify-center transition leading-none text-lg shadow-sm"
+            onClick={() => { throttleIncrement(item); }}
+          >
+            +
+          </button>
         </div>
+      </div>
 
-        <div className="relative flex flex-col gap-1 h-full col-start-1 md:col-start-2 md:row-start-1 md:max-h-[288px] md:overflow-auto">
-          <h3 className="text-lg md:text-xl text-brand-500 font-semibold">{item.itemName}</h3>
-          {item.featureCollection && (
-            <span className="flex gap-[4px] items-center">
-              <b>{tCommon('collection')}: </b><NavItem href={`/collections/${item.featureCollection}`} className="!underline !text-sm" onClick={(e) => { e.stopPropagation(); }}>{item.featureCollection}</NavItem>
-            </span>
-          )}
-          <p className="text-gray-500">{t('freeShipping')}</p>
-          <div>
-            {item.variation && (
-              <span className="flex items-center gap-0.5 md:gap-[4px]">
-                <Variation variation={item.variation} onSelect={() => {}} />
-                  <p className="text-base">{item.variation.label}</p>
-              </span>
-            )}
-          </div>
-          <label htmlFor="gift" onClick={(e) => { e.stopPropagation(); }}>
-            <input name="gift" type="checkbox" onChange={(e) => {}} />
+      {/* Info */}
+      <div className="flex flex-col gap-1.5 col-start-2 row-start-1 self-start min-w-0">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base sm:text-lg md:text-xl text-brand-700 font-semibold leading-tight min-w-0">{item.itemName}</h3>
+          <button
+            type="button"
+            aria-label={t('removeAll')}
+            title={t('removeAll')}
+            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#ef4444', backgroundColor: 'transparent' }}
+            className="shrink-0 w-9 h-9 rounded-full border flex items-center justify-center transition hover:!bg-red-50"
+            onClick={(e) => { e.stopPropagation(); throttleRemoveAll(item); }}
+          >
+            <Trash2 size={18} strokeWidth={2} color="#ef4444" style={{ width: 18, height: 18, flexShrink: 0 }} />
+          </button>
+        </div>
+        <h3 className="text-base sm:text-lg md:text-xl text-brand-700 font-semibold">
+          <Money amount={item.sum ?? 0} currency="VND" />
+        </h3>
+        {item.featureCollection && (
+          <span className="flex gap-1 items-center text-sm text-brand-700">
+            <b>{tCommon('collection')}:</b>
+            <NavItem
+              href={`/collections/${item.featureCollection}`}
+              withBorder={false}
+              className="!underline decoration-accent-500/70 underline-offset-4 !text-sm !text-brand-500 hover:!text-accent-600 hover:decoration-accent-600"
+              onClick={stop}
+            >
+              {item.featureCollection}
+            </NavItem>
+          </span>
+        )}
+        <p className="text-xs text-brand-700/60">{t('freeShipping')}</p>
+        {item.variation && (
+          <span className="flex items-center gap-2 text-sm text-brand-700">
+            <Variation variation={item.variation} onSelect={() => {}} />
+            <span>{variationLabel}</span>
+          </span>
+        )}
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor="gift" className="text-sm text-brand-700 inline-flex gap-2 items-center" onClick={stop}>
+            <input name="gift" type="checkbox" onChange={() => {}} />
             {t('wrapAsGift')}
           </label>
-
-          <span>
-            <Share encodedId={item.id} itemName={item.itemName} itemAmount={item.amount} itemVariation={item.variation.label} />
+          <span className="text-sm" onClick={stop}>
+            <Share encodedId={item.id} itemName={item.itemName} itemAmount={item.amount} itemVariation={item.variation.id} />
           </span>
         </div>
+      </div>
 
-        <div className="relative flex flex-col gap-1 justify-between items-end text-right h-full col-start-2 row-start-1 md:col-start-3">
-          <h3 className="text-lg md:text-xl">
-            <Money amount={item.sum ?? 0} currency="VND" />
-          </h3>
-
-          <Button
-            variant="circle"
-            tooltip={t('removeAll')}
-            className="relative bottom-0 right-0 mb-[1px] mr-[1px] p-1 border-1 border-red-400 bg-accent-100 !text-red-500 hover:border-red-400 focus:border-red-400"
-            onClick={() => { throttleRemoveAll(item); }}>
-            <Trash2 />
-          </Button>
-        </div>
-      </motion.div>
-    </>
+    </motion.div>
   )
 }

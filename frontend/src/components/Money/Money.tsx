@@ -28,7 +28,13 @@ const numberPartMapToClassName: NumberPart = {
   integer: `font-semibold`,
 };
 
-export default function Money({ amount, currency = 'VND' }: { amount: number | string, currency?: string }) {
+type MoneyProps = {
+  amount: number | string;
+  currency?: string;
+  className?: string;
+};
+
+export default function Money({ amount, currency = 'VND', className = '' }: MoneyProps) {
   const updateNumberPart = () => {
     return !formatter.current.formatToParts
       ? [{ value: formatter.current.format(parseFloat(amount.toString())), type: 'integer' }]
@@ -42,12 +48,12 @@ export default function Money({ amount, currency = 'VND' }: { amount: number | s
   }, [amount]);
 
   return (
-    <span className="flex items-baseline flex-nowrap break-keep">
+    <b className={`flex items-baseline flex-nowrap break-keep ${className}`.trim()}>
       {
         parts.map((part, idx) => (
           <span key={idx} className={`${numberPartMapToClassName[part.type as keyof NumberPart]}`}>{part.value}</span>
         ))
       }
-    </span>
+    </b>
   );
 }

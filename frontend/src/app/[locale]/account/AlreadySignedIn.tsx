@@ -40,23 +40,25 @@ export default function AlreadySignedIn({
 
   const Toolbar = () => {
     return (
-      <div className="sticky top-0 left-0 z-10 bg-accent-100 border-b border-accent-300/40 shadow-sm">
-        <div className="flex justify-between items-center px-3 py-2">
-          <div className="flex gap-2 items-center">
-            <Image
-              alt="user profile image"
-              src={userImage}
-              width="50"
-              height="50"
-              className="rounded-md"
-            />
-            <h3 className="text-2xl text-brand-700">{userName}</h3>
-          </div>
+      <div className="mx-auto w-full max-w-[600px] px-4">
+        <div className="sticky top-0 left-0 z-10 bg-accent-100 border-b border-accent-300/40 shadow-sm">
+          <div className="flex justify-between items-center px-3 py-2">
+            <div className="flex gap-2 items-center">
+              <Image
+                alt="user profile image"
+                src={userImage}
+                width="50"
+                height="50"
+                className="rounded-md"
+              />
+              <h3 className="text-2xl text-brand-700">{userName}</h3>
+            </div>
 
-          <span title={convertMayraPointToTier(userPoint)} className={`flex gap-1 text-xl justify-self-end mr-1 ${convertTierToTextColour(userTier)}`}><h3>{userPoint}</h3> 🪙</span>
-        </div>
-        <div className="px-3 pb-2">
-          <Tabs items={TABS} onSelect={(item) => { setActiveTab(item); }} />
+            <span title={convertMayraPointToTier(userPoint)} className={`flex gap-1 text-xl justify-self-end mr-1 ${convertTierToTextColour(userTier)}`}><h3>{userPoint}</h3> 🪙</span>
+          </div>
+          <div className="px-3 pb-2">
+            <Tabs items={TABS} onSelect={(item) => { setActiveTab(item); }} />
+          </div>
         </div>
       </div>
     );

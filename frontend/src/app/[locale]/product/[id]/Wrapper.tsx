@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import { Suspense, useMemo, useRef, useState } from 'react';
 
@@ -9,17 +10,18 @@ import { motion } from 'framer-motion';
 import ItemInfoSection from './ItemInfoSection';
 
 import type { Media, Prices } from '../../../../../types';
-import { ENGLISH_TO_VIETNAMESE, PAYMENT_INFO } from '../../../../helpers';
+import { PAYMENT_INFO } from '../../../../helpers';
 
 import Loading from '../../../../components/Loading/Loading';
 import PaymentView from '../../../../components/PaymentView/PaymentView';
-import type { JewelryVariation } from '../../../../components/Jewelry/Variation';
+import type { JewelryVariation, MaterialId } from '../../../../components/Jewelry/Variation';
 import type { Session } from 'next-auth';
 
-const variations: Array<JewelryVariation> = [
-  { key: 0, label: 'Bạc', style: 'bg-gray-400', amount: 0 },
-  { key: 1, label: 'Vàng', style: 'bg-amber-300', amount: 0 },
-  { key: 2, label: 'Vàng trắng', style: 'bg-slate-100', amount: 0 },
+type VariationSeed = Pick<JewelryVariation, 'key' | 'id' | 'style' | 'amount'>;
+const variationSeeds: Array<VariationSeed> = [
+  { key: 0, id: 'Silver', style: 'bg-gray-400', amount: 0 },
+  { key: 1, id: 'Gold', style: 'bg-amber-300', amount: 0 },
+  { key: 2, id: 'White Gold', style: 'bg-slate-100', amount: 0 },
 ];
 export default function Wrapper({
   id,
@@ -45,21 +47,23 @@ export default function Wrapper({
   buyerWishlistFound: boolean;
 }) {
   const searchParams = useSearchParams();
+  const tMaterials = useTranslations('materials');
   const imgUrls = useMemo(() => (media ?? []).map((m) => m.url), [media]);
 
-  const findPrices = (variation: JewelryVariation) => prices.find((price) => variation.label === ENGLISH_TO_VIETNAMESE[price.variation]);
+  const findPrice = (seed: VariationSeed) => prices.find((price) => price.variation === seed.id);
   const [availableVariations] = useState<Array<JewelryVariation>>(() => {
-    return variations
-      .filter((variation) => findPrices(variation))
-      .map((variation) => ({
-        ...variation,
-        amount: findPrices(variation)?.amount ?? 0,
+    return variationSeeds
+      .filter((seed) => findPrice(seed))
+      .map((seed) => ({
+        ...seed,
+        label: tMaterials(seed.id),
+        amount: findPrice(seed)?.amount ?? 0,
       }));
   });
   const variationRef = useRef(availableVariations[0]);
-  const preselectedVariation = searchParams.get('variation') ?? '';
+  const preselectedVariation = (searchParams.get('variation') ?? '') as MaterialId | '';
 
-  const [selectedVariation] = useState<JewelryVariation>(availableVariations.find((variation) => variation.label === preselectedVariation) ?? availableVariations[0]);
+  const [selectedVariation] = useState<JewelryVariation>(availableVariations.find((variation) => variation.id === preselectedVariation) ?? availableVariations[0]);
   const [amount] = useState<number>(parseInt(searchParams.get('amount') ?? '0') || variationRef.current.amount);
 
   return (

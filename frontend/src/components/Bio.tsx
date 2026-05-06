@@ -43,7 +43,7 @@ export default function Bio() {
     if (buttonRef.current) observer.observe(buttonRef.current);
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
+      gsap.timeline({
         scrollTrigger: {
           trigger: headerSectionRef.current,
           start: 'center center',
@@ -51,11 +51,7 @@ export default function Bio() {
           pin: true,
           scrub: true,
         },
-      });
-
-      tl.to(headerRef.current, { opacity: 0, scale: 0.96, y: -60, duration: 1 })
-        .to(asideRef.current, { opacity: 1, duration: 0.25 }, '>-0.2')
-        .to(asideRef.current, { y: 0, duration: 1.3 }, '<');
+      }).to(headerRef.current, { opacity: 0, scale: 0.96, y: -60, duration: 1 });
     }, headerSectionRef);
 
     return () => {
@@ -113,6 +109,9 @@ export default function Bio() {
         <motion.aside
           ref={asideRef}
           initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="relative max-w-4xl w-full mx-auto pt-12 sm:pt-20 pb-10 px-2 sm:px-6 text-accent-100"
         >
           <div className="flex items-center gap-3 text-[10px] sm:text-[11px] uppercase tracking-[0.45em] text-accent-300/85 mb-6 sm:mb-8">

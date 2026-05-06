@@ -25,6 +25,11 @@
     "backToHome": "Back to homepage",
     "collection": "Collection"
   },
+  "materials": {
+    "Silver": "Silver",
+    "Gold": "Gold",
+    "White Gold": "White gold"
+  },
   "notFound": {
     "message": "This page does not exist.",
     "back": "Back to homepage"
@@ -87,6 +92,14 @@
       "cta": "Explore the collection"
     }
   },
+  "browse": {
+    "title": "Browse our collection",
+    "subtitle": "Every Mayra piece, alphabetised for an easier wander.",
+    "searchPlaceholder": "Search by name…",
+    "searchAriaLabel": "Search Mayra jewelry",
+    "noResults": "Nothing matches that yet.",
+    "empty": "No pieces to browse just yet. Check back soon."
+  },
   "jewelry": {
     "noItemsYet": "We haven't sold many pieces yet, so there's nothing here to show. Stay with us!",
     "featuredHeading": "Featured collections of the year",
@@ -121,6 +134,14 @@
     "wrapAsGift": "Wrap it as a gift for me",
     "empty": "Your cart is empty.",
     "emptyCta": "to add more pieces to your cart",
+    "reassuranceTitle": "The Mayra promise",
+    "summary": {
+      "title": "Order summary",
+      "shipping": "Shipping",
+      "shippingFree": "Free",
+      "total": "Total",
+      "itemCount": "{count, plural, one {# item} other {# items}}"
+    },
     "share": {
       "trigger": "Share",
       "title": "Share with your friends",

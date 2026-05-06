@@ -51,6 +51,12 @@ export const getBestSellers = (): Promise<Array<JewelryItemInfo>> => {
     method: 'GET',
   });
 };
+export const getAllJewelry = async (): Promise<Array<JewelryItemInfo>> => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry`;
+  const response = await doFetch({ url, method: 'GET' });
+  if (!response) return [];
+  return Object.values(response as Record<string, JewelryItemInfo>);
+};
 export const getFeatureCollectionThumbnails = (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/feature`;
   return doFetch({

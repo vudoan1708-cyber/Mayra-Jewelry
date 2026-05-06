@@ -25,6 +25,11 @@
     "backToHome": "Quay về trang chủ",
     "collection": "Bộ sưu tập"
   },
+  "materials": {
+    "Silver": "Bạc",
+    "Gold": "Vàng",
+    "White Gold": "Vàng trắng"
+  },
   "notFound": {
     "message": "Trang này không tồn tại.",
     "back": "Quay về trang chủ"
@@ -87,6 +92,14 @@
       "cta": "Khám phá bộ sưu tập"
     }
   },
+  "browse": {
+    "title": "Khám phá bộ sưu tập",
+    "subtitle": "Tất cả các thiết kế của Mayra, sắp xếp theo bảng chữ cái cho bạn dễ tìm.",
+    "searchPlaceholder": "Tìm kiếm theo tên…",
+    "searchAriaLabel": "Tìm kiếm trang sức Mayra",
+    "noResults": "Chưa có sản phẩm nào trùng khớp.",
+    "empty": "Hiện chưa có sản phẩm để hiển thị. Bạn quay lại sau nhé."
+  },
   "jewelry": {
     "noItemsYet": "Shop chưa bán được nhiều nên chưa hiện thông tin này được. Ủng hộ shop với nhé",
     "featuredHeading": "Bộ sưu tập nổi bật trong năm",
@@ -121,6 +134,14 @@
     "wrapAsGift": "Gói quà lại giúp mình",
     "empty": "Giỏ đồ của bạn đang trống.",
     "emptyCta": "để chọn thêm các món đồ vào giỏ đồ điện tử của bạn",
+    "reassuranceTitle": "Cam kết của Mayra",
+    "summary": {
+      "title": "Tóm tắt đơn hàng",
+      "shipping": "Phí giao hàng",
+      "shippingFree": "Miễn phí",
+      "total": "Tổng cộng",
+      "itemCount": "{count} món đồ"
+    },
     "share": {
       "trigger": "Chia sẻ",
       "title": "Chia sẻ với bạn bè của bạn",

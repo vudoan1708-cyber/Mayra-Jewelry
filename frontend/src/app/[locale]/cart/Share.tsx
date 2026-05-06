@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
+import { Share2 } from 'lucide-react';
 
 import { PAYMENT_INFO } from '../../../helpers';
 import Modal from '../../../components/Modal/Modal';
@@ -48,13 +49,24 @@ export default function Share({ encodedId, itemName, itemAmount, itemVariation }
   }, []);
   return (
     <>
-      <a onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenModal(true);  }}>{t('trigger')}</a>
+      <button
+        type="button"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-500 hover:text-accent-600 underline decoration-accent-500/70 hover:decoration-accent-600 underline-offset-4 transition-colors"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenModal(true); }}
+      >
+        <Share2 size={14} strokeWidth={1.75} style={{ width: 14, height: 14, flexShrink: 0 }} />
+        {t('trigger')}
+      </button>
       <AnimatePresence mode="wait">
         {openModal && (
-          <Modal title={t('title')} className="min-w-[340px] md:min-w-[36em]" onClose={() => { setOpenModal(false); }}>
-            <div className="flex gap-2 items-center w-full border border-gray-500 p-1 px-2 rounded-md">
-              <div className="whitespace-nowrap overflow-hidden text-ellipsis w-[200px] md:w-[25em]">{sharePath}</div>
-              <Button variant="secondary" className="text-sm" onClick={() => { copyToClipboard(sharePath); }}>
+          <Modal title={t('title')} className="!min-w-[320px] md:!min-w-[36em]" onClose={() => { setOpenModal(false); }}>
+            <div className="flex gap-2 items-center w-full bg-accent-200/40 border border-accent-500/30 p-2 rounded-xl">
+              <div className="whitespace-nowrap overflow-hidden text-ellipsis flex-1 text-sm text-brand-700/80 px-1">{sharePath}</div>
+              <Button
+                variant="secondary"
+                className="!text-brand-700 !border-accent-500/40 hover:!text-brand-700 hover:!border-accent-500 hover:bg-accent-300/40 text-xs uppercase tracking-[0.2em] px-4 py-2"
+                onClick={() => { copyToClipboard(sharePath); }}
+              >
                 {copyState ? t('copied') : t('copy')}
               </Button>
             </div>

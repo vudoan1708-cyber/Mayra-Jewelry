@@ -53,7 +53,7 @@
 
   color-scheme: light dark;
   color: rgba(0, 0, 0, 0.87);
-  background-color: rgb(var(--background-color));
+  background-color: var(--brand-700);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -66,9 +66,9 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6, b, button, nav {
@@ -141,7 +141,7 @@ label {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background-color: var(--brand-700);
   }
   a:hover {
     color: var(--brand-400);

@@ -7,6 +7,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+let lenisInstance: Lenis | null = null;
+export function getLenis() {
+  return lenisInstance;
+}
+
 export default function SmoothScroller() {
   useEffect(() => {
     const lenis = new Lenis({
@@ -14,6 +19,7 @@ export default function SmoothScroller() {
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // smooth easing
       smoothWheel: true, // enables wheel smoothness
     });
+    lenisInstance = lenis;
 
     function raf(time: number) {
       lenis.raf(time);
@@ -49,7 +55,10 @@ export default function SmoothScroller() {
     ScrollTrigger.addEventListener('refresh', () => lenis.scrollTo(lenis.scroll));
     ScrollTrigger.refresh();
 
-    return () => lenis.destroy();
+    return () => {
+      lenis.destroy();
+      lenisInstance = null;
+    };
   }, []);
 
   return null;

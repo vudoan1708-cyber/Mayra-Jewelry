@@ -23,7 +23,7 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
   const reorderAndMergeDuplicate = (items: CartItem[]) => {
     let newItems: CartItem[] = [];
     let mostRecent: CartItem;
-    items.sort((a, b) => b.variation.label.localeCompare(a.variation.label)).sort((a, b) => b.itemName.localeCompare(a.itemName)).forEach((currentValue, idx) => {
+    items.sort((a, b) => b.variation.id?.localeCompare(a.variation.id)).sort((a, b) => b.itemName.localeCompare(a.itemName)).forEach((currentValue, idx) => {
       if (mostRecent?.itemName !== currentValue.itemName || mostRecent?.variation.key !== currentValue.variation.key) {
         if (mostRecent) {
           newItems = [ ...newItems, mostRecent ];
@@ -60,7 +60,12 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
     getTheLatestCartItems();
   }, []);
 
-  const info = `${PAYMENT_INFO} ${cartItems.map((item) => `${item.itemName} - ${item.sum}đ`).join(', ')}`;
+  const totalAmount = cartItems.reduce((acc, prev) => acc + (prev?.sum ?? 0), 0);
+  const totalCount = cartItems.reduce((acc, prev) => acc + (prev?.count ?? 0), 0);
+  // VietQR memo limit is ~50 chars.
+  const info = totalCount === 1 && cartItems[0]
+    ? `${PAYMENT_INFO} ${cartItems[0].itemName}`.slice(0, 50)
+    : `${PAYMENT_INFO}`.slice(0, 50);
 
   if (cartItems?.length > 0) {
     return (
@@ -71,7 +76,7 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
           className={`grid grid-cols-1 [grid-template-rows:min-content] gap-3 justify-start items-start`}
         >
           {cartItems.map((item, idx) => (
-            <span key={`${item.itemName.split(' ').join('_').toLowerCase()}_${item.variation.label.toLowerCase()}_${idx}`}>
+            <span key={`${item.itemName.split(' ').join('_').toLowerCase()}_${item.variation.id?.toLowerCase()}_${idx}`}>
               <Card
                 item={item}
                 idx={idx}
@@ -85,7 +90,7 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
         <PaymentView
           userId={userId}
           userEmail={userEmail}
-          amount={String(cartItems.reduce((acc, prev) => acc + (prev?.sum ?? 0), 0))}
+          amount={String(totalAmount)}
           info={info}
           items={useCartCount.getState().items.map<Partial<JewelryItemInfo>>((item) => ({
             directoryId: item.id,

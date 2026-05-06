@@ -5,13 +5,14 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { Heart, House, Compass, ShoppingCart, CircleUser } from 'lucide-react';
-import { useEffect } from 'react';
+import { Heart, House, Compass, ShoppingCart, CircleUser, Menu, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
+import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 
 import NavItem from './NavItem';
 import LocaleSwitcher from '../LocaleSwitcher';
+import { getLenis } from '../LenisSmoothScrolling/SmoothScroller';
 import { useRouter, usePathname } from '../../i18n/navigation';
 import { SAVE_TO_CART } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
@@ -26,6 +27,7 @@ export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
   const { items, setTo } = useCartCount();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const shadowX = useSpring(0);
   const shadowY = useMotionValue(0);
@@ -73,6 +75,22 @@ export default function Navigation() {
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const lenis = getLenis();
+    lenis?.stop();
+    const preventTouch = (e: TouchEvent) => e.preventDefault();
+    document.addEventListener('touchmove', preventTouch, { passive: false });
+    return () => {
+      document.removeEventListener('touchmove', preventTouch);
+      lenis?.start();
+    };
+  }, [mobileOpen]);
   return (
     <>
       <motion.div
@@ -88,7 +106,7 @@ export default function Navigation() {
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
-        className="bg-brand-700/95 backdrop-blur-md text-accent-100 sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] shadow-lg shadow-black/30">
+        className="bg-brand-600 text-accent-100 sticky top-0 left-0 w-full z-50 flex items-center justify-center p-3 min-h-[57px] shadow-lg shadow-black/30">
         <motion.button
           type="button"
           initial={{ opacity: 0 }}
@@ -187,8 +205,105 @@ export default function Navigation() {
         <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
           <LocaleSwitcher />
         </div>
+        <button
+          type="button"
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav-drawer"
+          onClick={() => setMobileOpen(true)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 sm:hidden text-accent-200 hover:text-accent-300 transition-colors p-1.5 cursor-pointer"
+        >
+          <Menu className="size-6" />
+        </button>
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500/35 to-transparent" />
       </motion.nav>
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[60] sm:hidden">
+        <AnimatePresence>
+          {mobileOpen && (
+            <>
+              <motion.div
+                key="mobile-nav-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileOpen(false)}
+                className="absolute inset-0 bg-brand-700/60 backdrop-blur-sm pointer-events-auto"
+              />
+              <motion.aside
+                id="mobile-nav-drawer"
+                key="mobile-nav-drawer"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+                className="absolute top-0 right-0 bottom-0 w-[78%] max-w-[320px] bg-brand-600 text-accent-100 flex flex-col py-5 px-6 shadow-2xl shadow-black/50 pointer-events-auto"
+              >
+              <div className="flex items-center justify-between mb-8">
+                <span className="font-serif font-semibold text-accent-300 text-lg tracking-[0.32em] pl-[0.32em]">
+                  MENU
+                </span>
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-accent-200 hover:text-accent-300 transition-colors p-1 cursor-pointer"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+              <ul className="flex flex-col gap-7" onClick={() => setMobileOpen(false)}>
+                <NavItem href="/" withBorder={false} className="!justify-start text-sm">
+                  <House {...fillWhenActive('/')} />
+                  {t('home')}
+                </NavItem>
+                <NavItem href="/browse" withBorder={false} className="!justify-start text-sm">
+                  <Compass {...fillWhenActive('/browse')} />
+                  {t('browse')}
+                </NavItem>
+                <NavItem href="/cart" withBorder={false} className="!justify-start text-sm">
+                  <span className="relative inline-flex">
+                    <ShoppingCart {...fillWhenActive('/cart')} />
+                    {items.length > 0 && (
+                      <span className="absolute -top-2 -right-2 py-0.5 px-1.5 rounded-full bg-accent-500 text-brand-700 text-[10px] font-semibold leading-none">
+                        {items.length}
+                      </span>
+                    )}
+                  </span>
+                  {t('cart')}
+                </NavItem>
+                <NavItem href="/wishlist" withBorder={false} className="!justify-start text-sm">
+                  <Heart {...fillWhenActive('/wishlist')} />
+                  {t('wishlist')}
+                </NavItem>
+                <NavItem href="/account" withBorder={false} className="!justify-start text-sm">
+                  {session.status === 'authenticated'
+                    ? (
+                      <>
+                        <Image
+                          alt="user profile image"
+                          src={session.data.user?.image ?? ''}
+                          width="24"
+                          height="24"
+                          className="rounded-md"
+                        />
+                        {session.data.user?.name ?? t('account')}
+                      </>
+                    )
+                    : (
+                      <>
+                        <CircleUser {...fillWhenActive('/account')} />
+                        {t('account')}
+                      </>
+                    )}
+                </NavItem>
+              </ul>
+              <hr className="my-6 border-accent-500/20" />
+              <LocaleSwitcher />
+            </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
     </>
   )
 }

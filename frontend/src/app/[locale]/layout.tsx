@@ -9,6 +9,7 @@ import SmoothScroller from '../../components/LenisSmoothScrolling/SmoothScroller
 import Navigation from '../../components/Navigation';
 import Footer from '../../components/Footer';
 import JewelBackground from '../../components/Background/JewelBackground';
+import TopLoader from '../../components/Loading/TopLoader';
 import Floating from './Floating';
 
 import './page.css';
@@ -55,13 +56,16 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider>
       <SessionProvider>
+        <TopLoader />
         <JewelBackground />
         <SmoothScroller />
         <Navigation />
 
-        <main id="root" className="grid flex-1">
+        <main id="root" className="grid flex-1 w-full min-w-0">
           <div id="portal-before-anchor" className="absolute"></div>
-          {children}
+          <div className="min-w-0 overflow-x-clip">
+            {children}
+          </div>
         </main>
 
         <Floating />
