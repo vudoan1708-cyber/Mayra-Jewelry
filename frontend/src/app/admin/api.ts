@@ -88,3 +88,99 @@ export const adminFetch = async <T>(path: string, init?: RequestInit): Promise<T
 };
 
 export const adminWhoami = () => adminFetch<WhoamiResponse>('/api/admin/whoami');
+
+export type AdminJewelryPrice = {
+  id?: number;
+  variation: 'Silver' | 'Gold' | 'White Gold';
+  amount: number;
+  currency: string;
+  discount: number;
+};
+
+export type AdminJewelryMedia = {
+  url: string;
+  fileName: string;
+};
+
+export type AdminJewelry = {
+  directoryId: string;
+  itemName: string;
+  description: string;
+  purchases: number;
+  featureCollection: string;
+  bestSeller: boolean;
+  type: 'ring' | 'bracelet';
+  views: number;
+  currency: string;
+  inStock: boolean;
+  giftable: boolean;
+  prices: AdminJewelryPrice[];
+  media: AdminJewelryMedia[];
+};
+
+export type AdminBanner = {
+  id: number;
+  enText: string;
+  viText: string;
+  active: boolean;
+  updatedAt: string;
+};
+
+export type AdminJewelryUpdate = {
+  itemName?: string;
+  description?: string;
+  featureCollection?: string;
+  giftable?: boolean;
+  prices?: Array<{
+    variation: AdminJewelryPrice['variation'];
+    amount: number;
+    currency: string;
+    discount: number;
+  }>;
+};
+
+const jsonHeaders = { 'Content-Type': 'application/json' } as const;
+
+export const listAdminJewelry = () => adminFetch<AdminJewelry[]>('/api/admin/jewelry');
+
+export const getAdminJewelry = (directoryId: string) =>
+  adminFetch<AdminJewelry>(`/api/admin/jewelry/${encodeURIComponent(directoryId)}`);
+
+export const createAdminJewelry = (formData: FormData) =>
+  adminFetch<{ directoryId: string }>('/api/admin/jewelry', {
+    method: 'POST',
+    body: formData,
+  });
+
+export const updateAdminJewelry = (directoryId: string, payload: AdminJewelryUpdate) =>
+  adminFetch<null>(`/api/admin/jewelry/${encodeURIComponent(directoryId)}`, {
+    method: 'PATCH',
+    headers: jsonHeaders,
+    body: JSON.stringify(payload),
+  });
+
+export const uploadAdminJewelryMedia = (directoryId: string, formData: FormData) =>
+  adminFetch<null>(`/api/admin/jewelry/${encodeURIComponent(directoryId)}/media`, {
+    method: 'POST',
+    body: formData,
+  });
+
+export const deleteAdminJewelryMedia = (directoryId: string, fileName: string) =>
+  adminFetch<null>(
+    `/api/admin/jewelry/${encodeURIComponent(directoryId)}/media/${encodeURIComponent(fileName)}`,
+    { method: 'DELETE' },
+  );
+
+export const updateAdminBanner = (payload: Partial<Pick<AdminBanner, 'enText' | 'viText' | 'active'>>) =>
+  adminFetch<AdminBanner>('/api/admin/site/banner', {
+    method: 'PATCH',
+    headers: jsonHeaders,
+    body: JSON.stringify(payload),
+  });
+
+export const getPublicBanner = async (): Promise<AdminBanner | null> => {
+  const res = await fetch(`${baseUrl()}/api/site/banner`);
+  if (res.status === 204) return null;
+  if (!res.ok) return null;
+  return res.json();
+};

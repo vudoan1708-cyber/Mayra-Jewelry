@@ -11,6 +11,7 @@ import Footer from '../../components/Footer';
 import JewelBackground from '../../components/Background/JewelBackground';
 import TopLoader from '../../components/Loading/TopLoader';
 import Floating from './Floating';
+import { getSiteBanner } from '../../server/data';
 
 import './page.css';
 
@@ -110,13 +111,15 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
+  const banner = await getSiteBanner();
+
   return (
     <NextIntlClientProvider>
       <SessionProvider>
         <TopLoader />
         <JewelBackground />
         <SmoothScroller />
-        <Navigation />
+        <Navigation initialBanner={banner} />
 
         <main id="root" className="grid flex-1 w-full min-w-0">
           <div id="portal-before-anchor" className="absolute"></div>

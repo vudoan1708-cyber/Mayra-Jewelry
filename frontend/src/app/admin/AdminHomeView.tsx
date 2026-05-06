@@ -1,60 +1,42 @@
 'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Gem, Megaphone } from 'lucide-react';
 
-import { motion } from 'framer-motion';
-import { LogOut } from 'lucide-react';
+import AdminShell from './AdminShell';
 
-import { useAdminAuth } from './AdminAuthContext';
+const cards = [
+  { href: '/admin/jewelry', label: 'Jewelry', icon: Gem, blurb: 'Add new pieces, edit names, descriptions, prices, and images.' },
+  { href: '/admin/banner', label: 'Banner', icon: Megaphone, blurb: 'Update the promo strip shown on every storefront page.' },
+];
 
 export default function AdminHomeView() {
-  const router = useRouter();
-  const { status, email, signOut } = useAdminAuth();
-
-  useEffect(() => {
-    if (status === 'anonymous') {
-      router.replace('/admin/login');
-    }
-  }, [status, router]);
-
-  if (status !== 'authenticated') {
-    return (
-      <div className="flex min-h-dvh items-center justify-center px-6">
-        <p className="text-sm text-brand-500/80">Loading…</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="flex items-center justify-between bg-brand-700 text-accent-100 px-6 py-3 shadow-md shadow-black/20">
-        <div className="flex flex-col">
-          <span className="text-[10px] uppercase tracking-[0.32em] text-accent-300">Mayra Admin</span>
-          <span className="text-sm">{email}</span>
+    <AdminShell>
+      <section className="flex flex-col gap-6">
+        <header>
+          <h1 className="text-2xl text-brand-700">Welcome back.</h1>
+          <p className="text-sm text-brand-500/80 mt-1">Pick what to manage.</p>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {cards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.href}
+                href={card.href}
+                className="bg-white border border-accent-300/40 rounded-2xl shadow-sm p-6 hover:shadow-md hover:border-accent-300 transition-all !no-underline"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon className="size-5 text-brand-700" />
+                  <h2 className="text-base text-brand-700">{card.label}</h2>
+                </div>
+                <p className="text-sm text-brand-500/80">{card.blurb}</p>
+              </Link>
+            );
+          })}
         </div>
-        <button
-          type="button"
-          onClick={signOut}
-          className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-accent-200 hover:text-accent-300 transition-colors"
-        >
-          <LogOut className="size-4" />
-          Sign out
-        </button>
-      </header>
-
-      <motion.main
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex-1 px-6 py-10 max-w-4xl mx-auto w-full flex flex-col gap-6"
-      >
-        <section className="bg-white border border-accent-300/40 rounded-2xl shadow-sm p-6">
-          <h1 className="text-lg text-brand-700 mb-2">Welcome back.</h1>
-          <p className="text-sm text-brand-500/80">
-            You're signed in. Inventory and banner management land in the next phase.
-          </p>
-        </section>
-      </motion.main>
-    </div>
+      </section>
+    </AdminShell>
   );
 }

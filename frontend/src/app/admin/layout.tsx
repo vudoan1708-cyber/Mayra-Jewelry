@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import '../[locale]/page.css';
+import TopLoader from '../../components/Loading/TopLoader';
 import { AdminAuthProvider } from './AdminAuthProvider';
 
 export const metadata: Metadata = {
@@ -48,7 +49,8 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminAuthProvider>
-      <div className="min-h-dvh bg-accent-100/40 text-brand-700">
+      <TopLoader />
+      <div className="h-dvh overflow-y-auto bg-accent-100/40 text-brand-700">
         {children}
       </div>
     </AdminAuthProvider>

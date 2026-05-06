@@ -57,6 +57,25 @@ export const getAllJewelry = async (): Promise<Array<JewelryItemInfo>> => {
   if (!response) return [];
   return Object.values(response as Record<string, JewelryItemInfo>);
 };
+
+export type SiteBanner = {
+  id: number;
+  enText: string;
+  viText: string;
+  active: boolean;
+  updatedAt: string;
+};
+
+export const getSiteBanner = async (): Promise<SiteBanner | null> => {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/site/banner`;
+    const response = await doFetch({ url, method: 'GET' });
+    if (!response) return null;
+    return response as SiteBanner;
+  } catch {
+    return null;
+  }
+};
 export const getFeatureCollectionThumbnails = (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/feature`;
   return doFetch({

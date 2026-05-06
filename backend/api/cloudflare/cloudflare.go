@@ -137,6 +137,17 @@ func (cf *Cloudflare) BuildPublicUrl(key string) (string, error) {
 	return fmt.Sprintf("%s/%s", cf.PublicBaseUrl, strings.Join(parts, "/")), nil
 }
 
+func (cf *Cloudflare) DeleteObject(bucketName, key string) error {
+	if cf.__s3 == nil {
+		return fmt.Errorf("s3 client has not been instantiated. Please consider using Init()")
+	}
+	_, err := cf.__s3.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(key),
+	})
+	return err
+}
+
 func (cf *Cloudflare) ListObjectsInBucket(bucketName string, prefix *string) ([]types.Object, error) {
 	objects, err := cf.__s3.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),

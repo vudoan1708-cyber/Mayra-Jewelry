@@ -14,7 +14,9 @@ import (
 
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/admin_auth"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/admin_cms"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/cloudflare"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/site"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
 )
 
@@ -56,7 +58,15 @@ func main() {
 	adminProtectedRouter := apiRouter.PathPrefix("/admin").Subrouter()
 	adminProtectedRouter.Use(admin_auth.RequireAdmin)
 	adminProtectedRouter.HandleFunc("/whoami", admin_auth.Whoami).Methods("GET")
+	adminProtectedRouter.HandleFunc("/jewelry", admin_cms.ListJewelry).Methods("GET")
+	adminProtectedRouter.HandleFunc("/jewelry", admin_cms.CreateJewelry).Methods("POST")
+	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}", admin_cms.GetJewelry).Methods("GET")
+	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}", admin_cms.UpdateJewelry).Methods("PATCH")
+	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}/media", admin_cms.UploadJewelryMedia).Methods("POST")
+	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}/media/{fileName}", admin_cms.DeleteJewelryMedia).Methods("DELETE")
+	adminProtectedRouter.HandleFunc("/site/banner", admin_cms.UpdateBanner).Methods("PATCH")
 
+	apiRouter.HandleFunc("/site/banner", site.GetBanner).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/best", api.GetJewelryItemsByBestSeller).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/feature", api.GetUniqueFeatureCollections).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/{collectionName}", api.GetJewelryItemsByCollectionName).Methods("GET")

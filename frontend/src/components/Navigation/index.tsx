@@ -16,8 +16,9 @@ import { getLenis } from '../LenisSmoothScrolling/SmoothScroller';
 import { useRouter, usePathname } from '../../i18n/navigation';
 import { SAVE_TO_CART } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
+import type { SiteBanner } from '../../server/data';
 
-export default function Navigation() {
+export default function Navigation({ initialBanner }: { initialBanner: SiteBanner | null }) {
   const t = useTranslations('nav');
   const locale = useLocale();
   const session = useSession();
@@ -93,16 +94,28 @@ export default function Navigation() {
   }, [mobileOpen]);
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative bg-brand-700 text-accent-100 p-1 w-full text-center uppercase text-xs tracking-[0.15em]"
-        id="extra_nav_info">
-        <span className="text-base">📢 </span>
-        {t.rich('promo', {
-          dates: (chunks) => <span className="border-b border-b-1 border-b-accent-300/60 text-accent-300">{chunks}</span>,
-        })}
-      </motion.div>
+      {(() => {
+        const bannerText = initialBanner && initialBanner.active
+          ? (locale === 'vi' ? initialBanner.viText : initialBanner.enText).trim()
+          : '';
+        if (initialBanner && (!initialBanner.active || !bannerText)) {
+          return null;
+        }
+        return (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="relative bg-brand-700 text-accent-100 p-1 w-full text-center uppercase text-xs tracking-[0.15em]"
+            id="extra_nav_info">
+            <span className="text-base">📢 </span>
+            {bannerText
+              ? bannerText
+              : t.rich('promo', {
+                  dates: (chunks) => <span className="border-b border-b-1 border-b-accent-300/60 text-accent-300">{chunks}</span>,
+                })}
+          </motion.div>
+        );
+      })()}
       <motion.nav
         initial={{ y: -120 }}
         animate={{ y: 0 }}
