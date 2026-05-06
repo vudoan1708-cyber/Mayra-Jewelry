@@ -1,8 +1,55 @@
 {
   "metadata": {
     "title": "Mayra Jewelry",
-    "description": "Discover the latest collection of rings — refined and contemporary, only at Mayra",
-    "ogDescription": "Discover the latest collection of rings — refined and contemporary, only at Mayra"
+    "siteName": "Mayra Jewelry",
+    "description": "Discover the latest collection of rings — refined and contemporary, only at Mayra. Hand-finished in Saigon.",
+    "ogDescription": "Discover the latest collection of rings — refined and contemporary, only at Mayra. Hand-finished in Saigon.",
+    "twitterDescription": "Hand-finished rings, contemporary and refined — Atelier Saigon.",
+    "keywords": "Mayra Jewelry, rings, wedding rings, fine jewelry, Vietnam, Saigon, atelier, silver, gold, white gold",
+    "home": {
+      "title": "Atelier Saigon",
+      "description": "Hand-finished rings, refined and contemporary — meet Mayra's signature collection."
+    },
+    "browse": {
+      "title": "Browse the collection",
+      "description": "Every Mayra piece, sorted alphabetically. Search by name, view thumbnails, jump to details."
+    },
+    "cart": {
+      "title": "Your cart",
+      "description": "Review your selected pieces and complete your order with Mayra."
+    },
+    "wishlist": {
+      "title": "Your wishlist",
+      "description": "Pieces you've saved for later at Mayra."
+    },
+    "account": {
+      "title": "Your account",
+      "description": "Track your orders, view Mayra Points, and manage your profile."
+    },
+    "delete": {
+      "title": "Delete your data",
+      "description": "How to request deletion of your data from Mayra."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "description": "How Mayra handles your information when you sign in."
+    },
+    "weddingRings": {
+      "title": "Wedding rings",
+      "description": "Discover Mayra's wedding ring collection — pieces made for moments worth keeping."
+    },
+    "collection": {
+      "title": "{name} Collection",
+      "description": "Explore the {name} collection, hand-finished by Mayra in Saigon."
+    },
+    "product": {
+      "title": "{name}",
+      "description": "{name} — hand-finished by Mayra. Refined details, contemporary line."
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist."
+    }
   },
   "nav": {
     "home": "Home",
@@ -94,7 +141,6 @@
   },
   "browse": {
     "title": "Browse our collection",
-    "subtitle": "Every Mayra piece, alphabetised for an easier wander.",
     "searchPlaceholder": "Search by name…",
     "searchAriaLabel": "Search Mayra jewelry",
     "noResults": "Nothing matches that yet.",
@@ -161,7 +207,7 @@
     "orderId": "Order #{id}",
     "loggedInVia": "You're signed in to Mayra with your Facebook account <b>{name}</b> and earning Mayra Points.",
     "logoutHint": "Press the button below if you want to sign out of Mayra.",
-    "logoutCta": "Sign out of Mayra",
+    "logoutCta": "Sign out",
     "missingFb": "Mayra couldn't fetch your name or profile picture from Facebook 🥲",
     "pointsHeading": "Mayra Point progress"
   },

@@ -1,8 +1,55 @@
 {
   "metadata": {
     "title": "Mayra Jewelry",
-    "description": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra",
-    "ogDescription": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra"
+    "siteName": "Mayra Jewelry",
+    "description": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra. Chế tác thủ công tại Sài Gòn.",
+    "ogDescription": "Khám phá bộ sưu tập nhẫn mới nhất, tinh tế và thời thượng – chỉ có tại Mayra. Chế tác thủ công tại Sài Gòn.",
+    "twitterDescription": "Nhẫn chế tác thủ công, tinh tế và thời thượng – Atelier Sài Gòn.",
+    "keywords": "Mayra Jewelry, nhẫn, nhẫn cưới, trang sức, Việt Nam, Sài Gòn, atelier, bạc, vàng, vàng trắng",
+    "home": {
+      "title": "Atelier Sài Gòn",
+      "description": "Nhẫn chế tác thủ công, tinh tế và thời thượng – bộ sưu tập đặc trưng của Mayra."
+    },
+    "browse": {
+      "title": "Khám phá bộ sưu tập",
+      "description": "Tất cả các thiết kế của Mayra, sắp xếp theo bảng chữ cái. Tìm theo tên, xem hình ảnh, vào chi tiết sản phẩm."
+    },
+    "cart": {
+      "title": "Giỏ hàng của bạn",
+      "description": "Xem lại các món đồ đã chọn và hoàn tất đơn hàng cùng Mayra."
+    },
+    "wishlist": {
+      "title": "Danh sách yêu thích",
+      "description": "Những món đồ bạn đã lưu lại tại Mayra."
+    },
+    "account": {
+      "title": "Tài khoản của bạn",
+      "description": "Theo dõi đơn hàng, xem điểm Mayra và quản lý hồ sơ của bạn."
+    },
+    "delete": {
+      "title": "Xoá dữ liệu của bạn",
+      "description": "Cách yêu cầu xoá dữ liệu của bạn khỏi Mayra."
+    },
+    "privacy": {
+      "title": "Quyền riêng tư",
+      "description": "Cách Mayra xử lý thông tin của bạn khi đăng nhập."
+    },
+    "weddingRings": {
+      "title": "Nhẫn cưới",
+      "description": "Khám phá bộ sưu tập nhẫn cưới của Mayra – những thiết kế dành cho khoảnh khắc trọn đời."
+    },
+    "collection": {
+      "title": "Bộ sưu tập {name}",
+      "description": "Khám phá bộ sưu tập {name}, chế tác thủ công bởi Mayra tại Sài Gòn."
+    },
+    "product": {
+      "title": "{name}",
+      "description": "{name} – chế tác thủ công bởi Mayra. Tinh tế trong từng chi tiết, đường nét hiện đại."
+    },
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "description": "Trang bạn đang tìm không tồn tại."
+    }
   },
   "nav": {
     "home": "Trang chủ",
@@ -94,7 +141,6 @@
   },
   "browse": {
     "title": "Khám phá bộ sưu tập",
-    "subtitle": "Tất cả các thiết kế của Mayra, sắp xếp theo bảng chữ cái cho bạn dễ tìm.",
     "searchPlaceholder": "Tìm kiếm theo tên…",
     "searchAriaLabel": "Tìm kiếm trang sức Mayra",
     "noResults": "Chưa có sản phẩm nào trùng khớp.",

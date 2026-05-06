@@ -13,8 +13,30 @@ export default defineConfig([
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
     ],
+    plugins: {
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      'react-refresh/only-export-components': ['warn', {
+        allowConstantExport: true,
+        allowExportNames: [
+          'metadata',
+          'generateMetadata',
+          'generateStaticParams',
+          'dynamic',
+          'dynamicParams',
+          'revalidate',
+          'viewport',
+          'generateViewport',
+          'fetchCache',
+          'preferredRegion',
+          'runtime',
+          'maxDuration',
+          'config',
+        ],
+      }],
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

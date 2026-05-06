@@ -22,6 +22,7 @@ func (db *Database) AutoMigrate() error {
 		&models.JewelryItemInfo{},
 		&models.OrderJewelryItem{},
 		&models.JewelryPrice{},
+		&models.AdminUser{},
 	}
 	if auto_migrate_err := db.Gorm.AutoMigrate(allModels...); auto_migrate_err != nil {
 		return auto_migrate_err

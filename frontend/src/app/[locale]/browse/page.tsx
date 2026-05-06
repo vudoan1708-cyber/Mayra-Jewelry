@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 import Money from '../../../components/Money/Money';
@@ -8,6 +9,22 @@ import Search, { type BrowseSearchItem } from './Search';
 import { getAllJewelry } from '../../../server/data';
 import { localizeJewelryItem } from '../../../i18n/productCopy';
 import { minPrice } from '../../../helpers';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata.browse' });
+  return {
+    title: t('title'),
+    description: t('description'),
+    openGraph: { title: t('title'), description: t('description') },
+    twitter: { title: t('title'), description: t('description') },
+    alternates: { canonical: `/${locale}/browse` },
+  };
+}
 
 const thumbnailOf = (media: { fileName: string; url: string }[]) =>
   media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url ?? '';
@@ -29,13 +46,14 @@ export default async function Page() {
     name: item.itemName,
     thumbnail: thumbnailOf(item.media),
     collection: item.featureCollection || null,
+    price: minPrice(item.prices),
+    currency: item.currency || item.prices[0]?.currency || 'VND',
   }));
 
   return (
     <section className="flex flex-col gap-8 py-10">
       <header className="flex flex-col items-center gap-3 px-6 text-center">
-        <h1 className="text-3xl sm:text-4xl font-serif text-brand-700">{t('title')}</h1>
-        <p className="text-sm text-brand-500/80 max-w-xl">{t('subtitle')}</p>
+        <h1 className="text-3xl sm:text-4xl font-serif text-accent-500">{t('title')}</h1>
       </header>
 
       <div className="px-6">

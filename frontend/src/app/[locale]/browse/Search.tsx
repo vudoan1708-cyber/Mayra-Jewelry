@@ -8,12 +8,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search as SearchIcon, X } from 'lucide-react';
 
 import { useRouter } from '../../../i18n/navigation';
+import Money from '../../../components/Money/Money';
 
 export type BrowseSearchItem = {
   id: string;
   name: string;
   thumbnail: string;
   collection?: string | null;
+  price: number;
+  currency: string;
 };
 
 const MAX_RESULTS = 8;
@@ -157,6 +160,11 @@ export default function Search({ items }: { items: BrowseSearchItem[] }) {
                       <p className="text-xs text-brand-500/70 truncate">{item.collection}</p>
                     )}
                   </div>
+                  <Money
+                    amount={item.price}
+                    currency={item.currency}
+                    className="shrink-0 ml-2 text-sm text-brand-700"
+                  />
                 </li>
               ))
             }

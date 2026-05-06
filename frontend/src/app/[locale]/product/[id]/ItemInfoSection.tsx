@@ -22,6 +22,7 @@ import { SAVE_TO_CART, WAIT } from '../../../../helpers';
 import NavItem from '../../../../components/Navigation/NavItem';
 import { addToWishlist, deleteFromWishlist } from '../../../../server/data';
 import FullScreenLoading from '../../../../components/Loading/FullScreenLoading';
+import Share from '../../cart/Share';
 import type { Session } from 'next-auth';
 
 export default function ItemInfoSection({
@@ -260,14 +261,17 @@ export default function ItemInfoSection({
             <Variation key={`${imgUrls[0]}_slected_${selectedVariation.key}`} variation={selectedVariation} />
             {t('selectedMaterial')} <b className="text-brand-700">{selectedVariation.label}</b>
           </div>
-          <Button variant="tertiary" className="justify-self-start !text-brand-700 hover:!text-brand-500" onClick={throttleIncrement}>
-            <ShoppingCart />
+          <Button variant="tertiary" className="!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600" onClick={throttleIncrement}>
+            <ShoppingCart size={16} strokeWidth={1.75} />
             {t('addToCart')}
           </Button>
-          <Button variant="tertiary" className={`justify-self-start !text-brand-700 hover:!text-brand-500 ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
-            <Heart fill={hasItemWishlisted ? 'var(--brand-700)' : 'none'} />
+          <Button variant="tertiary" className={`!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600 ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
+            <Heart size={16} strokeWidth={1.75} fill={hasItemWishlisted ? 'var(--brand-500)' : 'none'} />
             {hasItemWishlisted ? t('removeFromWishlist') : t('addToWishlist')}
           </Button>
+          <div className="mt-1 pt-3 border-t border-accent-500/30 text-center">
+            <Share encodedId={id} itemName={itemName} itemAmount={amount} itemVariation={variation.id} />
+          </div>
         </div>
       </div>
 

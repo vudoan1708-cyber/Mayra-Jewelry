@@ -1,4 +1,5 @@
-import { getLocale } from 'next-intl/server';
+import type { Metadata } from 'next';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 import Wrapper from './Wrapper';
 import MostViewed from './MostViewed';
@@ -6,6 +7,43 @@ import { auth } from '../../../auth';
 import { checkIfItemInWishlist, getJewelryItem, updateJewelry } from '../../../../server/data';
 import { userIdOrBase64Email } from '../../../../helpers';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
+
+const thumbnailOf = (media: { fileName: string; url: string }[]) =>
+  media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const decodedId = decodeURIComponent(id);
+  const [t, item] = await Promise.all([
+    getTranslations({ locale, namespace: 'metadata.product' }),
+    getJewelryItem(decodedId).catch(() => null),
+  ]);
+  const localized = item ? localizeJewelryItem(item, locale) : null;
+  const name = localized?.itemName ?? 'Mayra';
+  const description = localized?.description?.split('\n')[0] ?? t('description', { name });
+  const thumbnail = item ? thumbnailOf(item.media) : undefined;
+  return {
+    title: t('title', { name }),
+    description,
+    openGraph: {
+      title: t('title', { name }),
+      description,
+      type: 'website',
+      images: thumbnail ? [{ url: thumbnail, alt: name }] : undefined,
+    },
+    twitter: {
+      card: thumbnail ? 'summary_large_image' : 'summary',
+      title: t('title', { name }),
+      description,
+      images: thumbnail ? [thumbnail] : undefined,
+    },
+    alternates: { canonical: `/${locale}/product/${id}` },
+  };
+}
 
 export default async function Product({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

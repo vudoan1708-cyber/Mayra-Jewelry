@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/admin_auth"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/cloudflare"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
 )
@@ -47,6 +48,15 @@ func main() {
 	var address string = "0.0.0.0" + ":" + strconv.Itoa(port)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
+
+	adminAuthRouter := apiRouter.PathPrefix("/admin").Subrouter()
+	adminAuthRouter.Handle("/login", admin_auth.RateLimitLogin(http.HandlerFunc(admin_auth.Login))).Methods("POST")
+	adminAuthRouter.Handle("/login/totp", admin_auth.RateLimitLogin(http.HandlerFunc(admin_auth.VerifyTotp))).Methods("POST")
+
+	adminProtectedRouter := apiRouter.PathPrefix("/admin").Subrouter()
+	adminProtectedRouter.Use(admin_auth.RequireAdmin)
+	adminProtectedRouter.HandleFunc("/whoami", admin_auth.Whoami).Methods("GET")
+
 	apiRouter.HandleFunc("/jewelry/collection/best", api.GetJewelryItemsByBestSeller).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/feature", api.GetUniqueFeatureCollections).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/{collectionName}", api.GetJewelryItemsByCollectionName).Methods("GET")
