@@ -18,7 +18,7 @@
     "gsap": "^3.13.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.546.0",
-    "next": "^15.5.4",
+    "next": "15.5.9",
     "next-auth": "^5.0.0-beta.29",
     "next-intl": "^4.11.0",
     "qrcode.react": "^4.2.0",
