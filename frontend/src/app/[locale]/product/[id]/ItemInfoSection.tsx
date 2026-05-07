@@ -18,7 +18,7 @@ import Button from '../../../../components/Button';
 import Loading from '../../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../../stores/CartCountProvider';
-import { detailHeroOf, extrasForVariation, SAVE_TO_CART, WAIT } from '../../../../helpers';
+import { browseThumbnailOf, detailHeroOf, extrasForVariation, SAVE_TO_CART, WAIT } from '../../../../helpers';
 
 import type { Media } from '../../../../../types';
 import NavItem from '../../../../components/Navigation/NavItem';
@@ -79,15 +79,22 @@ export default function ItemInfoSection({
     setCurrentVariation(variation);
   };
 
-  const shoppingCartClicked = () => {
+  const pickCartImgUrls = (): string[] => {
+    if (imgUrlRef.current.length > 0) return imgUrlRef.current;
+    const fallback = detailHeroOf(media) ?? browseThumbnailOf(media);
+    if (fallback) return [fallback];
+    return [];
+  };
+
+  const shoppingCartClicked = (variation: JewelryVariation) => {
     addItem({
       id,
       itemName,
-      imgUrls: imgUrlRef.current,
+      imgUrls: pickCartImgUrls(),
       featureCollection,
       type,
-      variation: currentVariation,
-      amount: currentVariation.amount,
+      variation,
+      amount: variation.amount,
     });
     const currentState = {
       items: useCartCount.getState().items,
@@ -263,7 +270,7 @@ export default function ItemInfoSection({
             <Variation key={`${imgUrls[0]}_selected_${currentVariation.key}`} variation={currentVariation} />
             {t('selectedMaterial')} <b className="text-brand-700">{currentVariation.label}</b>
           </div>
-          <Button variant="tertiary" className="!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600" onClick={throttleIncrement}>
+          <Button variant="tertiary" className="!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600" onClick={() => throttleIncrement(currentVariation)}>
             <ShoppingCart size={16} strokeWidth={1.75} />
             {t('addToCart')}
           </Button>

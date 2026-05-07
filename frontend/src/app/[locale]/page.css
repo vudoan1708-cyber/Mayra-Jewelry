@@ -44,6 +44,13 @@
     background-size: 24px 24px;
     height: 100%;
   }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 :root {

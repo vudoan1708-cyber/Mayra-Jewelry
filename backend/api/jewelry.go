@@ -89,11 +89,16 @@ func GetJewelryItems(w http.ResponseWriter, r *http.Request) {
 		response[key] = models.Metadata{
 			DirectoryId:       item.DirectoryId,
 			ItemName:          item.ItemName,
+			Description:       item.Description,
 			Purchases:         item.Purchases,
 			FeatureCollection: item.FeatureCollection,
 			BestSeller:        item.BestSeller,
 			Type:              item.Type,
 			ViewCount:         item.ViewCount,
+			Currency:          item.Currency,
+			InStock:           item.InStock,
+			Giftable:          item.Giftable,
+			Translations:      item.Translations,
 			Prices:            item.Prices,
 			Media:             urls[item.DirectoryId],
 		}
