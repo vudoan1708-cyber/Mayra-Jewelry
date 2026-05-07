@@ -25,7 +25,7 @@ export default function LoginForm({ title, redirectTo = '/', autoSignIn = false 
       key="scale-and-fade"
       initial={{ opacity: 0, scale: 1.09 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col gap-5 h-max self-center bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-6 sm:p-8 max-w-[400px] mt-12"
+      className="flex flex-col gap-5 h-max self-center mx-auto bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-6 sm:p-8 w-full max-w-[400px] mt-12"
       action={async () => {
         await signIn('facebook', { redirectTo });
       }}
@@ -35,6 +35,7 @@ export default function LoginForm({ title, redirectTo = '/', autoSignIn = false 
         dangerouslySetInnerHTML={{ __html: title }}
       />
       <Button
+        type="submit"
         variant="secondary"
         className="items-center justify-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.3em] !text-brand-700 !border-accent-500/40 hover:!text-brand-700 hover:!border-accent-500 hover:bg-accent-300/40 py-2"
         working={clicked}
