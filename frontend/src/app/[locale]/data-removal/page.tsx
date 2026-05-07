@@ -15,7 +15,7 @@ export async function generateMetadata({
     description: t('description'),
     openGraph: { title: t('title'), description: t('description') },
     twitter: { title: t('title'), description: t('description') },
-    alternates: { canonical: `/${locale}/delete` },
+    alternates: { canonical: `/${locale}/data-removal` },
   };
 }
 

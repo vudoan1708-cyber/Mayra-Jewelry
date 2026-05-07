@@ -71,7 +71,7 @@ export default function Footer() {
             </LinkButton>
             <LinkButton
               variant="tertiary"
-              href="/delete"
+              href="/data-removal"
               className="!text-accent-300 hover:!text-accent-100"
             >
               {t('deleteData')}
