@@ -10,7 +10,7 @@ const getCurrencyFormatter = (currency: string, locale: string) => {
       style: 'currency',
       currency,
     });
-  } catch (err) {
+  } catch {
     formatter = new Intl.NumberFormat(locale);
   }
   return formatter;

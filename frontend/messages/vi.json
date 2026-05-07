@@ -66,7 +66,9 @@
     "tagline": "Atelier Sài Gòn",
     "blurb": "Trang sức được chế tác thủ công, dành cho những khoảnh khắc đáng giữ trọn đời.",
     "rights": "Mayra Jewelry · Sài Gòn",
-    "craft": "Chế tác bằng cả tâm huyết"
+    "craft": "Chế tác bằng cả tâm huyết",
+    "privacy": "Bảo mật",
+    "deleteData": "Xóa dữ liệu của bạn"
   },
   "common": {
     "backToHome": "Quay về trang chủ",
@@ -85,10 +87,35 @@
     "signInForOffers": "Đăng nhập để nhận ưu đãi"
   },
   "privacy": {
-    "body": "Shop chỉ lưu trữ hình ảnh và tên của bạn trên Facebook cho mục đích đăng nhập trên Mayra."
+    "title": "Chính sách bảo mật",
+    "updated": "Cập nhật lần cuối: Tháng 11, 2026",
+    "intro": "Chính sách này giải thích cách Mayra Jewelry (\"chúng tôi\") xử lý thông tin cá nhân khi bạn đăng nhập vào trang web của chúng tôi bằng Facebook.",
+    "collectHeading": "Thông tin chúng tôi thu thập",
+    "collectBody": "Khi bạn đăng nhập bằng Facebook, chúng tôi nhận được ID người dùng Facebook, tên hiển thị và ảnh đại diện của bạn. Khi bạn đặt hàng, chúng tôi thu thập thêm thông tin liên hệ và giao hàng do bạn cung cấp trực tiếp (tên, số điện thoại, địa chỉ).",
+    "useHeading": "Cách chúng tôi sử dụng",
+    "useBody": "Chúng tôi sử dụng thông tin này để nhận diện tài khoản của bạn trên website, hiển thị tên và ảnh đại diện trong giao diện, lưu danh sách yêu thích và xử lý đơn hàng. Chúng tôi không bán dữ liệu và không sử dụng cho mục đích quảng cáo.",
+    "shareHeading": "Chia sẻ với bên thứ ba",
+    "shareBody": "Chúng tôi chỉ chia sẻ thông tin với các nhà cung cấp dịch vụ cần thiết cho hoạt động của cửa hàng: Facebook (đăng nhập), nhà cung cấp hosting, đối tác xử lý thanh toán (xác minh đơn hàng) và nhà cung cấp email (gửi email giao dịch). Chúng tôi không chia sẻ dữ liệu cho mục đích tiếp thị.",
+    "retentionHeading": "Thời gian lưu trữ",
+    "retentionBody": "Chúng tôi giữ dữ liệu tài khoản của bạn trong khi tài khoản còn hoạt động. Bạn có thể yêu cầu xoá bất cứ lúc nào — xem trang \"Xoá dữ liệu\" để biết chi tiết. Sau khi xoá, bản sao có thể tồn tại trong bản sao lưu được mã hoá tối đa 30 ngày trước khi được xoá hoàn toàn.",
+    "rightsHeading": "Quyền của bạn",
+    "rightsBody": "Bạn có thể yêu cầu xem, chỉnh sửa hoặc xoá thông tin chúng tôi lưu giữ về bạn. Bạn cũng có thể thu hồi quyền truy cập của chúng tôi bất cứ lúc nào qua cài đặt Facebook (Cài đặt → Ứng dụng và website → Mayra → Gỡ).",
+    "contactHeading": "Liên hệ",
+    "contactBody": "Mọi câu hỏi về quyền riêng tư hoặc yêu cầu xử lý dữ liệu, vui lòng liên hệ qua trang Facebook hoặc email của chúng tôi."
   },
   "delete": {
-    "body": "Để xoá thông tin dữ liệu về bạn, hãy liên lạc trực tiếp với shop hoặc vào mục cài đặt trên Facebook và xoá trang web này."
+    "title": "Xoá dữ liệu của bạn",
+    "updated": "Cập nhật lần cuối: Tháng 11, 2026",
+    "intro": "Bạn có thể yêu cầu xoá toàn bộ dữ liệu mà Mayra Jewelry đang lưu về bạn bất cứ lúc nào.",
+    "storedHeading": "Những gì chúng tôi lưu",
+    "storedBody": "ID người dùng Facebook, tên và ảnh đại diện (từ đăng nhập Facebook), cùng với mọi chi tiết đơn hàng, danh sách yêu thích và thông tin liên hệ mà bạn đã cung cấp.",
+    "howHeading": "Cách yêu cầu xoá",
+    "howStep1": "Nhắn tin trực tiếp tới trang Facebook của chúng tôi hoặc gửi email với tiêu đề \"Xoá dữ liệu\". Vui lòng kèm tên tài khoản để chúng tôi xác minh.",
+    "howStep2": "Hoặc bạn có thể gỡ ứng dụng Mayra trong cài đặt Facebook: Cài đặt → Ứng dụng và website → Mayra → Gỡ. Việc này thu hồi quyền truy cập của chúng tôi ngay lập tức; chúng tôi sẽ xoá bản ghi tương ứng phía hệ thống của shop.",
+    "timelineHeading": "Thời gian xử lý",
+    "timelineBody": "Chúng tôi sẽ phản hồi xác nhận yêu cầu của bạn trong vòng 7 ngày và hoàn tất việc xoá trong vòng 30 ngày. Các bản sao lưu mã hoá chứa dữ liệu được xoá theo chu kỳ luân phiên 30 ngày.",
+    "contactHeading": "Liên hệ",
+    "contactBody": "Mọi câu hỏi về việc xoá dữ liệu hoặc theo dõi yêu cầu, vui lòng liên hệ qua trang Facebook hoặc email của chúng tôi."
   },
   "loginForm": {
     "facebook": "Đăng nhập bằng Facebook",

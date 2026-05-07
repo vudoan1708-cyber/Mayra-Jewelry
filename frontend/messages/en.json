@@ -66,7 +66,9 @@
     "tagline": "Atelier Saigon",
     "blurb": "Hand-finished jewelry, built for moments worth keeping.",
     "rights": "Mayra Jewelry · Saigon",
-    "craft": "Crafted with care"
+    "craft": "Crafted with care",
+    "privacy": "Privacy",
+    "deleteData": "Delete your data"
   },
   "common": {
     "backToHome": "Back to homepage",
@@ -85,10 +87,35 @@
     "signInForOffers": "Sign in to unlock offers"
   },
   "privacy": {
-    "body": "Mayra only stores your Facebook profile picture and name for the purpose of signing in to Mayra."
+    "title": "Privacy Policy",
+    "updated": "Last updated: November 2026",
+    "intro": "This policy explains how Mayra Jewelry (\"we\", \"us\") handles personal information when you sign in to our website using Facebook.",
+    "collectHeading": "Information we collect",
+    "collectBody": "When you sign in with Facebook, we receive your Facebook user ID, public name, and profile picture. If you place an order, we also collect the contact and shipping details you provide directly (name, phone, address).",
+    "useHeading": "How we use it",
+    "useBody": "We use this information to identify your account on our site, display your name and avatar in the interface, save your wishlist, and process orders you make. We do not sell your data and we do not use it for advertising.",
+    "shareHeading": "Sharing with third parties",
+    "shareBody": "We share information only with service providers we need to operate the shop: Facebook (for sign-in), our hosting providers, our payment processor (for order verification), and our email provider (for transactional emails). We do not share your data for marketing purposes.",
+    "retentionHeading": "How long we keep it",
+    "retentionBody": "We keep your account data while your account is active. You can request deletion at any time — see the Delete Your Data page for instructions. After deletion, copies may persist in encrypted backups for up to 30 days before being purged.",
+    "rightsHeading": "Your rights",
+    "rightsBody": "You can ask us to access, correct, or delete the information we hold about you. You can also revoke our access at any time via your Facebook settings (Settings → Apps and Websites → Mayra → Remove).",
+    "contactHeading": "Contact",
+    "contactBody": "For privacy questions or data requests, contact us through our Facebook page or via email."
   },
   "delete": {
-    "body": "To delete your data, please contact the shop directly or remove this app from your Facebook settings."
+    "title": "Delete Your Data",
+    "updated": "Last updated: November 2026",
+    "intro": "You can request deletion of all data Mayra Jewelry holds about you at any time.",
+    "storedHeading": "What we store",
+    "storedBody": "Your Facebook user ID, name, and profile picture (from Facebook sign-in), plus any order details, wishlist items, and contact information you have provided.",
+    "howHeading": "How to request deletion",
+    "howStep1": "Send a message to our Facebook page or email us, with the subject \"Delete my data\". Include the name on the account.",
+    "howStep2": "Alternatively, remove the Mayra app from your Facebook settings: Settings → Apps and Websites → Mayra → Remove. This revokes our access immediately; we will then delete the associated record on our side.",
+    "timelineHeading": "Timeline",
+    "timelineBody": "We will confirm your request within 7 days and complete deletion within 30 days. Encrypted backups containing the data are purged on a rolling 30-day cycle.",
+    "contactHeading": "Contact",
+    "contactBody": "For questions about deletion or to follow up on a request, contact us through our Facebook page or via email."
   },
   "loginForm": {
     "facebook": "Sign in with Facebook",

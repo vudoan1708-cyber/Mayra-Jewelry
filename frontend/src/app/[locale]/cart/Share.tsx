@@ -45,7 +45,7 @@ export default function Share({ encodedId, itemName, itemAmount, itemVariation }
         clearTimeout(timeout);
       }, 1000);
       return true;
-    } catch (err) {
+    } catch {
       setCopyState(false);
       return false;
     }

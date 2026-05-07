@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { LinkButton } from '../Button';
 import LocaleSwitcher from '../LocaleSwitcher';
 
 export default function Footer() {
@@ -60,6 +61,22 @@ export default function Footer() {
 
         <div className="mt-10 pt-5 -mx-6 sm:-mx-10 px-6 sm:px-10 border-t border-accent-500/15 flex flex-col sm:flex-row justify-between items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-accent-100/50">
           <p>© {year} {t('rights')}</p>
+          <nav className="flex items-center gap-5">
+            <LinkButton
+              variant="tertiary"
+              href="/privacy"
+              className="!text-accent-300 hover:!text-accent-100"
+            >
+              {t('privacy')}
+            </LinkButton>
+            <LinkButton
+              variant="tertiary"
+              href="/delete"
+              className="!text-accent-300 hover:!text-accent-100"
+            >
+              {t('deleteData')}
+            </LinkButton>
+          </nav>
           <p>{t('craft')}</p>
         </div>
       </div>

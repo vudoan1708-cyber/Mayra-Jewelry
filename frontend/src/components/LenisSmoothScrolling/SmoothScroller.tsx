@@ -35,11 +35,11 @@ export default function SmoothScroller() {
     // 👇 Tell GSAP to use Lenis as the scroller
     ScrollTrigger.scrollerProxy(document.body, {
       scrollTop(value) {
-        if (arguments.length) {
+        if (arguments.length && typeof value === 'number') {
           lenis.scrollTo(value);
-        } else {
-          return lenis.scroll;
+          return;
         }
+        return lenis.scroll;
       },
       getBoundingClientRect() {
         return {

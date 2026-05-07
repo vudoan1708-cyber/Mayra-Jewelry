@@ -11,8 +11,8 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 
 import NavItem from './NavItem';
+import Button from '../Button';
 import LocaleSwitcher from '../LocaleSwitcher';
-import { getLenis } from '../LenisSmoothScrolling/SmoothScroller';
 import { useRouter, usePathname } from '../../i18n/navigation';
 import { SAVE_TO_CART } from '../../helpers';
 import { useCartCount } from '../../stores/CartCountProvider';
@@ -23,8 +23,8 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
   const locale = useLocale();
   const session = useSession();
   const navGridCols = locale === 'vi'
-    ? 'sm:[grid-template-columns:repeat(4,125px)_150px]'
-    : 'sm:[grid-template-columns:repeat(4,100px)_125px]';
+    ? 'min-[900px]:[grid-template-columns:repeat(4,125px)_150px]'
+    : 'min-[900px]:[grid-template-columns:repeat(4,100px)_125px]';
   const router = useRouter();
   const pathname = usePathname();
   const { items, setTo } = useCartCount();
@@ -83,13 +83,10 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
 
   useEffect(() => {
     if (!mobileOpen) return;
-    const lenis = getLenis();
-    lenis?.stop();
     const preventTouch = (e: TouchEvent) => e.preventDefault();
     document.addEventListener('touchmove', preventTouch, { passive: false });
     return () => {
       document.removeEventListener('touchmove', preventTouch);
-      lenis?.start();
     };
   }, [mobileOpen]);
   return (
@@ -132,7 +129,7 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
             MAYRA
           </span>
         </motion.button>
-        <ul className={`hidden sm:w-full sm:grid ${navGridCols} sm:gap-x-3 sm:justify-center sm:items-center`}>
+        <ul className={`hidden min-[900px]:w-full min-[900px]:grid ${navGridCols} min-[900px]:gap-x-3 min-[900px]:justify-center min-[900px]:items-center`}>
           <NavItem href="/">
             <House {...fillWhenActive('/')} />
             {t('home')}
@@ -215,22 +212,23 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
             }
           </NavItem>
         </ul>
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden min-[900px]:block">
           <LocaleSwitcher />
         </div>
-        <button
-          type="button"
+        <Button
+          variant="tertiary"
           aria-label="Open menu"
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav-drawer"
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => setMobileOpen(true)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 sm:hidden text-accent-200 hover:text-accent-300 transition-colors p-1.5 cursor-pointer"
+          className="absolute right-4 top-1/2 -translate-y-1/2 min-[900px]:hidden !text-accent-200 hover:!text-accent-300 !p-1.5 cursor-pointer"
         >
           <Menu className="size-6" />
-        </button>
+        </Button>
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-500/35 to-transparent" />
       </motion.nav>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[60] sm:hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[60] min-[900px]:hidden">
         <AnimatePresence>
           {mobileOpen && (
             <>
