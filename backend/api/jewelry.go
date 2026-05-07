@@ -116,6 +116,7 @@ func getMediaFilesAndUpdateResponsePayload(w http.ResponseWriter, jewelryItems [
 			Currency:          item.Currency,
 			InStock:           item.InStock,
 			Giftable:          item.Giftable,
+			Translations:      item.Translations,
 			Prices:            item.Prices,
 		}
 

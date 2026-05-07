@@ -41,11 +41,10 @@ type Order struct {
 }
 
 type Buyer struct {
-	Id           string            `json:"id" gorm:"primaryKey"` // Social media platform provided IDs (e.g. Facebook user id)
-	Wishlist     []JewelryItemInfo `json:"wishlist" gorm:"many2many:buyer_wishlists;joinForeignKey:BuyerId;joinReferences:JewelryId"`
-	OrderHistory []Order           `json:"orderHistory" gorm:"foreignKey:BuyerId;references:Id"`
-	Tier         Tier              `json:"tier" gorm:"column:tier"`
-	MayraPoint   float32           `json:"mayraPoint" gorm:"column:mayraPoint"`
+	Id           string  `json:"id" gorm:"primaryKey"` // Social media platform provided IDs (e.g. Facebook user id)
+	OrderHistory []Order `json:"orderHistory" gorm:"foreignKey:BuyerId;references:Id"`
+	Tier         Tier    `json:"tier" gorm:"column:tier"`
+	MayraPoint   float32 `json:"mayraPoint" gorm:"column:mayraPoint"`
 }
 
 func (Buyer) TableName() string {

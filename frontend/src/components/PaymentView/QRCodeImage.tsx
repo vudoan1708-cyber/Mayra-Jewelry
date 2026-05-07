@@ -107,7 +107,7 @@ export default function QRCodeImage({
               </Button>
               <Button
                 variant="primary"
-                className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_5px_var(--accent-500)] text-xs uppercase tracking-[0.25em] py-2"
+                className="text-xs py-2"
                 onClick={() => { router.push(`/account?autoSignin=true&from=${window.btoa(window.location.href)}`); }}
               >
                 {t('signIn')}
@@ -119,7 +119,6 @@ export default function QRCodeImage({
       <div className="flex gap-1 items-center justify-center w-full">
         <Button
           variant="primary"
-          className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_8px_var(--accent-500)] uppercase tracking-[0.25em] text-sm py-3 px-6"
           onClick={() => { setOpenConfirmModal(true); }}
         >
           {t('confirmTransfer')}
@@ -149,7 +148,7 @@ export default function QRCodeImage({
               </Button>
               <Button
                 variant="primary"
-                className="!bg-accent-300 !text-brand-700 hover:!bg-accent-200 hover:!shadow-[2px_2px_5px_var(--accent-500)] text-xs uppercase tracking-[0.25em] py-2 px-4"
+                className="text-xs py-2 px-4 hover:!shadow-none"
                 disabled={disabled || verifying}
                 working={verifying}
                 onClick={() => { sendConfirmation(); }}

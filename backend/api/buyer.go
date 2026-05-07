@@ -25,7 +25,7 @@ import (
 )
 
 func getOneBuyer(db *gorm.DB, buyerId string, buyerModel *models.Buyer, selector string) error {
-	return db.Model(&models.Buyer{}).Preload("Wishlist.Prices").Preload("Wishlist").Preload("OrderHistory").
+	return db.Model(&models.Buyer{}).Preload("OrderHistory").
 		Where(&models.Buyer{Id: buyerId}).
 		Select(selector).
 		First(&buyerModel).Error
@@ -74,229 +74,8 @@ func GetBuyer(w http.ResponseWriter, r *http.Request) {
 		middleware.HandleErrorResponse(w, statusCode, err_string)
 		return
 	}
-	response := []models.Metadata{}
-
-	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
-
-	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-		metadata, ok := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
-			return resItem.DirectoryId == item.DirectoryId
-		})
-		if ok {
-			pointer := *metadata
-			item.Media = append(item.Media, pointer.Media...)
-			return item
-		} else {
-			return models.JewelryItemInfo{}
-		}
-	})
 
 	middleware.HandleResponse(w, buyer)
-}
-
-func AddToBuyerWishlist(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
-		return
-	}
-
-	r.ParseMultipartForm(10 << 20)
-
-	data := r.MultipartForm.Value
-
-	if len(data) == 0 {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing")
-		return
-	}
-	if data["buyerId"] == nil || data["buyerId"][0] == "" {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "buyerId is missing from the payload")
-		return
-	}
-	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "wishlistItems is missing from the payload")
-		return
-	}
-
-	jewelryItems := []models.JewelryItemInfo{}
-	if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
-		return
-	}
-
-	// Step 1: Get Jewelry items by Directory IDs
-	if get_err := database.DatabaseInstance.Gorm.Model(&jewelryItems).
-		Where(helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-			return models.JewelryItemInfo{DirectoryId: item.DirectoryId}
-		})).
-		Find(&jewelryItems).Error; get_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_err.Error())
-		return
-	}
-
-	// Step 2: Add those items to wishlist
-	buyerId := data["buyerId"][0]
-	buyer := models.Buyer{}
-	// Get a buyer with a provided ID
-	if get_error := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "*"); get_error != nil {
-		log.Printf("Cannot get the buyer with ID: %s. Reason: %s", buyerId, get_error.Error())
-		// If error, it's likely that the user doesn't exist
-		if strings.Contains(get_error.Error(), "not found") {
-			if create_err := createNewUser(database.DatabaseInstance.Gorm, &buyer, data); create_err != nil {
-				middleware.HandleErrorResponse(w, http.StatusInternalServerError, create_err.Error())
-				return
-			}
-		} else {
-			middleware.HandleErrorResponse(w, http.StatusInternalServerError, get_error.Error())
-			return
-		}
-	}
-
-	if update_err := database.DatabaseInstance.Gorm.Model(&buyer).Association("Wishlist").Append(jewelryItems); update_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, update_err.Error())
-		return
-	}
-	middleware.HandleResponse(w, buyer)
-}
-
-func RemoveFromBuyerWishlist(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
-		return
-	}
-
-	r.ParseMultipartForm(10 << 20)
-
-	data := r.MultipartForm.Value
-
-	if len(data) == 0 {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, "Payload is missing")
-		return
-	}
-
-	var missingFields []string
-	if data["buyerId"] == nil || data["buyerId"][0] == "" {
-		missingFields = append(missingFields, "buyerId")
-	}
-	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
-		missingFields = append(missingFields, "wishlistItems")
-	}
-	if len(missingFields) > 0 {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("%s field(s) missing from payload", strings.Join(missingFields, ", ")))
-		return
-	}
-
-	jewelryItems := []models.JewelryItemInfo{}
-	if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
-		return
-	}
-
-	directoryIds := helpers.MapFunc(jewelryItems, func(item models.JewelryItemInfo, _ int) string {
-		return item.DirectoryId
-	})
-
-	buyerId := data["buyerId"][0]
-	if delete_err := database.DatabaseInstance.Gorm.Table("buyer_wishlists").
-		Where("\"buyer_id\" = ?", buyerId).
-		Where("\"jewelry_id\" IN ?", directoryIds).
-		Delete(nil).Error; delete_err != nil {
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, delete_err.Error())
-		return
-	}
-
-	middleware.HandleResponse(w, nil)
-}
-
-func CheckIfItemInWishlist(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
-		return
-	}
-	vars := mux.Vars(r)
-	buyerId := vars["buyerId"]
-	directoryId := vars["directoryId"]
-
-	var missingFields []string
-	if buyerId == "" {
-		missingFields = append(missingFields, "buyerId")
-	}
-	if directoryId == "" {
-		missingFields = append(missingFields, "directoryId")
-	}
-
-	if len(missingFields) > 0 {
-		middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("%s field(s) missing from payload", strings.Join(missingFields, ", ")))
-		return
-	}
-
-	response := map[string]any{}
-	if get_err := database.DatabaseInstance.Gorm.Table("buyer_wishlists").
-		Where("\"buyer_id\" = ?", buyerId).
-		Where("\"jewelry_id\" = ?", directoryId).
-		Limit(1).
-		Scan(&response).Error; get_err != nil {
-		err_string := get_err.Error()
-		if strings.Contains(err_string, "not found") {
-			log.Printf("Cannot get a row from buyer_wishlists table. Possibly due to no record for the given parameters found. Reason: %s", err_string)
-			middleware.HandleResponse(w, map[string]any{
-				"found": false,
-			})
-			return
-		}
-		middleware.HandleErrorResponse(w, http.StatusInternalServerError, err_string)
-		return
-	}
-	if len(response) == 0 {
-		middleware.HandleResponse(w, map[string]any{
-			"found": false,
-		})
-		return
-	}
-	middleware.HandleResponse(w, map[string]any{
-		"found": true,
-	})
-}
-
-func GetBuyerWishlist(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		middleware.HandleErrorResponse(w, http.StatusMethodNotAllowed, "Wrong method")
-		return
-	}
-
-	vars := mux.Vars(r)
-
-	buyerId := vars["buyerId"]
-
-	buyer := models.Buyer{}
-	if err := getOneBuyer(database.DatabaseInstance.Gorm, buyerId, &buyer, "id"); err != nil {
-		err_string := err.Error()
-		var statusCode int = http.StatusInternalServerError
-		if strings.Contains(err_string, "not found") {
-			statusCode = http.StatusBadRequest
-			err_string = fmt.Sprintf("buyer Id: %s might not exist. %s", buyerId, err_string)
-		}
-		middleware.HandleErrorResponse(w, statusCode, err_string)
-		return
-	}
-
-	response := []models.Metadata{}
-
-	getMediaFilesAndUpdateResponsePayload(w, buyer.Wishlist, &response)
-
-	buyer.Wishlist = helpers.MapFunc(buyer.Wishlist, func(item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-		metadata, ok := helpers.FindFunc(response, func(resItem models.Metadata, _ int) bool {
-			return resItem.DirectoryId == item.DirectoryId
-		})
-		if ok {
-			pointer := *metadata
-			item.Media = append(item.Media, pointer.Media...)
-			return item
-		} else {
-			return models.JewelryItemInfo{}
-		}
-	})
-
-	middleware.HandleResponse(w, buyer.Wishlist)
 }
 
 func createNewUser(tx *gorm.DB, buyer *models.Buyer, data map[string][]string) error {
@@ -362,30 +141,6 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 	}
 	buyerId := data["id"][0]
 
-	// Jewelry Item check
-	jewelryItems := []models.JewelryItemInfo{}
-	if data["wishlistItems"] == nil || data["wishlistItems"][0] == "" {
-		log.Printf("Payload is missing wishlistItems but is non-critical")
-	} else {
-		if cast_err := helpers.CastStringToAnyType(data["wishlistItems"][0], &jewelryItems); cast_err != nil {
-			middleware.HandleErrorResponse(w, http.StatusInternalServerError, cast_err.Error())
-			return
-		}
-	}
-
-	// If data is passed through and is valid
-	if len(jewelryItems) > 0 {
-		if err := database.DatabaseInstance.Gorm.
-			Preload("Prices").Model([]models.JewelryItemInfo{}).
-			Where(helpers.MapFunc(jewelryItems, func(__item models.JewelryItemInfo, _ int) models.JewelryItemInfo {
-				return models.JewelryItemInfo{DirectoryId: __item.DirectoryId}
-			})).
-			First(&jewelryItems).Error; err != nil {
-			middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("Cannot get the jewelry info data: %s", err.Error()))
-			return
-		}
-	}
-
 	var buyer models.Buyer
 
 	if txn_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
@@ -395,11 +150,7 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 				if create_err := createNewUser(tx, &buyer, data); create_err != nil {
 					return create_err
 				}
-
-				// Add a wishlist
-				if len(jewelryItems) > 0 {
-					return tx.Model(&buyer).Association("Wishlist").Append(jewelryItems)
-				}
+				return nil
 			}
 			return query_err
 		}
@@ -408,21 +159,13 @@ func UpsertBuyerDetails(w http.ResponseWriter, r *http.Request) {
 		updatedData := map[string]any{}
 		var selectedKeys []string
 		for key, value := range data {
-			if key == "wishlistItems" {
-				continue
-			}
 			selectedKeys = append(selectedKeys, key)
 			updatedData[key] = value[0]
 		}
-		if update_err := tx.Model(&models.Buyer{}).
+		return tx.Model(&models.Buyer{}).
 			Where(&models.Buyer{Id: buyerId}).
 			Select(selectedKeys).
-			Updates(updatedData).Error; update_err != nil {
-			return update_err
-		}
-		buyer := models.Buyer{}
-		// Add a wishlist
-		return tx.Model(&buyer).Where(&models.Buyer{Id: buyerId}).First(&buyer).Association("Wishlist").Append(jewelryItems)
+			Updates(updatedData).Error
 	}); txn_err != nil {
 		middleware.HandleErrorResponse(w, http.StatusInternalServerError, txn_err.Error())
 		return

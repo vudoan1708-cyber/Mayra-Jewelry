@@ -84,14 +84,16 @@ nav {
   position: -webkit-sticky;
 }
 
-a {
-  font-weight: 500;
-  color: var(--brand-500);
-  text-decoration: underline;
-  cursor: pointer;
-}
-a:hover {
-  color: var(--brand-400);
+@layer base {
+  a {
+    font-weight: 500;
+    color: var(--brand-500);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  a:hover {
+    color: var(--brand-400);
+  }
 }
 
 h1 {
@@ -100,11 +102,6 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: border-color 0.25s;
@@ -119,12 +116,15 @@ input[type="checkbox"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 input[type="checkbox"]:checked::after {
   content: "🎁";
-  position: relative;
-  top: 0;
-  left: 2px;
+  display: inline-block;
+  line-height: 1;
 }
 
 input[type="checkbox"] {

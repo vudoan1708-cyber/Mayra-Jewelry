@@ -4,29 +4,67 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-import { Plus, Trash2, Upload, X } from 'lucide-react';
+import { ChevronDown, Plus, Trash2, Upload, X } from 'lucide-react';
 
+import Button from '../../../components/Button';
 import AdminShell from '../AdminShell';
 import AutoTextarea from '../AutoTextarea';
-import Preview from './Preview';
+import CropModal, { type CropRect } from './CropModal';
+import Preview, { type DetailImage } from './Preview';
+import {
+  adminCardPadded,
+  adminEyebrow,
+  adminGhostButton,
+  adminInput,
+  adminLabel,
+  adminLabelText,
+  adminPageEyebrow,
+  adminPageHeading,
+  adminSectionTitle,
+  adminTextarea,
+} from '../styles';
 import {
   type AdminJewelry,
   type AdminJewelryPrice,
+  type JewelryTranslation,
+  type JewelryTranslations,
   createAdminJewelry,
   deleteAdminJewelryMedia,
   getAdminJewelry,
   updateAdminJewelry,
   uploadAdminJewelryMedia,
 } from '../api';
+import { extraFieldName, isBrowseThumbnailKey, isDetailThumbnailKey, parseExtraField } from '../../../helpers';
 
-type ImageSlot =
+const THUMBNAIL_BROWSE = 'thumbnail-browse';
+const THUMBNAIL_DETAIL = 'thumbnail-detail';
+
+const ASPECT_BROWSE = 4 / 5;
+const ASPECT_DETAIL = 1;
+const ASPECT_EXTRA = 1;
+
+type Variant =
   | { kind: 'existing'; url: string; fileName: string }
-  | { kind: 'new'; file: File; blobUrl: string }
-  | null;
+  | { kind: 'new'; file: File; blobUrl: string; rect?: CropRect };
 
-type ExtraSlot =
-  | { kind: 'existing'; url: string; fileName: string; key: string }
-  | { kind: 'new'; file: File; blobUrl: string; key: string };
+type ThumbnailState = null | {
+  source: { file: File; blobUrl: string } | null;
+  browse: Variant;
+  detail: Variant | null;
+};
+
+type ExtraSlot = {
+  key: string;
+  variation: AdminJewelryPrice['variation'];
+  source: { file: File; blobUrl: string } | null;
+  variant: Variant;
+};
+
+type TranslationDraft = {
+  itemName: string;
+  description: string;
+  featureCollection: string;
+};
 
 type EditorState = {
   itemName: string;
@@ -34,10 +72,27 @@ type EditorState = {
   featureCollection: string;
   giftable: boolean;
   prices: AdminJewelryPrice[];
-  thumbnail: ImageSlot;
+  thumbnail: ThumbnailState;
   extras: ExtraSlot[];
   removedFileNames: string[];
+  translations: Record<string, TranslationDraft>;
 };
+
+const SUPPORTED_LOCALES: Array<{ code: string; label: string }> = [
+  { code: 'en', label: 'English' },
+];
+
+const emptyTranslation = (): TranslationDraft => ({ itemName: '', description: '', featureCollection: '' });
+
+const defaultTranslations = (): Record<string, TranslationDraft> =>
+  SUPPORTED_LOCALES.reduce<Record<string, TranslationDraft>>((acc, l) => {
+    acc[l.code] = emptyTranslation();
+    return acc;
+  }, {});
+
+type CropTarget =
+  | { kind: 'thumbnail'; variant: 'browse' | 'detail' }
+  | { kind: 'extra'; key: string };
 
 const VARIATIONS: AdminJewelryPrice['variation'][] = ['Silver', 'Gold', 'White Gold'];
 
@@ -50,6 +105,7 @@ const defaultState: EditorState = {
   thumbnail: null,
   extras: [],
   removedFileNames: [],
+  translations: defaultTranslations(),
 };
 
 const makeId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -60,17 +116,91 @@ const stripPrefix = (fileName: string, directoryId: string) => {
   return parts[parts.length - 1];
 };
 
+const variantUrl = (v: Variant) => (v.kind === 'existing' ? v.url : v.blobUrl);
+
+const detailDisplayUrl = (t: NonNullable<ThumbnailState>): string => {
+  if (t.detail) return variantUrl(t.detail);
+  if (t.source) return t.source.blobUrl;
+  return variantUrl(t.browse);
+};
+
+const sourceDisplayUrlOf = (t: NonNullable<ThumbnailState>): string => {
+  if (t.source) return t.source.blobUrl;
+  return variantUrl(t.browse);
+};
+
+const hydratePrices = (item: AdminJewelry): AdminJewelryPrice[] => {
+  if (item.prices.length === 0) return defaultState.prices;
+  const fallback = item.currency || 'VND';
+  return item.prices.map((p) => ({ ...p, currency: p.currency || fallback }));
+};
+
+const hydrateTranslations = (
+  translations: AdminJewelry['translations'] | undefined,
+): Record<string, TranslationDraft> => {
+  const seeded = defaultTranslations();
+  if (!translations) return seeded;
+  for (const { code } of SUPPORTED_LOCALES) {
+    const t = translations[code];
+    if (!t) continue;
+    seeded[code] = {
+      itemName: t.itemName ?? '',
+      description: t.description ?? '',
+      featureCollection: t.featureCollection ?? '',
+    };
+  }
+  return seeded;
+};
+
+const serializeTranslations = (drafts: Record<string, TranslationDraft>): JewelryTranslations => {
+  const out: JewelryTranslations = {};
+  for (const [code, draft] of Object.entries(drafts)) {
+    const entry: JewelryTranslation = {};
+    if (draft.itemName.trim()) entry.itemName = draft.itemName.trim();
+    if (draft.description.trim()) entry.description = draft.description.trim();
+    if (draft.featureCollection.trim()) entry.featureCollection = draft.featureCollection.trim();
+    if (Object.keys(entry).length > 0) out[code] = entry;
+  }
+  return out;
+};
+
+const pickDetailUploadFile = (t: ThumbnailState): File | null => {
+  if (!t) return null;
+  if (t.detail?.kind === 'new') return t.detail.file;
+  if (!t.detail && t.source) return t.source.file;
+  return null;
+};
+
 const mediaToState = (item: AdminJewelry): Pick<EditorState, 'thumbnail' | 'extras'> => {
-  let thumbnail: ImageSlot = null;
+  const browseM = item.media.find((m) => isBrowseThumbnailKey(m.fileName));
+  const detailM = item.media.find((m) => isDetailThumbnailKey(m.fileName));
+  const thumbnail: ThumbnailState = browseM
+    ? {
+        source: null,
+        browse: { kind: 'existing', url: browseM.url, fileName: browseM.fileName },
+        detail: detailM
+          ? { kind: 'existing', url: detailM.url, fileName: detailM.fileName }
+          : null,
+      }
+    : null;
+  const fallbackVariation = item.prices[0]?.variation ?? 'Silver';
   const extras: ExtraSlot[] = [];
-  item.media.forEach((m, idx) => {
-    if (m.fileName.endsWith('file-thumbnail')) {
-      thumbnail = { kind: 'existing', url: m.url, fileName: m.fileName };
-    } else {
-      extras.push({ kind: 'existing', url: m.url, fileName: m.fileName, key: `existing-${idx}` });
-    }
+  item.media.forEach((m) => {
+    if (isBrowseThumbnailKey(m.fileName) || isDetailThumbnailKey(m.fileName)) return;
+    const parsed = parseExtraField(m.fileName);
+    extras.push({
+      key: makeId(),
+      variation: parsed?.variation ?? fallbackVariation,
+      source: null,
+      variant: { kind: 'existing', url: m.url, fileName: m.fileName },
+    });
   });
   return { thumbnail, extras };
+};
+
+const aspectFor = (target: CropTarget): number => {
+  if (target.kind === 'extra') return ASPECT_EXTRA;
+  return target.variant === 'browse' ? ASPECT_BROWSE : ASPECT_DETAIL;
 };
 
 export default function JewelryEditor({ directoryId }: { directoryId?: string }) {
@@ -82,6 +212,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
   const blobUrlsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -103,10 +234,11 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           description: item.description,
           featureCollection: item.featureCollection,
           giftable: item.giftable,
-          prices: item.prices.length > 0 ? item.prices : defaultState.prices,
+          prices: hydratePrices(item),
           thumbnail,
           extras,
           removedFileNames: [],
+          translations: hydrateTranslations(item.translations),
         });
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Could not load'))
@@ -122,24 +254,36 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
     const blobUrl = URL.createObjectURL(file);
     trackBlob(blobUrl);
     setState((s) => {
-      const removed = [...s.removedFileNames];
-      if (s.thumbnail?.kind === 'existing') removed.push(s.thumbnail.fileName);
+      let removed = s.removedFileNames;
+      if (s.thumbnail) {
+        if (s.thumbnail.browse.kind === 'existing') removed = [...removed, s.thumbnail.browse.fileName];
+        if (s.thumbnail.detail?.kind === 'existing') removed = [...removed, s.thumbnail.detail.fileName];
+      }
       return {
         ...s,
-        thumbnail: { kind: 'new', file, blobUrl },
+        thumbnail: {
+          source: { file, blobUrl },
+          browse: { kind: 'new', file, blobUrl },
+          detail: null,
+        },
         removedFileNames: removed,
       };
     });
   };
 
-  const onAddExtras = (files: FileList | null) => {
+  const onAddExtras = (variation: AdminJewelryPrice['variation'], files: FileList | null) => {
     if (!files || files.length === 0) return;
     const additions: ExtraSlot[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const blobUrl = URL.createObjectURL(file);
       trackBlob(blobUrl);
-      additions.push({ kind: 'new', file, blobUrl, key: makeId() });
+      additions.push({
+        key: makeId(),
+        variation,
+        source: { file, blobUrl },
+        variant: { kind: 'new', file, blobUrl },
+      });
     }
     setState((s) => ({ ...s, extras: [...s.extras, ...additions] }));
   };
@@ -148,14 +292,90 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
     setState((s) => {
       const removing = s.extras.find((e) => e.key === key);
       if (!removing) return s;
-      const removedFileNames = [...s.removedFileNames];
-      if (removing.kind === 'existing') removedFileNames.push(removing.fileName);
+      let removedFileNames = s.removedFileNames;
+      if (removing.variant.kind === 'existing') {
+        removedFileNames = [...removedFileNames, removing.variant.fileName];
+      }
       return {
         ...s,
         extras: s.extras.filter((e) => e.key !== key),
         removedFileNames,
       };
     });
+  };
+
+  const rectFor = (target: CropTarget): CropRect | undefined => {
+    if (target.kind === 'thumbnail') {
+      const t = state.thumbnail;
+      if (!t) return undefined;
+      const v = target.variant === 'browse' ? t.browse : t.detail;
+      if (v && v.kind === 'new') return v.rect;
+      return undefined;
+    }
+    const slot = state.extras.find((e) => e.key === target.key);
+    if (!slot || slot.variant.kind !== 'new') return undefined;
+    return slot.variant.rect;
+  };
+
+  const sourceFileFor = (target: CropTarget): File | null => {
+    if (target.kind === 'thumbnail') {
+      const t = state.thumbnail;
+      if (!t) return null;
+      if (t.source) return t.source.file;
+      const v = target.variant === 'browse' ? t.browse : (t.detail ?? t.browse);
+      return v.kind === 'new' ? v.file : null;
+    }
+    const slot = state.extras.find((e) => e.key === target.key);
+    if (!slot) return null;
+    if (slot.source) return slot.source.file;
+    return slot.variant.kind === 'new' ? slot.variant.file : null;
+  };
+
+  const onCropConfirm = (cropped: File, rect: CropRect) => {
+    if (!cropTarget) return;
+    const blobUrl = URL.createObjectURL(cropped);
+    trackBlob(blobUrl);
+    setState((s) => {
+      if (cropTarget.kind === 'thumbnail') {
+        if (!s.thumbnail) return s;
+        let removed = s.removedFileNames;
+        if (cropTarget.variant === 'browse') {
+          if (s.thumbnail.browse.kind === 'existing') {
+            removed = [...removed, s.thumbnail.browse.fileName];
+          }
+          return {
+            ...s,
+            thumbnail: {
+              ...s.thumbnail,
+              browse: { kind: 'new', file: cropped, blobUrl, rect },
+            },
+            removedFileNames: removed,
+          };
+        }
+        if (s.thumbnail.detail?.kind === 'existing') {
+          removed = [...removed, s.thumbnail.detail.fileName];
+        }
+        return {
+          ...s,
+          thumbnail: {
+            ...s.thumbnail,
+            detail: { kind: 'new', file: cropped, blobUrl, rect },
+          },
+          removedFileNames: removed,
+        };
+      }
+      const targetKey = cropTarget.key;
+      let removed = s.removedFileNames;
+      const next = s.extras.map((extra) => {
+        if (extra.key !== targetKey) return extra;
+        if (extra.variant.kind === 'existing') {
+          removed = [...removed, extra.variant.fileName];
+        }
+        return { ...extra, variant: { kind: 'new' as const, file: cropped, blobUrl, rect } };
+      });
+      return { ...s, extras: next, removedFileNames: removed };
+    });
+    setCropTarget(null);
   };
 
   const updatePrice = (idx: number, patch: Partial<AdminJewelryPrice>) => {
@@ -176,7 +396,46 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
   };
 
   const removePrice = (idx: number) => {
-    setState((s) => ({ ...s, prices: s.prices.filter((_, i) => i !== idx) }));
+    setState((s) => {
+      const removed = s.prices[idx]?.variation;
+      if (!removed) return s;
+      const remaining = s.extras.filter((e) => e.variation !== removed);
+      const orphaned = s.extras.filter((e) => e.variation === removed);
+      const removedFileNames = [
+        ...s.removedFileNames,
+        ...orphaned
+          .filter((e): e is ExtraSlot & { variant: { kind: 'existing'; fileName: string; url: string } } =>
+            e.variant.kind === 'existing',
+          )
+          .map((e) => e.variant.fileName),
+      ];
+      return {
+        ...s,
+        prices: s.prices.filter((_, i) => i !== idx),
+        extras: remaining,
+        removedFileNames,
+      };
+    });
+  };
+
+  const appendImageFields = (fd: FormData): boolean => {
+    let hasNew = false;
+    if (state.thumbnail?.browse.kind === 'new') {
+      fd.append(THUMBNAIL_BROWSE, state.thumbnail.browse.file);
+      hasNew = true;
+    }
+    const detailFile = pickDetailUploadFile(state.thumbnail);
+    if (detailFile) {
+      fd.append(THUMBNAIL_DETAIL, detailFile);
+      hasNew = true;
+    }
+    state.extras.forEach((extra) => {
+      if (extra.variant.kind === 'new') {
+        fd.append(extraFieldName(extra.variation, extra.key), extra.variant.file);
+        hasNew = true;
+      }
+    });
+    return hasNew;
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -193,6 +452,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
     setError(null);
     setSuccess(null);
     try {
+      const translationsPayload = serializeTranslations(state.translations);
       if (!isEdit) {
         const fd = new FormData();
         fd.append('itemName', state.itemName);
@@ -202,12 +462,8 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
         fd.append('currency', state.prices[0]?.currency ?? 'VND');
         fd.append('prices', JSON.stringify(state.prices));
         fd.append('type', 'ring');
-        if (state.thumbnail?.kind === 'new') {
-          fd.append('file-thumbnail', state.thumbnail.file);
-        }
-        state.extras.forEach((extra) => {
-          if (extra.kind === 'new') fd.append(`extra-${extra.key}`, extra.file);
-        });
+        fd.append('translations', JSON.stringify(translationsPayload));
+        appendImageFields(fd);
         const res = await createAdminJewelry(fd);
         const newId = res?.directoryId;
         if (newId) {
@@ -221,6 +477,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           description: state.description,
           featureCollection: state.featureCollection,
           giftable: state.giftable,
+          translations: translationsPayload,
           prices: state.prices.map((p) => ({
             variation: p.variation,
             amount: p.amount,
@@ -235,18 +492,9 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
         }
 
         const fd = new FormData();
-        let hasNew = false;
-        if (state.thumbnail?.kind === 'new') {
-          fd.append('file-thumbnail', state.thumbnail.file);
-          hasNew = true;
+        if (appendImageFields(fd)) {
+          await uploadAdminJewelryMedia(directoryId!, fd);
         }
-        state.extras.forEach((extra) => {
-          if (extra.kind === 'new') {
-            fd.append(`extra-${extra.key}`, extra.file);
-            hasNew = true;
-          }
-        });
-        if (hasNew) await uploadAdminJewelryMedia(directoryId!, fd);
 
         setSuccess('Saved.');
         const refreshed = await getAdminJewelry(directoryId!);
@@ -266,122 +514,246 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
     ? 0
     : state.prices.reduce((acc, p) => Math.min(acc, p.amount), state.prices[0].amount);
   const previewCurrency = state.prices[0]?.currency || 'VND';
-  const thumbnailUrl = state.thumbnail
-    ? state.thumbnail.kind === 'existing' ? state.thumbnail.url : state.thumbnail.blobUrl
-    : null;
-  const extraImageUrls = state.extras.map((e) => e.kind === 'existing' ? e.url : e.blobUrl);
+
+  const browseUrl = state.thumbnail ? variantUrl(state.thumbnail.browse) : null;
+  const sourceDisplayUrl = state.thumbnail ? sourceDisplayUrlOf(state.thumbnail) : null;
+  const detailThumbUrl = state.thumbnail ? detailDisplayUrl(state.thumbnail) : null;
+  const browseCanCrop = sourceFileFor({ kind: 'thumbnail', variant: 'browse' }) !== null;
+  const detailThumbCanCrop = sourceFileFor({ kind: 'thumbnail', variant: 'detail' }) !== null;
+  const heroEntry = detailThumbUrl
+    ? [
+        {
+          key: '__thumb-detail',
+          url: detailThumbUrl,
+          target: detailThumbCanCrop
+            ? ({ kind: 'thumbnail', variant: 'detail' } as const)
+            : undefined,
+        },
+      ]
+    : [];
+
+  const detailImagesByVariation: Record<string, DetailImage[]> = {};
+  state.prices.forEach((price, idx) => {
+    const extrasForThisVariation = state.extras
+      .filter((e) => e.variation === price.variation)
+      .map((e) => ({
+        key: e.key,
+        url: variantUrl(e.variant),
+        target: sourceFileFor({ kind: 'extra', key: e.key }) !== null
+          ? ({ kind: 'extra', key: e.key } as const)
+          : undefined,
+      }));
+    detailImagesByVariation[price.variation] = idx === 0
+      ? [...heroEntry, ...extrasForThisVariation]
+      : extrasForThisVariation;
+  });
+  const previewVariations = state.prices.map((p) => p.variation);
+  const pricesByVariation = state.prices.reduce<
+    Partial<Record<AdminJewelryPrice['variation'], { amount: number; currency: string }>>
+  >((acc, p) => {
+    acc[p.variation] = { amount: p.amount, currency: p.currency || 'VND' };
+    return acc;
+  }, {});
+
+  const activeCropFile = cropTarget ? sourceFileFor(cropTarget) : null;
+  const activeCropAspect = cropTarget ? aspectFor(cropTarget) : 1;
+  const activeCropRect = cropTarget ? rectFor(cropTarget) : undefined;
 
   return (
     <AdminShell>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
-        <form onSubmit={onSubmit} className="flex flex-col gap-6">
-          <header className="flex items-center justify-between">
-            <h1 className="text-2xl text-brand-700">{isEdit ? 'Edit piece' : 'New piece'}</h1>
-            <button
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-10">
+        <form onSubmit={onSubmit} className="flex flex-col gap-7">
+          <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <p className={adminPageEyebrow}>{isEdit ? 'Editing piece' : 'New piece'}</p>
+              <h1 className={adminPageHeading}>{state.itemName.trim() || (isEdit ? 'Edit piece' : 'Create a new piece')}</h1>
+            </div>
+            <Button
               type="submit"
+              variant="primary"
               disabled={saving || loading}
-              className="bg-brand-700 text-accent-100 uppercase tracking-[0.2em] text-xs px-5 py-2.5 rounded-md hover:bg-brand-600 disabled:opacity-60 transition-colors"
+              working={saving}
             >
-              {saving ? 'Saving…' : isEdit ? 'Save' : 'Create'}
-            </button>
+              {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create piece'}
+            </Button>
           </header>
 
           {loading ? (
             <p className="text-sm text-brand-500/80">Loading…</p>
           ) : (
             <>
-              <section className="bg-white border border-accent-300/40 rounded-2xl p-6 flex flex-col gap-4">
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-brand-500/80">Item name</span>
+              <section className={adminCardPadded}>
+                <header className="flex flex-col gap-1">
+                  <p className={adminEyebrow}>General</p>
+                  <h2 className={adminSectionTitle}>Item information</h2>
+                </header>
+
+                <label className={adminLabel}>
+                  <span className={adminLabelText}>Item name</span>
                   <input
                     type="text"
                     required
                     value={state.itemName}
                     onChange={(e) => setState((s) => ({ ...s, itemName: e.target.value }))}
-                    className="bg-white border border-accent-300/60 rounded-md px-3 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
+                    className={adminInput}
+                    placeholder="Vĩnh Ngân"
                   />
                 </label>
 
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-brand-500/80">Description</span>
+                <label className={adminLabel}>
+                  <span className={adminLabelText}>Description</span>
                   <AutoTextarea
                     minRows={4}
                     value={state.description}
                     onChange={(e) => setState((s) => ({ ...s, description: e.target.value }))}
-                    className="bg-white border border-accent-300/60 rounded-md px-3 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500 resize-none overflow-hidden leading-6"
+                    className={adminTextarea}
+                    placeholder="A few warm sentences for the storefront…"
                   />
                 </label>
 
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-brand-500/80">Feature collection</span>
-                  <input
-                    type="text"
-                    value={state.featureCollection}
-                    onChange={(e) => setState((s) => ({ ...s, featureCollection: e.target.value }))}
-                    className="bg-white border border-accent-300/60 rounded-md px-3 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
-                  />
-                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <label className={adminLabel}>
+                    <span className={adminLabelText}>Feature collection</span>
+                    <input
+                      type="text"
+                      value={state.featureCollection}
+                      onChange={(e) => setState((s) => ({ ...s, featureCollection: e.target.value }))}
+                      className={adminInput}
+                      placeholder="Optional"
+                    />
+                  </label>
 
-                <label className="flex items-center gap-3 text-sm cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={state.giftable}
-                    onChange={(e) => setState((s) => ({ ...s, giftable: e.target.checked }))}
-                    className="!size-4 accent-brand-700"
-                  />
-                  <span className="text-brand-500/80">Giftable</span>
-                </label>
+                  <div className="flex flex-col gap-1.5 text-sm">
+                    <span className={adminLabelText}>Gifting</span>
+                    <label className="flex items-center gap-2 bg-accent-100/40 border border-accent-300/60 rounded-md px-3.5 h-[42px] cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={state.giftable}
+                        onChange={(e) => setState((s) => ({ ...s, giftable: e.target.checked }))}
+                        className="!w-4 !h-4 !text-xs"
+                      />
+                      <span className="text-sm text-brand-700">
+                        {state.giftable ? 'Eligible for gift wrap' : 'Not giftable'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
               </section>
 
-              <section className="bg-white border border-accent-300/40 rounded-2xl p-6 flex flex-col gap-4">
-                <header className="flex items-center justify-between">
-                  <h2 className="text-base text-brand-700">Prices</h2>
+              {SUPPORTED_LOCALES.map(({ code, label }) => {
+                const draft = state.translations[code];
+                const setField = (field: keyof TranslationDraft, value: string) => {
+                  setState((s) => ({
+                    ...s,
+                    translations: {
+                      ...s.translations,
+                      [code]: { ...s.translations[code], [field]: value },
+                    },
+                  }));
+                };
+                return (
+                  <section key={`translation-${code}`} className={adminCardPadded}>
+                    <header className="flex flex-col gap-1">
+                      <p className={adminEyebrow}>Translation · {code.toUpperCase()}</p>
+                      <h2 className={adminSectionTitle}>{label}</h2>
+                      <p className="text-xs text-brand-500/70">Leave any field blank to fall back to the Vietnamese copy.</p>
+                    </header>
+
+                    <label className={adminLabel}>
+                      <span className={adminLabelText}>Item name</span>
+                      <input
+                        type="text"
+                        value={draft.itemName}
+                        onChange={(e) => setField('itemName', e.target.value)}
+                        className={adminInput}
+                        placeholder="Eternal Silver"
+                      />
+                    </label>
+
+                    <label className={adminLabel}>
+                      <span className={adminLabelText}>Description</span>
+                      <AutoTextarea
+                        minRows={4}
+                        value={draft.description}
+                        onChange={(e) => setField('description', e.target.value)}
+                        className={adminTextarea}
+                        placeholder="A few warm sentences for the storefront…"
+                      />
+                    </label>
+
+                    <label className={adminLabel}>
+                      <span className={adminLabelText}>Feature collection</span>
+                      <input
+                        type="text"
+                        value={draft.featureCollection}
+                        onChange={(e) => setField('featureCollection', e.target.value)}
+                        className={adminInput}
+                        placeholder="Optional"
+                      />
+                    </label>
+                  </section>
+                );
+              })}
+
+              <section className={adminCardPadded}>
+                <header className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className={adminEyebrow}>Variations</p>
+                    <h2 className={adminSectionTitle}>Prices</h2>
+                  </div>
                   <button
                     type="button"
                     onClick={addPrice}
                     disabled={state.prices.length >= VARIATIONS.length}
-                    className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.2em] text-brand-700 hover:text-brand-500 disabled:opacity-40"
+                    className={adminGhostButton}
                   >
                     <Plus className="size-3.5" /> Add variation
                   </button>
                 </header>
-                <ul className="flex flex-col gap-3 list-none p-0 m-0">
+
+                <ul className="flex flex-col gap-4 list-none p-0 m-0">
                   {state.prices.map((price, idx) => (
-                    <li key={`${price.variation}-${idx}`} className="grid grid-cols-[1fr_1fr_90px_80px_auto] gap-2 items-end">
-                      <label className="flex flex-col gap-1 text-xs">
-                        <span className="text-brand-500/70">Variation</span>
-                        <select
-                          value={price.variation}
-                          onChange={(e) => updatePrice(idx, { variation: e.target.value as AdminJewelryPrice['variation'] })}
-                          className="bg-white border border-accent-300/60 rounded-md px-2 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
-                        >
-                          {VARIATIONS.map((v) => (
-                            <option key={v} value={v}>{v}</option>
-                          ))}
-                        </select>
+                    <li
+                      key={`${price.variation}-${idx}`}
+                      className="grid grid-cols-1 sm:grid-cols-[minmax(140px,1fr)_minmax(140px,1fr)_100px_120px_auto] gap-3 items-end"
+                    >
+                      <label className="flex flex-col gap-1.5">
+                        <span className={adminLabelText}>Variation</span>
+                        <span className="relative">
+                          <select
+                            value={price.variation}
+                            onChange={(e) => updatePrice(idx, { variation: e.target.value as AdminJewelryPrice['variation'] })}
+                            className={`${adminInput} appearance-none pr-9`}
+                          >
+                            {VARIATIONS.map((v) => (
+                              <option key={v} value={v}>{v}</option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-brand-500/70 pointer-events-none" />
+                        </span>
                       </label>
-                      <label className="flex flex-col gap-1 text-xs">
-                        <span className="text-brand-500/70">Amount</span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className={adminLabelText}>Amount</span>
                         <input
                           type="number"
                           min={0}
                           required
                           value={price.amount}
                           onChange={(e) => updatePrice(idx, { amount: Number(e.target.value) })}
-                          className="bg-white border border-accent-300/60 rounded-md px-2 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
+                          className={adminInput}
                         />
                       </label>
-                      <label className="flex flex-col gap-1 text-xs">
-                        <span className="text-brand-500/70">Currency</span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className={adminLabelText}>Currency</span>
                         <input
                           type="text"
                           value={price.currency}
                           onChange={(e) => updatePrice(idx, { currency: e.target.value.toUpperCase() })}
-                          className="bg-white border border-accent-300/60 rounded-md px-2 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500 uppercase"
+                          className={`${adminInput} uppercase tracking-wide text-center`}
                         />
                       </label>
-                      <label className="flex flex-col gap-1 text-xs">
-                        <span className="text-brand-500/70">Discount</span>
+                      <label className="flex flex-col gap-1.5">
+                        <span className={adminLabelText}>Discount</span>
                         <input
                           type="number"
                           step="0.01"
@@ -389,93 +761,111 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
                           max={1}
                           value={price.discount}
                           onChange={(e) => updatePrice(idx, { discount: Number(e.target.value) })}
-                          className="bg-white border border-accent-300/60 rounded-md px-2 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
+                          className={adminInput}
                         />
                       </label>
                       <button
                         type="button"
                         onClick={() => removePrice(idx)}
                         disabled={state.prices.length <= 1}
-                        className="size-9 flex items-center justify-center text-brand-500/70 hover:text-red-600 disabled:opacity-30"
+                        className="shrink-0 w-10 h-[42px] flex items-center justify-center rounded-md text-brand-500/70 hover:text-red-600 hover:bg-red-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-brand-500/70 transition-colors"
                         aria-label="Remove price row"
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 width={16} height={16} strokeWidth={1.75} />
                       </button>
                     </li>
                   ))}
                 </ul>
               </section>
 
-              <section className="bg-white border border-accent-300/40 rounded-2xl p-6 flex flex-col gap-4">
-                <h2 className="text-base text-brand-700">Thumbnail</h2>
-                <div className="flex items-start gap-4">
-                  <div className="relative size-32 rounded-md overflow-hidden bg-accent-100 shrink-0">
-                    {thumbnailUrl ? (
-                      <Image src={thumbnailUrl} alt="thumbnail" fill sizes="128px" className="object-cover" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-[10px] text-brand-500/60 px-2 text-center">
-                        No thumbnail
-                      </div>
-                    )}
+              <section className={adminCardPadded}>
+                <header className="flex flex-col gap-1">
+                  <p className={adminEyebrow}>Imagery</p>
+                  <h2 className={adminSectionTitle}>Photos</h2>
+                  <p className="text-xs text-brand-500/70">
+                    Use the preview cards on the right to crop each image for its container.
+                  </p>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-[160px_minmax(0,1fr)] gap-5 items-start">
+                  <div className="flex flex-col gap-2">
+                    <span className={adminLabelText}>Thumbnail</span>
+                    <div className="relative w-40 aspect-square rounded-xl overflow-hidden bg-accent-100 border border-accent-300/60">
+                      {sourceDisplayUrl ? (
+                        <Image src={sourceDisplayUrl} alt="thumbnail" fill sizes="160px" className="object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-[10px] text-brand-500/60 px-2 text-center">
+                          No thumbnail
+                        </div>
+                      )}
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand-700 hover:text-brand-500 cursor-pointer transition-colors self-start">
+                      <Upload className="size-4" />
+                      {state.thumbnail ? 'Replace' : 'Upload'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => onThumbnailChange(e.target.files?.[0] ?? null)}
+                      />
+                    </label>
                   </div>
-                  <label className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand-700 hover:text-brand-500 cursor-pointer">
-                    <Upload className="size-4" />
-                    {state.thumbnail ? 'Replace' : 'Upload'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => onThumbnailChange(e.target.files?.[0] ?? null)}
-                    />
-                  </label>
+
+                  <div className="flex flex-col gap-5">
+                    {state.prices.map((price) => {
+                      const variation = price.variation;
+                      const variationExtras = state.extras.filter((e) => e.variation === variation);
+                      return (
+                        <div key={`extras-${variation}`} className="flex flex-col gap-2">
+                          <div className="flex items-end justify-between">
+                            <span className={adminLabelText}>More images — {variation}</span>
+                            <label className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-brand-700 hover:text-brand-500 cursor-pointer transition-colors">
+                              <Plus className="size-4" /> Add
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={(e) => onAddExtras(variation, e.target.files)}
+                              />
+                            </label>
+                          </div>
+                          {variationExtras.length === 0 ? (
+                            <p className="text-xs text-brand-500/70 italic">No images for {variation} yet.</p>
+                          ) : (
+                            <ul className="grid grid-cols-3 sm:grid-cols-4 gap-3 list-none p-0 m-0">
+                              {variationExtras.map((extra) => {
+                                const url = variantUrl(extra.variant);
+                                return (
+                                  <li key={extra.key} className="relative group">
+                                    <div className="relative aspect-square rounded-md overflow-hidden bg-accent-100 border border-accent-300/40">
+                                      <Image src={url} alt="" fill sizes="120px" className="object-cover" />
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => onRemoveExtra(extra.key)}
+                                      aria-label="Remove image"
+                                      className="absolute top-1.5 right-1.5 size-6 rounded-full bg-white/90 text-brand-700 border border-accent-300/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:text-red-600"
+                                    >
+                                      <X className="size-3.5" />
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </section>
 
-              <section className="bg-white border border-accent-300/40 rounded-2xl p-6 flex flex-col gap-4">
-                <header className="flex items-center justify-between">
-                  <h2 className="text-base text-brand-700">More images</h2>
-                  <label className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-brand-700 hover:text-brand-500 cursor-pointer">
-                    <Plus className="size-4" /> Add
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={(e) => onAddExtras(e.target.files)}
-                    />
-                  </label>
-                </header>
-                {state.extras.length === 0 ? (
-                  <p className="text-xs text-brand-500/70">No extra images yet.</p>
-                ) : (
-                  <ul className="grid grid-cols-3 sm:grid-cols-4 gap-3 list-none p-0 m-0">
-                    {state.extras.map((extra) => {
-                      const url = extra.kind === 'existing' ? extra.url : extra.blobUrl;
-                      return (
-                        <li key={extra.key} className="relative group">
-                          <div className="relative aspect-square rounded-md overflow-hidden bg-accent-100">
-                            <Image src={url} alt="" fill sizes="128px" className="object-cover" />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => onRemoveExtra(extra.key)}
-                            aria-label="Remove image"
-                            className="absolute top-1 right-1 size-6 rounded-full bg-white/90 text-brand-700 border border-accent-300/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="size-3.5" />
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </section>
-
-              {error && (
-                <p role="alert" className="text-sm text-red-600">{error}</p>
-              )}
-              {success && !error && (
-                <p className="text-sm text-emerald-700">{success}</p>
+              {(error || success) && (
+                <div className="flex flex-col gap-2">
+                  {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+                  {success && !error && <p className="text-sm text-emerald-700">{success}</p>}
+                </div>
               )}
             </>
           )}
@@ -485,13 +875,27 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           itemName={state.itemName}
           featureCollection={state.featureCollection}
           description={state.description}
-          thumbnailUrl={thumbnailUrl}
-          extraImageUrls={extraImageUrls}
           minAmount={minAmount}
           currency={previewCurrency}
           giftable={state.giftable}
+          browseImageUrl={browseUrl}
+          onCropBrowse={browseUrl && browseCanCrop ? () => setCropTarget({ kind: 'thumbnail', variant: 'browse' }) : undefined}
+          detailImagesByVariation={detailImagesByVariation}
+          availableVariations={previewVariations}
+          pricesByVariation={pricesByVariation}
+          onCropDetail={(target) => setCropTarget(target)}
         />
       </div>
+
+      {cropTarget && activeCropFile && (
+        <CropModal
+          file={activeCropFile}
+          aspect={activeCropAspect}
+          initialRect={activeCropRect}
+          onConfirm={onCropConfirm}
+          onCancel={() => setCropTarget(null)}
+        />
+      )}
     </AdminShell>
   );
 }

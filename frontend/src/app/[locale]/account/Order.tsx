@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
 import type { JewelryItemInfo, Order } from '../../../../types';
-import { ORDER_STATUS } from '../../../helpers';
+import { browseThumbnailOf, ORDER_STATUS } from '../../../helpers';
 
 export default function Order({ item, order, idx }: { item: JewelryItemInfo; order: Order, idx: number }) {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
         className="cursor-pointer">
         <Image
           alt={item.itemName}
-          src={item.media.find((file) => file.url.includes('thumbnail'))?.url ?? ''}
+          src={browseThumbnailOf(item.media) ?? ''}
           width="250"
           height="250"
           className="relative object-cover rounded-md hover:scale-105 transition-all"

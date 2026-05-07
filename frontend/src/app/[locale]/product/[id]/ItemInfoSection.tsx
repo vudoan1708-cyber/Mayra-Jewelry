@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState, type MouseEventHandler } from 're
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
-import { Heart, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
 import throttle from 'lodash/throttle';
 
@@ -18,53 +18,55 @@ import Button from '../../../../components/Button';
 import Loading from '../../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../../stores/CartCountProvider';
-import { SAVE_TO_CART, WAIT } from '../../../../helpers';
+import { detailHeroOf, extrasForVariation, SAVE_TO_CART, WAIT } from '../../../../helpers';
+
+import type { Media } from '../../../../../types';
 import NavItem from '../../../../components/Navigation/NavItem';
-import { addToWishlist, deleteFromWishlist } from '../../../../server/data';
-import FullScreenLoading from '../../../../components/Loading/FullScreenLoading';
 import Share from '../../cart/Share';
-import type { Session } from 'next-auth';
 
 export default function ItemInfoSection({
   id,
   itemName,
-  amount,
   description,
   featureCollection,
   type,
   purchases,
-  imgUrls,
+  media,
   availableVariations,
   selectedVariation,
-  session,
-  buyerWishlistFound,
 }: {
   id: string;
   itemName: string;
-  amount: number,
   description: string;
   featureCollection: string;
   type: 'ring' | 'bracelet';
   purchases: number;
-  imgUrls: string[];
+  media: Media[];
   availableVariations: Array<JewelryVariation>;
   selectedVariation: JewelryVariation;
-  session: Session | null;
-  buyerWishlistFound: boolean;
 }) {
   const router = useRouter();
   const t = useTranslations('product');
-  const [variation, setSelectedVariation] = useState<JewelryVariation>(selectedVariation);
+  const [currentVariation, setCurrentVariation] = useState<JewelryVariation>(selectedVariation);
+
+  const imgUrls = useMemo(() => {
+    const fallbackVariation = availableVariations[0]?.id;
+    const isFirstVariation = fallbackVariation === currentVariation.id;
+    const heroUrl = isFirstVariation ? detailHeroOf(media) : undefined;
+    const extras = extrasForVariation(media, currentVariation.id, fallbackVariation).map((m) => m.url);
+    return heroUrl ? [heroUrl, ...extras] : extras;
+  }, [media, currentVariation.id, availableVariations]);
 
   const [loadingImg, setLoadingImg] = useState<boolean>(true);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const safeIndex = currentIndex < imgUrls.length ? currentIndex : 0;
   const imgUrlRef = useRef<Array<string>>(imgUrls);
   useEffect(() => {
-    setLoadingImg(!imgUrls);
+    setLoadingImg(imgUrls.length === 0);
     imgUrlRef.current = imgUrls;
+    setCurrentIndex(0);
   }, [imgUrls]);
 
-  const [hasItemWishlisted, setItemWishlisted] = useState<boolean>(buyerWishlistFound);
-  const [loading, setLoading] = useState<boolean>(false);
   const [showZoom, setShowZoom] = useState<boolean>(false);
   const [zoom] = useState<number>(3);
 
@@ -73,8 +75,8 @@ export default function ItemInfoSection({
 
   const { addItem } = useCartCount();
 
-  const selectVariation = (__variation: JewelryVariation) => {
-    setSelectedVariation(__variation);
+  const selectVariation = (variation: JewelryVariation) => {
+    setCurrentVariation(variation);
   };
 
   const shoppingCartClicked = () => {
@@ -84,8 +86,8 @@ export default function ItemInfoSection({
       imgUrls: imgUrlRef.current,
       featureCollection,
       type,
-      variation,
-      amount,
+      variation: currentVariation,
+      amount: currentVariation.amount,
     });
     const currentState = {
       items: useCartCount.getState().items,
@@ -96,31 +98,7 @@ export default function ItemInfoSection({
     }, WAIT - 250);
   };
 
-  const userId = session?.user?.id ?? '';
-
   const throttleIncrement = useMemo(() => throttle(shoppingCartClicked, WAIT), []);
-
-  const onWishlistButtonClicked = async () => {
-    if (!session) {
-      router.push(`/wishlist?from=/product/${id}`);
-      return;
-    }
-    setLoading(true);
-    try {
-      if (!hasItemWishlisted) {
-        const buyer = await addToWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] });
-        setItemWishlisted(!!buyer);
-        return;
-      }
-
-      await deleteFromWishlist({ buyerId: userId, wishlistItems: [{ directoryId: id }] });
-      setItemWishlisted(false);
-    } catch (e) {
-      alert((e as { message: string }).message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const enterImage = () => {
     setShowZoom(true);
@@ -132,46 +110,42 @@ export default function ItemInfoSection({
   
   const mouseMoveOnImage: MouseEventHandler<HTMLImageElement> = (e) => {
     if (!imgRef.current || !zoomRef.current) return;
+    e.preventDefault();
     const rect = imgRef.current.getBoundingClientRect();
 
-    const getCursorPos = () => {
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
-  
-      // Consider any page scrolling
-      x -= window.scrollX;
-      y -= window.scrollY;
-      return { x, y };
-    };
+    const dispW = rect.width;
+    const dispH = rect.height;
+    const naturalW = imgRef.current.naturalWidth;
+    const naturalH = imgRef.current.naturalHeight;
+    if (!dispW || !dispH || !naturalW || !naturalH) return;
 
-    zoomRef.current.style.backgroundSize = `${imgRef.current.width * zoom}px ${imgRef.current.height * zoom}px`;
+    // Mirror `object-cover` so the zoom view shares the source's crop and aspect.
+    const coverScale = Math.max(dispW / naturalW, dispH / naturalH);
+    const coverW = naturalW * coverScale;
+    const coverH = naturalH * coverScale;
+    const cropX = (coverW - dispW) / 2;
+    const cropY = (coverH - dispH) / 2;
+
+    zoomRef.current.style.backgroundSize = `${coverW * zoom}px ${coverH * zoom}px`;
 
     const w = zoomRef.current.offsetWidth / 2;
     const h = zoomRef.current.offsetHeight / 2;
 
-    const moveMagnifier = () => {
-      if (!imgRef.current || !zoomRef.current) return;
-      e.preventDefault();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
 
-      const bw = 3;
-      const pos = getCursorPos();
-      let { x, y } = pos;
+    // Keep the magnifier window within the visible image bounds.
+    const halfViewW = w / zoom;
+    const halfViewH = h / zoom;
+    if (x < halfViewW) x = halfViewW;
+    if (x > dispW - halfViewW) x = dispW - halfViewW;
+    if (y < halfViewH) y = halfViewH;
+    if (y > dispH - halfViewH) y = dispH - halfViewH;
 
-      // Prevent the magnifier glass from being positioned outside the image
-      if (x > imgRef.current.width - (w / zoom)) { x = imgRef.current.width - (w / zoom); }
-      if (x < w / zoom) { x = w / zoom; }
-      if (y > imgRef.current.height - (h / zoom)) { y = imgRef.current.height - (h / zoom); }
-      if (y < h / zoom) { y = h / zoom; }
-
-      zoomRef.current.style.backgroundPosition = `-${(x * zoom) - w + bw}px -${(y * zoom) - h + bw}px`;
-    };
-
-    moveMagnifier();
+    const bgX = (x + cropX) * zoom - w;
+    const bgY = (y + cropY) * zoom - h;
+    zoomRef.current.style.backgroundPosition = `-${bgX}px -${bgY}px`;
   };
-
-  useEffect(() => {
-    setItemWishlisted(buyerWishlistFound);
-  }, [buyerWishlistFound]);
 
   useEffect(()  => {
     return () => {
@@ -185,17 +159,45 @@ export default function ItemInfoSection({
         {loadingImg
           ? <Loading />
           : (
-            <div className="relative w-full h-full flex justify-center">
+            <div className="relative w-full max-w-[520px] aspect-square mx-auto">
               <Image
                 ref={imgRef}
-                src={imgUrls[0]}
+                key={imgUrls[safeIndex]}
+                src={imgUrls[safeIndex]}
                 alt={itemName}
-                width="520"
-                height="520"
-                className="border border-accent-300/40 rounded-lg min-w-[320px] min-h-[320px] max-h-[540px] object-cover bg-white"
+                fill
+                sizes="(max-width: 768px) 100vw, 520px"
+                className="border border-accent-300/40 rounded-lg object-cover bg-white"
                 onMouseEnter={enterImage}
                 onMouseMove={mouseMoveOnImage}
                 onMouseOut={unhoverImage} />
+              {imgUrls.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-3 py-2 rounded-full bg-white/85 backdrop-blur-sm shadow-md">
+                  <div className="flex items-center gap-1.5">
+                    {imgUrls.map((url, idx) => (
+                      <button
+                        key={`${url}_${idx}`}
+                        type="button"
+                        onClick={() => setCurrentIndex(idx)}
+                        aria-label={t('galleryGoTo', { index: idx + 1 })}
+                        aria-current={idx === safeIndex}
+                        className="group p-1.5 -m-1.5 flex items-center justify-center"
+                      >
+                        <span
+                          className={`block h-2.5 rounded-full transition-all ${
+                            idx === safeIndex
+                              ? 'w-7 bg-brand-700'
+                              : 'w-2.5 bg-brand-700/40 group-hover:bg-brand-700/70'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-[11px] tabular-nums text-brand-700/80 leading-none px-0.5 select-none">
+                    {safeIndex + 1} / {imgUrls.length}
+                  </span>
+                </div>
+              )}
               {showZoom && (
                 <div
                   ref={zoomRef}
@@ -203,7 +205,7 @@ export default function ItemInfoSection({
                     backgroundImage: `url('${imgRef.current?.src}')`,
                     backgroundRepeat: 'no-repeat',
                   }}
-                  className="hidden md:block absolute left-[100%] top-0 h-full min-w-[320px] min-h-[320px] w-full rounded-lg z-10 shadow-lg bg-white">
+                  className="hidden md:block absolute left-[100%] top-0 h-full w-full min-w-[320px] rounded-lg z-10 shadow-lg bg-white">
                 </div>
               )}
             </div>
@@ -211,7 +213,7 @@ export default function ItemInfoSection({
         }
         <div className="flex gap-2 justify-start items-center mt-3">
           {availableVariations.map((variation) => (
-            <Variation key={`${imgUrls[0]}_${variation.key}`} variation={variation} selected={selectedVariation.key} onSelect={() => { selectVariation(variation); }} />
+            <Variation key={`${imgUrls[0]}_${variation.key}`} variation={variation} selected={currentVariation.key} onSelect={() => { selectVariation(variation); }} />
           ))}
         </div>
       </div>
@@ -227,7 +229,7 @@ export default function ItemInfoSection({
         </small>
 
         <h2 className="text-2xl text-brand-700 font-semibold">
-          <Money amount={amount} />
+          <Money amount={currentVariation.amount} />
         </h2>
         <motion.hr
           initial={{ width: 0 }}
@@ -258,24 +260,18 @@ export default function ItemInfoSection({
 
         <div className="mt-2 flex flex-col gap-2">
           <div className="flex gap-1 items-center text-brand-700">
-            <Variation key={`${imgUrls[0]}_slected_${selectedVariation.key}`} variation={selectedVariation} />
-            {t('selectedMaterial')} <b className="text-brand-700">{selectedVariation.label}</b>
+            <Variation key={`${imgUrls[0]}_selected_${currentVariation.key}`} variation={currentVariation} />
+            {t('selectedMaterial')} <b className="text-brand-700">{currentVariation.label}</b>
           </div>
           <Button variant="tertiary" className="!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600" onClick={throttleIncrement}>
             <ShoppingCart size={16} strokeWidth={1.75} />
             {t('addToCart')}
           </Button>
-          <Button variant="tertiary" className={`!text-sm !py-1.5 !gap-1.5 !text-brand-500 hover:!text-accent-600 ${loading && 'cursor-wait'}`} onClick={onWishlistButtonClicked}>
-            <Heart size={16} strokeWidth={1.75} fill={hasItemWishlisted ? 'var(--brand-500)' : 'none'} />
-            {hasItemWishlisted ? t('removeFromWishlist') : t('addToWishlist')}
-          </Button>
           <div className="mt-1 pt-3 border-t border-accent-500/30 text-center">
-            <Share encodedId={id} itemName={itemName} itemAmount={amount} itemVariation={variation.id} />
+            <Share encodedId={id} itemName={itemName} itemAmount={currentVariation.amount} itemVariation={currentVariation.id} />
           </div>
         </div>
       </div>
-
-      {loading && <FullScreenLoading />}
     </>
   )
 }

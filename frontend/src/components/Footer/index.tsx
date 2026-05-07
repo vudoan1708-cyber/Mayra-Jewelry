@@ -12,7 +12,7 @@ export default function Footer() {
     <footer className="relative w-full bg-brand-700 text-accent-100">
       <div className="h-px w-full bg-gradient-to-r from-transparent via-accent-500/40 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 py-10 sm:py-14">
+      <div className="w-full px-6 sm:px-10 py-10 sm:py-14">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-12">
           <div className="flex flex-col gap-3 sm:items-start items-center text-center sm:text-left">
             <span className="font-serif font-semibold text-accent-300 text-2xl tracking-[0.32em] pl-[0.32em]">
@@ -58,7 +58,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-5 border-t border-accent-500/15 flex flex-col sm:flex-row justify-between items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-accent-100/50">
+        <div className="mt-10 pt-5 -mx-6 sm:-mx-10 px-6 sm:px-10 border-t border-accent-500/15 flex flex-col sm:flex-row justify-between items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-accent-100/50">
           <p>© {year} {t('rights')}</p>
           <p>{t('craft')}</p>
         </div>

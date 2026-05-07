@@ -5,7 +5,7 @@ import MotionFramerWrapper from './MotionFramerWrapper';
 import { getMostViewedJewelryItems } from '../../../../server/data';
 import NavItem from '../../../../components/Navigation/NavItem';
 import Money from '../../../../components/Money/Money';
-import { minPrice } from '../../../../helpers';
+import { browseThumbnailOf, minPrice } from '../../../../helpers';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
 
 export default async function MostViewed({ id }: { id: string }) {
@@ -20,7 +20,7 @@ export default async function MostViewed({ id }: { id: string }) {
                 <Image
                   key={idx}
                   id={item.directoryId}
-                  src={item.media?.[0].url}
+                  src={browseThumbnailOf(item.media) ?? ''}
                   alt={item.itemName}
                   width="360"
                   height="360"

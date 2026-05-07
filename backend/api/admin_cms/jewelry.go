@@ -67,6 +67,7 @@ func toMetadata(item models.JewelryItemInfo) models.Metadata {
 		Currency:          item.Currency,
 		InStock:           item.InStock,
 		Giftable:          item.Giftable,
+		Translations:      item.Translations,
 		Prices:            item.Prices,
 		Media:             item.Media,
 	}
@@ -126,11 +127,12 @@ func GetJewelry(w http.ResponseWriter, r *http.Request) {
 }
 
 type updateJewelryRequest struct {
-	ItemName          *string                `json:"itemName,omitempty"`
-	Description       *string                `json:"description,omitempty"`
-	FeatureCollection *string                `json:"featureCollection,omitempty"`
-	Giftable          *bool                  `json:"giftable,omitempty"`
-	Prices            *[]models.JewelryPrice `json:"prices,omitempty"`
+	ItemName          *string                     `json:"itemName,omitempty"`
+	Description       *string                     `json:"description,omitempty"`
+	FeatureCollection *string                     `json:"featureCollection,omitempty"`
+	Giftable          *bool                       `json:"giftable,omitempty"`
+	Translations      *models.JewelryTranslations `json:"translations,omitempty"`
+	Prices            *[]models.JewelryPrice      `json:"prices,omitempty"`
 }
 
 func UpdateJewelry(w http.ResponseWriter, r *http.Request) {
@@ -169,6 +171,9 @@ func UpdateJewelry(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Giftable != nil {
 		updates["giftable"] = *req.Giftable
+	}
+	if req.Translations != nil {
+		updates["translations"] = *req.Translations
 	}
 
 	tx := database.DatabaseInstance.Gorm.WithContext(r.Context())
@@ -258,6 +263,14 @@ func CreateJewelry(w http.ResponseWriter, r *http.Request) {
 
 	directoryId := base64.StdEncoding.EncodeToString([]byte(itemName))
 
+	var translations models.JewelryTranslations
+	if raw := firstValue(data, "translations"); raw != "" {
+		if err := json.Unmarshal([]byte(raw), &translations); err != nil {
+			middleware.HandleErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("translations is not valid JSON: %v", err))
+			return
+		}
+	}
+
 	tx := database.DatabaseInstance.Gorm.WithContext(r.Context())
 	if err := tx.Transaction(func(txn *gorm.DB) error {
 		item := &models.JewelryItemInfo{
@@ -269,6 +282,7 @@ func CreateJewelry(w http.ResponseWriter, r *http.Request) {
 			Currency:          currency,
 			InStock:           true,
 			Giftable:          giftable,
+			Translations:      translations,
 		}
 		if err := txn.Save(item).Error; err != nil {
 			return err

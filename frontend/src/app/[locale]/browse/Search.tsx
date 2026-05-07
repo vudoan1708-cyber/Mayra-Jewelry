@@ -21,6 +21,13 @@ export type BrowseSearchItem = {
 
 const MAX_RESULTS = 8;
 
+const foldAccents = (s: string) =>
+  s.normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase();
+
 export default function Search({ items }: { items: BrowseSearchItem[] }) {
   const t = useTranslations('browse');
   const router = useRouter();
@@ -31,14 +38,20 @@ export default function Search({ items }: { items: BrowseSearchItem[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listboxId = useId();
 
+  const indexed = useMemo(
+    () => items.map((item) => ({ item, folded: foldAccents(item.name) })),
+    [items],
+  );
+
   const trimmedQuery = query.trim();
   const filtered = useMemo(() => {
-    const q = trimmedQuery.toLowerCase();
-    if (!q) return [];
-    return items
-      .filter((item) => item.name.toLowerCase().includes(q))
-      .slice(0, MAX_RESULTS);
-  }, [items, trimmedQuery]);
+    if (!trimmedQuery) return [];
+    const q = foldAccents(trimmedQuery);
+    return indexed
+      .filter(({ folded }) => folded.includes(q))
+      .slice(0, MAX_RESULTS)
+      .map(({ item }) => item);
+  }, [indexed, trimmedQuery]);
 
   useEffect(() => {
     setHighlighted(0);

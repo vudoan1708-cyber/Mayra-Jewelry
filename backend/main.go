@@ -37,13 +37,16 @@ func main() {
 	if migration_err := database.DatabaseInstance.AutoMigrate(); migration_err != nil {
 		log.Fatal("Cannot auto-migrate database")
 	}
+	if backfill_err := database.DatabaseInstance.BackfillJewelryTranslations(); backfill_err != nil {
+		log.Printf("warning: legacy translation backfill failed: %v", backfill_err)
+	}
 
 	r := mux.NewRouter()
 
 	// CORS for HTTP request polling
 	cors := handlers.CORS(
 		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS"}),
 		handlers.AllowedOrigins([]string{allowedOrigin}),
 	)
 
@@ -65,6 +68,9 @@ func main() {
 	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}/media", admin_cms.UploadJewelryMedia).Methods("POST")
 	adminProtectedRouter.HandleFunc("/jewelry/{directoryId}/media/{fileName}", admin_cms.DeleteJewelryMedia).Methods("DELETE")
 	adminProtectedRouter.HandleFunc("/site/banner", admin_cms.UpdateBanner).Methods("PATCH")
+	adminProtectedRouter.HandleFunc("/users", admin_cms.ListAdmins).Methods("GET")
+	adminProtectedRouter.HandleFunc("/users", admin_cms.CreateAdmin).Methods("POST")
+	adminProtectedRouter.HandleFunc("/users/{id}", admin_cms.UpdateAdmin).Methods("PATCH")
 
 	apiRouter.HandleFunc("/site/banner", site.GetBanner).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/best", api.GetJewelryItemsByBestSeller).Methods("GET")
@@ -75,10 +81,6 @@ func main() {
 	apiRouter.HandleFunc("/jewelry", api.GetJewelryItems).Methods("GET")
 	apiRouter.HandleFunc("/jewelry", api.AddJewelryItem).Methods("POST")
 	apiRouter.HandleFunc("/jewelry", api.UpdateJewelryInfo).Methods("PATCH")
-	apiRouter.HandleFunc("/user/buyer/wishlist", api.RemoveFromBuyerWishlist).Methods("DELETE")
-	apiRouter.HandleFunc("/user/buyer/wishlist", api.AddToBuyerWishlist).Methods("POST")
-	apiRouter.HandleFunc("/user/buyer/{buyerId}/wishlist/{directoryId}", api.CheckIfItemInWishlist).Methods("GET")
-	apiRouter.HandleFunc("/user/buyer/{buyerId}/wishlist", api.GetBuyerWishlist).Methods("GET")
 	apiRouter.HandleFunc("/user/buyer/{buyerId}", api.GetBuyer).Methods("GET")
 	apiRouter.HandleFunc("/user/buyer/payment/pending-verification", api.RequestVerifyingOrder).Methods("POST")
 	apiRouter.HandleFunc("/user/buyer", api.UpsertBuyerDetails).Methods("POST")

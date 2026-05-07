@@ -149,39 +149,3 @@ export const getBuyer = (buyerId: string, filters: Array<string> = []): Promise<
     method: 'GET',
   });
 };
-export const getBuyerWishlist = (buyerId: string): Promise<Array<JewelryItemInfo>> => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/${buyerId}/wishlist`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
-};
-export const addToWishlist = (payload: { buyerId: string, wishlistItems: Array<Partial<JewelryItemInfo>> }): Promise<Buyer> => {
-  const formData = new FormData();
-  formData.append('buyerId', payload.buyerId);
-  formData.append('wishlistItems', JSON.stringify(payload.wishlistItems));
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/wishlist`;
-  return doFetch({
-    url,
-    method: 'POST',
-    body: formData,
-  });
-};
-export const checkIfItemInWishlist = (buyerId: string, directoryId: string): Promise<{found: boolean}> => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/${buyerId}/wishlist/${directoryId}`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
-};
-export const deleteFromWishlist = (payload: { buyerId: string; wishlistItems: Array<Partial<JewelryItemInfo>> }): Promise<void> => {
-  const formData = new FormData();
-  formData.append('buyerId', payload.buyerId);
-  formData.append('wishlistItems', JSON.stringify(payload.wishlistItems));
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/wishlist`;
-  return doFetch({
-    url,
-    method: 'DELETE',
-    body: formData,
-  });
-};

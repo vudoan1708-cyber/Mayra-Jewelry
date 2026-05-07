@@ -2,13 +2,15 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useFBX } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
-const RING_MODEL = '/models/snake-ring.fbx';
+const CROWN_MODEL = '/models/celeste_crown.glb';
+const RING_MODEL = '/models/ring.glb';
 
-useFBX.preload(RING_MODEL);
+useGLTF.preload(CROWN_MODEL);
+useGLTF.preload(RING_MODEL);
 
 function StudioEnvironment() {
   const { scene, gl } = useThree();
@@ -26,7 +28,8 @@ function StudioEnvironment() {
   return null;
 }
 
-function SnakeRing({
+function Ring({
+  url,
   scrollY,
   position,
   scale,
@@ -34,6 +37,7 @@ function SnakeRing({
   rotateSpeed,
   opacity,
 }: {
+  url: string;
   scrollY: { current: number };
   position: [number, number, number];
   scale: number;
@@ -42,80 +46,29 @@ function SnakeRing({
   opacity: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const fbx = useFBX(RING_MODEL);
+  const { scene } = useGLTF(url) as unknown as { scene: THREE.Group };
 
   const cloned = useMemo(() => {
-    const root = fbx.clone(true);
-
+    const root = scene.clone(true);
     const useAlpha = opacity < 1;
-    const silverMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color('#ece8e0'),
-      metalness: 1,
-      roughness: 0.18,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.12,
-      envMapIntensity: 1.1,
-      transparent: useAlpha,
-      opacity,
-      depthWrite: true,
-      side: THREE.FrontSide,
-    });
-
-    const diamondMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color('#ffffff'),
-      emissive: new THREE.Color('#fff5d6'),
-      emissiveIntensity: 0.55,
-      metalness: 0.1,
-      roughness: 0,
-      clearcoat: 1,
-      clearcoatRoughness: 0,
-      ior: 2.4,
-      reflectivity: 1,
-      envMapIntensity: 2.6,
-      transparent: false,
-      opacity: 1,
-      depthWrite: true,
-      side: THREE.FrontSide,
-    });
-
-    const isGemMaterial = (m?: THREE.Material) => {
-      const name = (m?.name ?? '').toLowerCase();
-      if (name.includes('gem') || name.includes('diamond') || name.includes('stone')) return true;
-      const standard = m as THREE.MeshStandardMaterial | undefined;
-      const phong = m as unknown as { specular?: THREE.Color; shininess?: number };
-      if (standard?.transparent && (standard.opacity ?? 1) < 1) return true;
-      if (typeof phong?.shininess === 'number' && phong.shininess > 60 && (standard?.metalness ?? 0) < 0.5) return true;
-      return false;
-    };
-
-    let gemSlots = 0;
-    let metalSlots = 0;
-    const meshLog: Array<{ name: string; mats: string[] }> = [];
 
     root.traverse((child) => {
       if (!(child as THREE.Mesh).isMesh) return;
       const mesh = child as THREE.Mesh;
       const slots = Array.isArray(mesh.material) ? mesh.material : [mesh.material as THREE.Material];
-      meshLog.push({ name: mesh.name, mats: slots.map((m) => m?.name ?? '<unnamed>') });
-
-      const mapped = slots.map((m) => {
-        if (isGemMaterial(m)) {
-          gemSlots += 1;
-          return diamondMaterial;
+      const next = slots.map((m) => {
+        const cm = m.clone();
+        if (useAlpha) {
+          cm.transparent = true;
+          cm.opacity = opacity;
+          cm.depthWrite = false;
         }
-        metalSlots += 1;
-        return silverMaterial;
+        return cm;
       });
-
-      mesh.material = Array.isArray(mesh.material) ? mapped : mapped[0];
+      mesh.material = Array.isArray(mesh.material) ? next : next[0];
       mesh.castShadow = false;
       mesh.receiveShadow = false;
     });
-
-    if (typeof window !== 'undefined') {
-      // eslint-disable-next-line no-console
-      console.info('[SnakeRing] meshes/materials', meshLog, { gemSlots, metalSlots });
-    }
 
     const box = new THREE.Box3().setFromObject(root);
     const size = new THREE.Vector3();
@@ -129,7 +82,7 @@ function SnakeRing({
     const wrapper = new THREE.Group();
     wrapper.add(root);
     return wrapper;
-  }, [fbx, opacity]);
+  }, [scene, opacity]);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -208,10 +161,10 @@ function Dust({ count }: { count: number }) {
         <bufferAttribute attach="attributes-position" array={positions} count={count} itemSize={3} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.45}
+        size={0.35}
         map={texture}
         transparent
-        opacity={0.9}
+        opacity={0.55}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -252,7 +205,8 @@ export default function JewelCanvas() {
 
       <Suspense fallback={null}>
         <StudioEnvironment />
-        <SnakeRing
+        <Ring
+          url={CROWN_MODEL}
           scrollY={scrollY}
           position={[3.5, -1, -2]}
           scale={1}
@@ -260,7 +214,8 @@ export default function JewelCanvas() {
           rotateSpeed={0.18}
           opacity={0.55}
         />
-        <SnakeRing
+        <Ring
+          url={RING_MODEL}
           scrollY={scrollY}
           position={[-4.5, 2.5, -5]}
           scale={0.55}
@@ -270,7 +225,7 @@ export default function JewelCanvas() {
         />
       </Suspense>
 
-      <Dust count={130} />
+      <Dust count={36} />
     </Canvas>
   );
 }

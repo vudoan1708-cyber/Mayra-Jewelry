@@ -1,5 +1,36 @@
 import type { Session } from "next-auth";
-import type { Prices } from "../../types";
+import type { JewelryItemInfo, Prices } from "../../types";
+
+export const slugifyCollection = (name: string) =>
+  name
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/Đ/g, 'D')
+    .replace(/đ/g, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+export const groupByCollection = (items: JewelryItemInfo[]): Map<string, JewelryItemInfo[]> => {
+  const map = new Map<string, JewelryItemInfo[]>();
+  items.forEach((item) => {
+    const key = item.featureCollection?.trim();
+    if (!key) return;
+    const bucket = map.get(key);
+    if (bucket) bucket.push(item);
+    else map.set(key, [item]);
+  });
+  return map;
+};
+
+export const pickHeroItem = (items: JewelryItemInfo[]): JewelryItemInfo | undefined => {
+  if (items.length === 0) return undefined;
+  return [...items].sort((a, b) => {
+    if (a.bestSeller !== b.bestSeller) return a.bestSeller ? -1 : 1;
+    if ((b.purchases ?? 0) !== (a.purchases ?? 0)) return (b.purchases ?? 0) - (a.purchases ?? 0);
+    return (b.views ?? 0) - (a.views ?? 0);
+  })[0];
+};
 
 export const subtleCrypto = {
   identifier: 'scrypto_key',
@@ -99,6 +130,61 @@ export const base64ToArrayBuffer = (base64: string) => {
 export const isMobile = () => window.matchMedia('(pointer: coarse)');
 
 export const userIdOrBase64Email = (user: Session['user']) => user?.id ?? Buffer.from(user?.email ?? '', 'utf8').toString('base64');
+
+type FileLike = { fileName: string; url: string };
+
+export const isBrowseThumbnailKey = (fileName: string) =>
+  fileName.endsWith('thumbnail-browse') || fileName.endsWith('file-thumbnail');
+export const isDetailThumbnailKey = (fileName: string) => fileName.endsWith('thumbnail-detail');
+export const isThumbnailKey = (fileName: string) =>
+  isBrowseThumbnailKey(fileName) || isDetailThumbnailKey(fileName);
+
+export const browseThumbnailOf = (media: FileLike[]) =>
+  media.find((m) => isBrowseThumbnailKey(m.fileName))?.url;
+
+export const detailHeroOf = (media: FileLike[]) =>
+  media.find((m) => isDetailThumbnailKey(m.fileName))?.url ?? browseThumbnailOf(media);
+
+export type VariationName = 'Silver' | 'Gold' | 'White Gold';
+
+export const variationSlug = (v: VariationName): string => v.toLowerCase().replace(/\s+/g, '-');
+
+const SLUG_TO_VARIATION: Record<string, VariationName> = {
+  silver: 'Silver',
+  gold: 'Gold',
+  'white-gold': 'White Gold',
+};
+
+const extraFieldRegex = /^extra__([a-z-]+)__(.+)$/;
+
+export const parseExtraField = (
+  fileName: string,
+): { variation: VariationName; key: string } | null => {
+  const tail = fileName.split('/').pop() ?? '';
+  const m = extraFieldRegex.exec(tail);
+  if (!m) return null;
+  const variation = SLUG_TO_VARIATION[m[1]];
+  if (!variation) return null;
+  return { variation, key: m[2] };
+};
+
+export const extraFieldName = (variation: VariationName, key: string) =>
+  `extra__${variationSlug(variation)}__${key}`;
+
+export const extrasForVariation = (
+  media: FileLike[],
+  variation: VariationName,
+  fallbackVariation?: VariationName,
+): FileLike[] =>
+  media.filter((m) => {
+    if (isThumbnailKey(m.fileName)) return false;
+    const parsed = parseExtraField(m.fileName);
+    if (parsed) return parsed.variation === variation;
+    return fallbackVariation === variation;
+  });
+
+export const legacyExtras = (media: FileLike[]): FileLike[] =>
+  media.filter((m) => !isThumbnailKey(m.fileName) && !parseExtraField(m.fileName));
 
 export const minPrice = (prices: Prices[]) => {
   let currentPrice = prices[0].amount;

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { Heart, House, Compass, ShoppingCart, CircleUser, Menu, X } from 'lucide-react';
+import { Ruler, House, Compass, ShoppingCart, CircleUser, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
@@ -188,9 +188,9 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
             </motion.div>
           </NavItem>
 
-          <NavItem href="/wishlist">
-            <Heart {...fillWhenActive('/wishlist')} />
-            {t('wishlist')}
+          <NavItem href="/size-guide">
+            <Ruler {...fillWhenActive('/size-guide')} />
+            {t('sizeGuide')}
           </NavItem>
           <NavItem href="/account">
             {session.status === 'authenticated'
@@ -284,9 +284,9 @@ export default function Navigation({ initialBanner }: { initialBanner: SiteBanne
                   </span>
                   {t('cart')}
                 </NavItem>
-                <NavItem href="/wishlist" withBorder={false} className="!justify-start text-sm">
-                  <Heart {...fillWhenActive('/wishlist')} />
-                  {t('wishlist')}
+                <NavItem href="/size-guide" withBorder={false} className="!justify-start text-sm">
+                  <Ruler {...fillWhenActive('/size-guide')} />
+                  {t('sizeGuide')}
                 </NavItem>
                 <NavItem href="/account" withBorder={false} className="!justify-start text-sm">
                   {session.status === 'authenticated'

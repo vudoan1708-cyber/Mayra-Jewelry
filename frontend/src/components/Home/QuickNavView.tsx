@@ -19,12 +19,12 @@ export type QuickNavCard = {
 };
 
 type Category = {
-  key: 'wedding' | 'bestSellers' | 'featured';
+  key: 'collections' | 'bestSellers' | 'featured';
   href: string;
 };
 
 const categories: Category[] = [
-  { key: 'wedding', href: '/collections/wedding-rings' },
+  { key: 'collections', href: '/collections' },
   { key: 'bestSellers', href: '/collections/best-sellers' },
   { key: 'featured', href: '/collections/featured' },
 ];
@@ -159,18 +159,18 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
                               className="object-contain p-4 transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                             />
                           </figure>
-                          <figcaption className="px-4 py-3 flex items-baseline justify-between gap-2">
-                            <div className="min-w-0">
-                              {card.eyebrow && (
-                                <p className="text-[10px] uppercase tracking-[0.3em] text-accent-600 truncate">
-                                  {card.eyebrow}
-                                </p>
-                              )}
-                              <p className="text-sm md:text-base font-semibold text-brand-700 truncate">{card.name}</p>
+                          <figcaption className="px-4 py-3">
+                            {card.eyebrow && (
+                              <p className="text-[10px] uppercase tracking-[0.3em] text-accent-600 truncate">
+                                {card.eyebrow}
+                              </p>
+                            )}
+                            <div className="flex items-baseline justify-between gap-2">
+                              <p className="text-sm md:text-base font-semibold text-brand-700 truncate min-w-0">{card.name}</p>
+                              <p className="text-sm font-semibold text-brand-700 shrink-0">
+                                <Money amount={card.price} currency={card.currency} />
+                              </p>
                             </div>
-                            <p className="text-sm font-semibold text-brand-700 shrink-0">
-                              <Money amount={card.price} currency={card.currency} />
-                            </p>
                           </figcaption>
                         </Link>
                       </motion.div>
@@ -196,8 +196,8 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
               {t('editorial.body')}
             </p>
             <Link
-              href="/collections/wedding-rings"
-              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-300 text-brand-700 text-sm font-semibold [text-decoration:none] hover:bg-accent-200 transition-colors focus-visible:ring-2 focus-visible:ring-accent-200 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-500"
+              href="/collections"
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-300 text-brand-700 hover:text-brand-700 text-sm font-semibold [text-decoration:none] hover:bg-accent-200 hover:shadow-[2px_2px_8px_var(--accent-500)] transition-all focus-visible:ring-2 focus-visible:ring-accent-200 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-500"
             >
               {t('editorial.cta')}
               <ArrowRight className="size-4" />

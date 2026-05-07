@@ -26,7 +26,7 @@ export default function SelectProvider({
   if (!session || !orders || !buyer) {
     return (
       <AnimatePresence mode="wait">
-        <LoginForm title={t.raw('wishlistTitle')} autoSignIn={autoSignIn} redirectTo={redirectTo} />
+        <LoginForm title={t.raw('featureTitle')} autoSignIn={autoSignIn} redirectTo={redirectTo} />
       </AnimatePresence>
     )
   }

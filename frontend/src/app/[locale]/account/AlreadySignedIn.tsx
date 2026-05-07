@@ -109,7 +109,7 @@ export default function AlreadySignedIn({
 
         <Button
           variant="secondary"
-          className="border-red-500 text-red-500 hover:border-red-400 hover:text-red-400"
+          className="justify-self-center border-red-500 text-red-500 hover:border-red-400 hover:text-red-400"
           onClick={async () => {
             await signOut({ redirectTo: '/' });
           }}>
@@ -124,7 +124,7 @@ export default function AlreadySignedIn({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="w-full bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 p-4 md:p-6 grid grid-cols-1 items-center gap-2 text-brand-700">
+        className="w-full bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 md:px-6 md:py-4 grid grid-cols-1 items-center gap-2 text-brand-700">
         {(!userName || !userImage)
           ? (
             <p>{t('missingFb')}</p>

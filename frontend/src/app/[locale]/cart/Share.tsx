@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 import { Share2 } from 'lucide-react';
@@ -14,7 +14,10 @@ export default function Share({ encodedId, itemName, itemAmount, itemVariation }
   const [copyState, setCopyState] = useState<boolean>(false);
 
   const info = `${PAYMENT_INFO} ${itemName}`;
-  const sharePath = `${window.location.origin}/product/${encodedId ?? ''}?amount=${itemAmount}&info=${info}&variation=${itemVariation}`;
+  const sharePath = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return `${window.location.origin}/product/${encodedId ?? ''}?amount=${itemAmount}&info=${info}&variation=${itemVariation}`;
+  }, [encodedId, itemAmount, info, itemVariation]);
 
   const copyToClipboard = useCallback(async (text: string) => {
     if (typeof window === 'undefined') {

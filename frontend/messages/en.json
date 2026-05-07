@@ -18,9 +18,9 @@
       "title": "Your cart",
       "description": "Review your selected pieces and complete your order with Mayra."
     },
-    "wishlist": {
-      "title": "Your wishlist",
-      "description": "Pieces you've saved for later at Mayra."
+    "sizeGuide": {
+      "title": "Size guide",
+      "description": "Measure your finger or wrist accurately, with the Mayra reference table for ring and bracelet sizing."
     },
     "account": {
       "title": "Your account",
@@ -34,9 +34,9 @@
       "title": "Privacy",
       "description": "How Mayra handles your information when you sign in."
     },
-    "weddingRings": {
-      "title": "Wedding rings",
-      "description": "Discover Mayra's wedding ring collection — pieces made for moments worth keeping."
+    "collections": {
+      "title": "Collections",
+      "description": "Browse every Mayra collection — pieces hand-finished in Saigon for moments worth keeping."
     },
     "collection": {
       "title": "{name} Collection",
@@ -55,7 +55,7 @@
     "home": "Home",
     "browse": "Browse",
     "cart": "Cart",
-    "wishlist": "Wishlist",
+    "sizeGuide": "Size",
     "account": "Account",
     "promo": "10% off all rings from <dates>Oct 5 – Oct 20</dates>"
   },
@@ -92,7 +92,6 @@
   },
   "loginForm": {
     "facebook": "Sign in with Facebook",
-    "wishlistTitle": "Sign in to save<br /> your favourite pieces",
     "featureTitle": "Sign in to use this feature"
   },
   "home": {
@@ -114,9 +113,9 @@
       "discover": "Discover"
     },
     "categories": {
-      "wedding": {
-        "eyebrow": "Collection",
-        "name": "Wedding rings"
+      "collections": {
+        "eyebrow": "Discover",
+        "name": "Collections"
       },
       "bestSellers": {
         "eyebrow": "Most loved",
@@ -149,16 +148,20 @@
   "jewelry": {
     "noItemsYet": "We haven't sold many pieces yet, so there's nothing here to show. Stay with us!",
     "featuredHeading": "Featured collections of the year",
-    "collectionSuffix": "Collection",
-    "wedding": {
-      "heading": "A wedding is coming up — what should I do?",
-      "intro": "Don't worry, Mayra has it covered.",
-      "contactPrefix": "",
-      "contactLink": "Reach out to the shop directly",
-      "contactSuffix": "for personalised advice on rings that match your taste, palette, and personality.",
-      "exploreHint": "If you already know the style you want, click the button below to explore.",
-      "cta": "Browse more wedding rings"
-    }
+    "collectionSuffix": "Collection"
+  },
+  "collections": {
+    "eyebrow": "Collection",
+    "title": "Collections",
+    "lead": "Each Mayra collection is a small story — a mood, a material, a moment. Hand-finished in Saigon, never rushed.",
+    "count": "{count, plural, =0 {No collections yet} one {# collection} other {# collections}}",
+    "itemCount": "{count, plural, =0 {No pieces yet} one {# piece} other {# pieces}}",
+    "flagship": "Flagship",
+    "explore": "Explore",
+    "empty": "No collections to show just yet. Check back soon.",
+    "emptyCollection": "No pieces in this collection yet. Check back soon.",
+    "bestSellerTag": "Best seller",
+    "backToCollections": "All collections"
   },
   "product": {
     "purchasesCount": "{count}",
@@ -167,9 +170,10 @@
     "info": "Product information",
     "selectedMaterial": "You selected the material",
     "addToCart": "Add to cart",
-    "removeFromWishlist": "Remove from wishlist",
-    "addToWishlist": "Add to wishlist",
-    "frequentlyViewed": "Frequently viewed pieces"
+    "frequentlyViewed": "Frequently viewed pieces",
+    "galleryPrevious": "Previous image",
+    "galleryNext": "Next image",
+    "galleryGoTo": "Go to image {index}"
   },
   "cart": {
     "viewItem": "View item details",
@@ -195,9 +199,107 @@
       "copied": "Copied"
     }
   },
-  "wishlist": {
-    "empty": "Your wishlist is empty.",
-    "emptySuffix": "to add more pieces to your list"
+  "sizeGuide": {
+    "eyebrow": "Sizing",
+    "title": "Find the size that feels right",
+    "lead": "A well-fitting piece quietly disappears on the body. Use these methods and reference tables to find the size that lets a Mayra piece sit the way it should — every day.",
+    "jumpAriaLabel": "Jump to a section",
+    "jump": {
+      "ring": "Ring sizing",
+      "bracelet": "Bracelet sizing",
+      "tips": "Tips"
+    },
+    "ring": {
+      "eyebrow": "Rings",
+      "title": "Three ways to measure your ring size",
+      "description": "For the most accurate result, measure at the end of the day when fingers are slightly larger, and use the dominant hand if the ring is for everyday wear.",
+      "methods": {
+        "existing": {
+          "title": "Measure a ring you already own",
+          "best": "Most accurate",
+          "steps": [
+            "Pick a ring you already wear comfortably on the right finger.",
+            "Lay it flat and measure the inner diameter in millimetres, edge to edge.",
+            "Match the value to the reference table below."
+          ]
+        },
+        "string": {
+          "title": "String or paper method",
+          "best": "At home, no tools",
+          "steps": [
+            "Wrap a thin strip of paper or string around the base of the finger.",
+            "Mark where the strip overlaps and measure the length in millimetres.",
+            "That length is the circumference — use the reference table to find your size."
+          ]
+        },
+        "visit": {
+          "title": "Message us for a sizer",
+          "best": "Free service",
+          "steps": [
+            "Send a message via our Facebook page and request a printable sizer or in-store fitting.",
+            "We'll guide you through the measurement step by step.",
+            "Sizing service is free and there's no purchase required."
+          ]
+        }
+      },
+      "tableTitle": "Ring size reference",
+      "tableNote": "Inner diameter is the most reliable measurement. Round up if you fall between two sizes.",
+      "headers": {
+        "diameter": "Inner Ø",
+        "circumference": "Circumference",
+        "us": "US",
+        "eu": "EU"
+      }
+    },
+    "bracelet": {
+      "eyebrow": "Bracelets",
+      "title": "Sizing your wrist",
+      "description": "Bracelet sizing is more forgiving than rings. Choose snug for delicate chains, looser for bangles. The reference below assumes a comfortable everyday fit.",
+      "methods": {
+        "wrap": {
+          "title": "Wrap method",
+          "best": "Most accurate",
+          "steps": [
+            "Wrap a soft tape measure around the wrist, just above the wrist bone.",
+            "Keep it snug but not tight — this is your wrist circumference.",
+            "Add 1–2 cm depending on how loose you'd like the bracelet to sit."
+          ]
+        },
+        "existing": {
+          "title": "Measure a bracelet you wear",
+          "best": "If you have one you love",
+          "steps": [
+            "Pick a bracelet that fits the way you'd like a new one to fit.",
+            "Lay it flat and measure end to end (excluding the clasp).",
+            "Match the length in centimetres to the reference table."
+          ]
+        }
+      },
+      "tableTitle": "Bracelet size reference",
+      "tableNote": "Sizes assume a comfortable everyday fit. Add up to 1 cm for a looser drape.",
+      "headers": {
+        "size": "Size",
+        "wrist": "Wrist",
+        "bracelet": "Bracelet length"
+      }
+    },
+    "tips": {
+      "eyebrow": "For accuracy",
+      "title": "A few quiet tips",
+      "items": [
+        "Measure at the end of the day — fingers and wrists are slightly larger than in the morning.",
+        "Avoid measuring when hands are cold; the size you get will run small.",
+        "Knuckles wider than the base? Size for the knuckle and the ring will settle naturally.",
+        "If you're between two sizes, choose the larger one for everyday wear.",
+        "Ring widths over 4 mm tend to feel tighter — consider sizing up by half a step.",
+        "Still unsure? Message us on Facebook with a photo of your measurement and we'll help."
+      ]
+    },
+    "cta": {
+      "eyebrow": "Ready when you are",
+      "title": "Found your size? Continue exploring the collection.",
+      "label": "Browse pieces"
+    }
   },
   "account": {
     "tabs": {
@@ -209,7 +311,13 @@
     "logoutHint": "Press the button below if you want to sign out of Mayra.",
     "logoutCta": "Sign out",
     "missingFb": "Mayra couldn't fetch your name or profile picture from Facebook 🥲",
-    "pointsHeading": "Mayra Point progress"
+    "pointsHeading": "Mayra Point progress",
+    "tiers": {
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum",
+      "diamond": "Diamond"
+    }
   },
   "order": {
     "quantity": "Quantity:",

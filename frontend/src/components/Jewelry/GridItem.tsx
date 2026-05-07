@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 
 import NavItem from '../Navigation/NavItem';
 
+import { browseThumbnailOf } from '../../helpers';
 import type { Media } from '../../../types';
 
 export default function GridItem({
@@ -17,7 +18,7 @@ export default function GridItem({
   key: string; encodedId: string, media: Media[]; alt: string; children?: React.ReactNode,
 }) {
   const router = useRouter();
-  const thumbnail = media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url ?? '';
+  const thumbnail = browseThumbnailOf(media) ?? '';
   
   try {
     localStorage.setItem(encodedId, JSON.stringify(media));

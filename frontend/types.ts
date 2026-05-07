@@ -9,6 +9,12 @@ export type Media = {
   url: string;
   fileName: string;
 };
+export type JewelryTranslation = {
+  itemName?: string;
+  description?: string;
+  featureCollection?: string;
+};
+export type JewelryTranslations = Record<string, JewelryTranslation>;
 export type JewelryItemInfo = {
   directoryId: string;
   itemName: string;
@@ -21,6 +27,7 @@ export type JewelryItemInfo = {
   currency: string;
   inStock: boolean;
   giftable: boolean;
+  translations?: JewelryTranslations | null;
   prices: Prices[];
   media: Media[];
 };

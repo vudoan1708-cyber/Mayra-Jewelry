@@ -2,11 +2,8 @@ import { getLocale } from 'next-intl/server';
 
 import { getBestSellers, getFeatureCollectionThumbnails } from '../../server/data';
 import QuickNavView, { type QuickNavCard } from './QuickNavView';
-import { minPrice } from '../../helpers';
+import { browseThumbnailOf, minPrice } from '../../helpers';
 import { localizeJewelryItem } from '../../i18n/productCopy';
-
-const thumbnailOf = (item: { media: { fileName: string; url: string }[] }) =>
-  item.media.find((m) => m.fileName.endsWith('file-thumbnail'))?.url ?? '';
 
 export default async function QuickNav() {
   const [best, featured, locale] = await Promise.all([
@@ -28,7 +25,7 @@ export default async function QuickNav() {
       return {
         id: item.directoryId,
         href: `/product/${item.directoryId}`,
-        image: thumbnailOf(item),
+        image: browseThumbnailOf(item.media) ?? '',
         name: localized.itemName,
         eyebrow: localized.featureCollection ?? null,
         price: minPrice(item.prices),

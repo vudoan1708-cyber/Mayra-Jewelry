@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
+import Button from '../../../components/Button';
+import {
+  adminEyebrow,
+  adminInput,
+  adminLabel,
+  adminLabelText,
+} from '../styles';
 import { adminLogin, setPendingToken } from '../api';
 
 export default function LoginForm() {
@@ -34,34 +41,35 @@ export default function LoginForm() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={onSubmit}
-        className="w-full max-w-[380px] flex flex-col gap-5 bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/30 p-7"
+        className="w-full max-w-[420px] flex flex-col gap-6 bg-accent-100 border border-accent-300/40 rounded-2xl shadow-2xl shadow-black/30 p-8 sm:p-9"
       >
-        <header className="flex flex-col gap-1 text-center">
-          <p className="text-[10px] uppercase tracking-[0.32em] text-brand-500/70">Mayra Admin</p>
-          <h1 className="text-xl text-brand-700">Sign in</h1>
+        <header className="flex flex-col items-center gap-1 text-center">
+          <p className={adminEyebrow}>Mayra Admin</p>
+          <h1 className="text-2xl text-brand-700 leading-tight">Sign in</h1>
+          <p className="text-sm text-brand-500/80 mt-1">Step 1 of 2 — credentials</p>
         </header>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-brand-500/80">Email</span>
+        <label className={adminLabel}>
+          <span className={adminLabelText}>Email</span>
           <input
             type="email"
             autoComplete="username"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-white border border-accent-300/60 rounded-md px-3 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
+            className={`${adminInput} bg-white`}
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-brand-500/80">Password</span>
+        <label className={adminLabel}>
+          <span className={adminLabelText}>Password</span>
           <input
             type="password"
             autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-white border border-accent-300/60 rounded-md px-3 py-2 text-sm text-brand-700 focus:outline-none focus:border-brand-500"
+            className={`${adminInput} bg-white`}
           />
         </label>
 
@@ -69,13 +77,9 @@ export default function LoginForm() {
           <p role="alert" className="text-sm text-red-600">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="bg-brand-700 text-accent-100 uppercase tracking-[0.2em] text-xs py-2.5 rounded-md hover:bg-brand-600 disabled:opacity-60 transition-colors"
-        >
+        <Button type="submit" variant="primary" disabled={busy} working={busy}>
           {busy ? 'Signing in…' : 'Continue'}
-        </button>
+        </Button>
       </motion.form>
     </main>
   );

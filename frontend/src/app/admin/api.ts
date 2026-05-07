@@ -68,21 +68,35 @@ export const adminVerifyTotp = async (pendingToken: string, code: string): Promi
   return res.json();
 };
 
+const safeFetch = async (url: string, init: RequestInit, method: string): Promise<Response> => {
+  try {
+    return await fetch(url, init);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : 'fetch error';
+    throw new AdminApiError(
+      `Network error on ${method} ${url} (${detail}). Check the backend is reachable and CORS allows the method.`,
+      0,
+    );
+  }
+};
+
 export const adminFetch = async <T>(path: string, init?: RequestInit): Promise<T | null> => {
   const token = getSessionToken();
   if (!token) throw new AdminApiError('Not signed in', 401);
-  const res = await fetch(`${baseUrl()}${path}`, {
+  const url = `${baseUrl()}${path}`;
+  const method = (init?.method ?? 'GET').toUpperCase();
+  const res = await safeFetch(url, {
     ...init,
     headers: {
       ...(init?.headers ?? {}),
       Authorization: `Bearer ${token}`,
     },
-  });
+  }, method);
   if (res.status === 401) {
     setSessionToken(null);
     throw new AdminApiError('Session expired', 401);
   }
-  if (!res.ok) throw await parseError(res, `Request failed (${res.status})`);
+  if (!res.ok) throw await parseError(res, `${method} ${path} failed (${res.status})`);
   if (res.status === 204) return null;
   return res.json();
 };
@@ -102,6 +116,14 @@ export type AdminJewelryMedia = {
   fileName: string;
 };
 
+export type JewelryTranslation = {
+  itemName?: string;
+  description?: string;
+  featureCollection?: string;
+};
+
+export type JewelryTranslations = Record<string, JewelryTranslation>;
+
 export type AdminJewelry = {
   directoryId: string;
   itemName: string;
@@ -114,6 +136,7 @@ export type AdminJewelry = {
   currency: string;
   inStock: boolean;
   giftable: boolean;
+  translations?: JewelryTranslations | null;
   prices: AdminJewelryPrice[];
   media: AdminJewelryMedia[];
 };
@@ -131,6 +154,7 @@ export type AdminJewelryUpdate = {
   description?: string;
   featureCollection?: string;
   giftable?: boolean;
+  translations?: JewelryTranslations;
   prices?: Array<{
     variation: AdminJewelryPrice['variation'];
     amount: number;
@@ -184,3 +208,34 @@ export const getPublicBanner = async (): Promise<AdminBanner | null> => {
   if (!res.ok) return null;
   return res.json();
 };
+
+export type AdminUserSummary = {
+  id: string;
+  email: string;
+  disabled: boolean;
+  lockedUntil?: string;
+  lastLoginAt?: string;
+  createdAt: string;
+};
+
+export type AdminUserCreated = {
+  id: string;
+  email: string;
+  otpauthURL: string;
+};
+
+export const listAdmins = () => adminFetch<AdminUserSummary[]>('/api/admin/users');
+
+export const createAdminUser = (payload: { email: string; password: string }) =>
+  adminFetch<AdminUserCreated>('/api/admin/users', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify(payload),
+  });
+
+export const setAdminDisabled = (id: string, disabled: boolean) =>
+  adminFetch<null>(`/api/admin/users/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: jsonHeaders,
+    body: JSON.stringify({ disabled }),
+  });

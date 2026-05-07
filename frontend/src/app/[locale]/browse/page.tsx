@@ -8,7 +8,7 @@ import Search, { type BrowseSearchItem } from './Search';
 
 import { getAllJewelry } from '../../../server/data';
 import { localizeJewelryItem } from '../../../i18n/productCopy';
-import { minPrice } from '../../../helpers';
+import { browseThumbnailOf, minPrice } from '../../../helpers';
 
 export async function generateMetadata({
   params,
@@ -26,8 +26,6 @@ export async function generateMetadata({
   };
 }
 
-const thumbnailOf = (media: { fileName: string; url: string }[]) =>
-  media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url ?? '';
 
 export default async function Page() {
   const [items, locale, t] = await Promise.all([
@@ -44,7 +42,7 @@ export default async function Page() {
   const searchItems: BrowseSearchItem[] = sorted.map((item) => ({
     id: item.directoryId,
     name: item.itemName,
-    thumbnail: thumbnailOf(item.media),
+    thumbnail: browseThumbnailOf(item.media) ?? '',
     collection: item.featureCollection || null,
     price: minPrice(item.prices),
     currency: item.currency || item.prices[0]?.currency || 'VND',
@@ -69,17 +67,21 @@ export default async function Page() {
                 encodedId={item.directoryId}
                 media={item.media}
                 alt={item.description || item.itemName}>
-                <div>
-                  <b className="text-lg text-gray-800">{item.itemName}</b>
+                <div className="w-full min-w-0">
                   {item.featureCollection && (
-                    <p className="font-light text-sm">{item.featureCollection}</p>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-accent-600 truncate">
+                      {item.featureCollection}
+                    </p>
                   )}
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-sm md:text-base font-semibold text-brand-700 truncate min-w-0">{item.itemName}</p>
+                    <Money
+                      amount={minPrice(item.prices)}
+                      currency={item.currency || item.prices[0]?.currency || 'VND'}
+                      className="text-sm font-semibold text-brand-700 shrink-0"
+                    />
+                  </div>
                 </div>
-                <Money
-                  amount={minPrice(item.prices)}
-                  currency={item.currency || item.prices[0]?.currency || 'VND'}
-                  className="text-brand-700"
-                />
               </GridItem>
             ))}
           </Grid>

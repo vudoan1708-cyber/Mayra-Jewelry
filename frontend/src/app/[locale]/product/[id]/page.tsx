@@ -4,12 +4,9 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import Wrapper from './Wrapper';
 import MostViewed from './MostViewed';
 import { auth } from '../../../auth';
-import { checkIfItemInWishlist, getJewelryItem, updateJewelry } from '../../../../server/data';
-import { userIdOrBase64Email } from '../../../../helpers';
+import { getJewelryItem, updateJewelry } from '../../../../server/data';
+import { browseThumbnailOf } from '../../../../helpers';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
-
-const thumbnailOf = (media: { fileName: string; url: string }[]) =>
-  media.find((file) => file.fileName.endsWith('file-thumbnail'))?.url;
 
 export async function generateMetadata({
   params,
@@ -25,7 +22,7 @@ export async function generateMetadata({
   const localized = item ? localizeJewelryItem(item, locale) : null;
   const name = localized?.itemName ?? 'Mayra';
   const description = localized?.description?.split('\n')[0] ?? t('description', { name });
-  const thumbnail = item ? thumbnailOf(item.media) : undefined;
+  const thumbnail = item ? browseThumbnailOf(item.media) : undefined;
   return {
     title: t('title', { name }),
     description,
@@ -52,8 +49,6 @@ export default async function Product({ params }: { params: Promise<{ id: string
   const [session, jewelryItem, locale] = await Promise.all([auth(), getJewelryItem(decodedId), getLocale()]);
   const localized = localizeJewelryItem(jewelryItem, locale);
 
-  const buyerId = userIdOrBase64Email(session?.user);
-  const buyerWishlist = buyerId ? await checkIfItemInWishlist(buyerId, decodedId) : { found: false };
   // As soon as this page loads, it means the view count of this produce has increased
   await updateJewelry({ directoryId: decodedId, views: jewelryItem.views + 1 });
   return (
@@ -67,8 +62,7 @@ export default async function Product({ params }: { params: Promise<{ id: string
         prices={jewelryItem.prices}
         purchases={jewelryItem.purchases}
         media={jewelryItem.media}
-        session={session}
-        buyerWishlistFound={buyerWishlist.found} />
+        session={session} />
       <MostViewed id={id} />
     </div>
   );

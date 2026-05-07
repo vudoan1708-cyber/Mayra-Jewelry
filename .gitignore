@@ -4,3 +4,8 @@ build
 
 node_modules
 .DS_Stores
+
+*.png
+*.jpg
+*.jpeg
+*.webp

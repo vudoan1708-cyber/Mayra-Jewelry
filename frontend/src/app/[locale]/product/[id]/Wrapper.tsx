@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
-import { Suspense, useMemo, useRef, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 
 import { motion } from 'framer-motion';
 
@@ -33,7 +33,6 @@ export default function Wrapper({
   purchases,
   media,
   session,
-  buyerWishlistFound,
 }: {
   id: string;
   itemName: string;
@@ -44,11 +43,9 @@ export default function Wrapper({
   purchases: number;
   media: Media[] | null;
   session: Session | null;
-  buyerWishlistFound: boolean;
 }) {
   const searchParams = useSearchParams();
   const tMaterials = useTranslations('materials');
-  const imgUrls = useMemo(() => (media ?? []).map((m) => m.url), [media]);
 
   const findPrice = (seed: VariationSeed) => prices.find((price) => price.variation === seed.id);
   const [availableVariations] = useState<Array<JewelryVariation>>(() => {
@@ -80,12 +77,9 @@ export default function Wrapper({
           featureCollection={featureCollection}
           type={type}
           purchases={purchases}
-          amount={parseInt(searchParams.get('amount') ?? amount.toString())}
-          imgUrls={imgUrls}
+          media={media ?? []}
           availableVariations={availableVariations}
-          selectedVariation={selectedVariation}
-          session={session}
-          buyerWishlistFound={buyerWishlistFound} />
+          selectedVariation={selectedVariation} />
       </motion.section>
 
       <PaymentView

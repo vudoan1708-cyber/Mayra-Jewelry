@@ -18,9 +18,9 @@
       "title": "Giỏ hàng của bạn",
       "description": "Xem lại các món đồ đã chọn và hoàn tất đơn hàng cùng Mayra."
     },
-    "wishlist": {
-      "title": "Danh sách yêu thích",
-      "description": "Những món đồ bạn đã lưu lại tại Mayra."
+    "sizeGuide": {
+      "title": "Hướng dẫn đo size",
+      "description": "Đo chính xác kích cỡ ngón tay hoặc cổ tay với bảng tham chiếu của Mayra dành cho nhẫn và lắc tay."
     },
     "account": {
       "title": "Tài khoản của bạn",
@@ -34,9 +34,9 @@
       "title": "Quyền riêng tư",
       "description": "Cách Mayra xử lý thông tin của bạn khi đăng nhập."
     },
-    "weddingRings": {
-      "title": "Nhẫn cưới",
-      "description": "Khám phá bộ sưu tập nhẫn cưới của Mayra – những thiết kế dành cho khoảnh khắc trọn đời."
+    "collections": {
+      "title": "Bộ sưu tập",
+      "description": "Khám phá tất cả các bộ sưu tập của Mayra – chế tác thủ công tại Sài Gòn cho những khoảnh khắc đáng nhớ."
     },
     "collection": {
       "title": "Bộ sưu tập {name}",
@@ -55,7 +55,7 @@
     "home": "Trang chủ",
     "browse": "Khám phá",
     "cart": "Giỏ hàng",
-    "wishlist": "Yêu thích",
+    "sizeGuide": "Đo size",
     "account": "Tài khoản",
     "promo": "Giảm giá 10% các mẫu nhẫn từ ngày <dates>5/10 - 20/10</dates>"
   },
@@ -92,7 +92,6 @@
   },
   "loginForm": {
     "facebook": "Đăng nhập bằng Facebook",
-    "wishlistTitle": "Hãy đăng nhập để lưu trữ<br /> các món đồ yêu thích của bạn",
     "featureTitle": "Hãy đăng nhập để sử dụng chức năng này"
   },
   "home": {
@@ -114,9 +113,9 @@
       "discover": "Khám phá"
     },
     "categories": {
-      "wedding": {
-        "eyebrow": "Bộ sưu tập",
-        "name": "Nhẫn cưới"
+      "collections": {
+        "eyebrow": "Khám phá",
+        "name": "Bộ sưu tập"
       },
       "bestSellers": {
         "eyebrow": "Được yêu thích",
@@ -129,7 +128,7 @@
     },
     "featured": {
       "eyebrow": "Tuyển chọn",
-      "title": "Những thiết kế đáng để dừng lại",
+      "title": "Những thiết kế đáng để chiêm ngưỡng",
       "empty": "Hiện chưa có sản phẩm nổi bật. Hãy quay lại sau nhé."
     },
     "editorial": {
@@ -149,16 +148,20 @@
   "jewelry": {
     "noItemsYet": "Shop chưa bán được nhiều nên chưa hiện thông tin này được. Ủng hộ shop với nhé",
     "featuredHeading": "Bộ sưu tập nổi bật trong năm",
-    "collectionSuffix": "Collection",
-    "wedding": {
-      "heading": "Đám cưới sắp tới rồi, mình phải làm sao?",
-      "intro": "Không gì phải lo cả, đã có Mayra lo liệu.",
-      "contactPrefix": "",
-      "contactLink": "Liên lạc trực tiếp với shop",
-      "contactSuffix": "để được tư vấn cụ thể về nhẫn trùng với sở thích màu sắc, và cá tính của bạn ạ.",
-      "exploreHint": "Nếu bạn đã biết được loại nhẫn mà bản thân muốn sở hữu, hãy nhấp vào nút bên dưới để khám phá ạ.",
-      "cta": "Tham khảo thêm các loại nhẫn cưới"
-    }
+    "collectionSuffix": "Collection"
+  },
+  "collections": {
+    "eyebrow": "Bộ sưu tập",
+    "title": "Bộ sưu tập",
+    "lead": "Mỗi bộ sưu tập của Mayra là một câu chuyện đặc biệt — một sắc thái, một chất liệu, một khoảnh khắc. Chế tác thủ công tại Sài Gòn, tỉ mỉ từng đường nét.",
+    "count": "{count, plural, =0 {Chưa có bộ sưu tập nào} other {# bộ sưu tập}}",
+    "itemCount": "{count, plural, =0 {Chưa có sản phẩm nào} other {# sản phẩm}}",
+    "flagship": "Nổi bật",
+    "explore": "Khám phá",
+    "empty": "Hiện chưa có bộ sưu tập nào. Bạn quay lại sau nhé.",
+    "emptyCollection": "Chưa có sản phẩm nào trong bộ sưu tập này. Bạn quay lại sau nhé.",
+    "bestSellerTag": "Bán chạy",
+    "backToCollections": "Tất cả bộ sưu tập"
   },
   "product": {
     "purchasesCount": "{count} lượt",
@@ -167,9 +170,10 @@
     "info": "Thông tin sản phẩm",
     "selectedMaterial": "Bạn đã chọn chất liệu",
     "addToCart": "Thêm vào giỏ đồ",
-    "removeFromWishlist": "Bỏ ra khỏi Wishlist",
-    "addToWishlist": "Thêm vào Wishlist",
-    "frequentlyViewed": "Những món hàng được view thường xuyên"
+    "frequentlyViewed": "Những món hàng được view thường xuyên",
+    "galleryPrevious": "Hình trước",
+    "galleryNext": "Hình kế",
+    "galleryGoTo": "Đến hình {index}"
   },
   "cart": {
     "viewItem": "Xem thông tin món đồ",
@@ -195,9 +199,107 @@
       "copied": "Đã sao chép"
     }
   },
-  "wishlist": {
-    "empty": "Danh sách yêu thích của bạn đang trống.",
-    "emptySuffix": "để chọn thêm các món đồ vào danh sách của bạn"
+  "sizeGuide": {
+    "eyebrow": "Bảng size",
+    "title": "Tìm size vừa vặn nhất với bạn",
+    "lead": "Một món trang sức vừa vặn sẽ đeo cả ngày mà không thấy. Hãy dùng các cách đo và bảng tham chiếu dưới đây để tìm size phù hợp cho từng món Mayra.",
+    "jumpAriaLabel": "Đi đến phần",
+    "jump": {
+      "ring": "Size nhẫn",
+      "bracelet": "Size lắc tay",
+      "tips": "Mẹo nhỏ"
+    },
+    "ring": {
+      "eyebrow": "Nhẫn",
+      "title": "Ba cách đo size nhẫn",
+      "description": "Để có kết quả chính xác nhất, hãy đo vào cuối ngày khi ngón tay hơi to hơn một chút, và dùng bàn tay thuận nếu bạn dự định đeo hằng ngày.",
+      "methods": {
+        "existing": {
+          "title": "Đo lại một chiếc nhẫn bạn đang đeo",
+          "best": "Chính xác nhất",
+          "steps": [
+            "Chọn một chiếc nhẫn bạn đang đeo vừa vặn ở đúng ngón tay cần đo.",
+            "Đặt nhẫn nằm phẳng và đo đường kính bên trong tính bằng milimét.",
+            "Tra giá trị này vào bảng tham chiếu phía dưới."
+          ]
+        },
+        "string": {
+          "title": "Đo bằng giấy hoặc dây",
+          "best": "Tự đo tại nhà",
+          "steps": [
+            "Quấn một dải giấy mỏng hoặc dây quanh chân ngón tay.",
+            "Đánh dấu chỗ giao nhau và đo độ dài bằng milimét.",
+            "Đó là chu vi ngón tay — đối chiếu với bảng để biết size."
+          ]
+        },
+        "visit": {
+          "title": "Nhắn shop để được hỗ trợ",
+          "best": "Miễn phí",
+          "steps": [
+            "Nhắn tin qua Facebook của shop để xin bộ đo size hoặc hẹn thử trực tiếp.",
+            "Shop sẽ hướng dẫn bạn từng bước để đo chính xác.",
+            "Dịch vụ đo size hoàn toàn miễn phí, không bắt buộc phải mua hàng."
+          ]
+        }
+      },
+      "tableTitle": "Bảng size nhẫn",
+      "tableNote": "Đường kính trong là số đo đáng tin cậy nhất. Nếu nằm giữa hai size, hãy chọn size lớn hơn.",
+      "headers": {
+        "diameter": "Đường kính trong",
+        "circumference": "Chu vi",
+        "us": "Mỹ",
+        "eu": "Châu Âu"
+      }
+    },
+    "bracelet": {
+      "eyebrow": "Lắc tay",
+      "title": "Đo size cổ tay",
+      "description": "Size lắc tay dễ chọn hơn nhẫn. Chọn vừa khít cho lắc dây mảnh, và rộng hơn cho vòng cứng. Bảng dưới giả định độ ôm vừa phải, đeo hằng ngày.",
+      "methods": {
+        "wrap": {
+          "title": "Đo bằng dây mềm",
+          "best": "Chính xác nhất",
+          "steps": [
+            "Quấn thước dây mềm quanh cổ tay, ngay phía trên xương cổ tay.",
+            "Giữ thước vừa ôm, không siết — đây là chu vi cổ tay của bạn.",
+            "Cộng thêm 1–2 cm tuỳ vào độ rộng bạn muốn lắc đeo."
+          ]
+        },
+        "existing": {
+          "title": "Đo một chiếc lắc bạn đang đeo",
+          "best": "Nếu đã có chiếc lắc vừa ý",
+          "steps": [
+            "Chọn một chiếc lắc đeo vừa vặn như bạn mong muốn.",
+            "Đặt phẳng và đo từ đầu này đến đầu kia (không tính khóa).",
+            "Đối chiếu độ dài tính bằng cm với bảng tham chiếu."
+          ]
+        }
+      },
+      "tableTitle": "Bảng size lắc tay",
+      "tableNote": "Bảng size giả định độ ôm vừa phải, đeo hằng ngày. Cộng thêm tới 1 cm nếu muốn lắc rủ rộng hơn.",
+      "headers": {
+        "size": "Size",
+        "wrist": "Cổ tay",
+        "bracelet": "Chiều dài lắc"
+      }
+    },
+    "tips": {
+      "eyebrow": "Mẹo nhỏ",
+      "title": "Vài lưu ý để đo chính xác",
+      "items": [
+        "Đo vào cuối ngày — ngón tay và cổ tay thường to hơn buổi sáng một chút.",
+        "Tránh đo khi tay đang lạnh, kết quả sẽ nhỏ hơn thực tế.",
+        "Khớp ngón to hơn chân ngón? Hãy đo theo khớp, nhẫn sẽ tự ngồi đúng vị trí.",
+        "Nếu nằm giữa hai size, hãy chọn size lớn hơn để đeo hằng ngày thoải mái.",
+        "Bản nhẫn rộng hơn 4 mm thường có cảm giác chật hơn — cân nhắc lên nửa size.",
+        "Vẫn còn phân vân? Gửi shop một tấm hình đo qua Facebook, shop sẽ tư vấn thêm."
+      ]
+    },
+    "cta": {
+      "eyebrow": "Khi bạn đã sẵn sàng",
+      "title": "Đã tìm được size? Tiếp tục khám phá bộ sưu tập nhé.",
+      "label": "Khám phá ngay"
+    }
   },
   "account": {
     "tabs": {
@@ -209,7 +311,13 @@
     "logoutHint": "Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.",
     "logoutCta": "Đăng xuất",
     "missingFb": "Shop không thể lấy được tên hoặc hình ảnh đại diện từ Facebook của bạn 🥲",
-    "pointsHeading": "Thang điểm Mayra Point"
+    "pointsHeading": "Thang điểm Mayra Point",
+    "tiers": {
+      "silver": "Bạc",
+      "gold": "Vàng",
+      "platinum": "Bạch kim",
+      "diamond": "Kim cương"
+    }
   },
   "order": {
     "quantity": "Số lượng mua:",
