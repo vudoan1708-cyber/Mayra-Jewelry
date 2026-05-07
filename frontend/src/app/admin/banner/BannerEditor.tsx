@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import Button from '../../../components/Button';
 import AdminShell from '../AdminShell';
 import AutoTextarea from '../AutoTextarea';
+import { useToast } from '../Toast';
 import {
   adminCardPadded,
   adminEyebrow,
@@ -47,11 +48,11 @@ function StripPreview({ text, locale, active }: { text: string; locale: 'en' | '
 }
 
 export default function BannerEditor() {
+  const { showSuccess } = useToast();
   const [state, setState] = useState<FormState>(defaultState);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     getPublicBanner()
@@ -68,14 +69,13 @@ export default function BannerEditor() {
     e.preventDefault();
     setSaving(true);
     setError(null);
-    setSuccess(null);
     try {
       await updateAdminBanner({
         enText: state.enText,
         viText: state.viText,
         active: state.active,
       });
-      setSuccess('Saved.');
+      showSuccess('Banner saved.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed');
     } finally {
@@ -158,11 +158,8 @@ export default function BannerEditor() {
                 </p>
               </section>
 
-              {(error || success) && (
-                <div className="flex flex-col gap-2">
-                  {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-                  {success && !error && <p className="text-sm text-emerald-700">{success}</p>}
-                </div>
+              {error && (
+                <p role="alert" className="text-sm text-red-600">{error}</p>
               )}
             </>
           )}

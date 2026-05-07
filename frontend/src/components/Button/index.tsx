@@ -18,7 +18,7 @@ type ButtonProps = {
 };
 
 export const primaryButtonClass =
-  'inline-flex items-center justify-center gap-1.5 bg-accent-300 text-brand-700 uppercase tracking-[0.25em] text-sm py-3 px-6 rounded-md transition-all hover:bg-accent-200 hover:shadow-[2px_2px_8px_var(--accent-500)] disabled:!bg-gray-300 disabled:!text-gray-500 disabled:hover:!shadow-none disabled:cursor-not-allowed';
+  'inline-flex items-center justify-center gap-1.5 bg-accent-300 text-brand-700 hover:text-brand-700 font-[\'Playfair_Display\',serif] font-[lighter] uppercase tracking-[0.25em] text-sm py-3 px-6 rounded-md transition-colors hover:bg-accent-200 disabled:!bg-gray-300 disabled:!text-gray-500 disabled:cursor-not-allowed';
 
 export const secondaryButtonClass =
   'inline-flex items-center justify-center gap-1.5 bg-transparent text-brand-700 border border-accent-500/50 uppercase tracking-[0.25em] text-sm py-3 px-6 rounded-md transition-colors hover:border-accent-500 hover:bg-accent-100/40 disabled:opacity-50';

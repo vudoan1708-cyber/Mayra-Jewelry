@@ -148,7 +148,7 @@ export default function QRCodeImage({
               </Button>
               <Button
                 variant="primary"
-                className="text-xs py-2 px-4 hover:!shadow-none"
+                className="text-xs py-2 px-4"
                 disabled={disabled || verifying}
                 working={verifying}
                 onClick={() => { sendConfirmation(); }}

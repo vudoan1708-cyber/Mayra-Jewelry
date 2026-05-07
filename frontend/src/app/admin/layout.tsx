@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import '../[locale]/page.css';
 import TopLoader from '../../components/Loading/TopLoader';
 import { AdminAuthProvider } from './AdminAuthProvider';
+import { ToastProvider } from './Toast';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
@@ -49,10 +50,12 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AdminAuthProvider>
-      <TopLoader />
-      <div className="h-dvh overflow-y-auto bg-accent-100/40 text-brand-700">
-        {children}
-      </div>
+      <ToastProvider>
+        <TopLoader />
+        <div className="h-dvh overflow-y-auto bg-accent-100/40 text-brand-700">
+          {children}
+        </div>
+      </ToastProvider>
     </AdminAuthProvider>
   );
 }

@@ -9,6 +9,7 @@ import { Plus, ShieldCheck, ShieldOff, X } from 'lucide-react';
 import Button from '../../../components/Button';
 import AdminShell from '../AdminShell';
 import { useAdminAuth } from '../AdminAuthContext';
+import { useToast } from '../Toast';
 import {
   adminCardPadded,
   adminEyebrow,
@@ -207,6 +208,7 @@ function NewAdminQrModal({ admin, onClose }: { admin: AdminUserCreated; onClose:
 
 export default function UsersView() {
   const { email: currentEmail } = useAdminAuth();
+  const { showSuccess } = useToast();
   const [admins, setAdmins] = useState<AdminUserSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [createdAdmin, setCreatedAdmin] = useState<AdminUserCreated | null>(null);
@@ -224,8 +226,10 @@ export default function UsersView() {
 
   const onToggleDisabled = async (admin: AdminUserSummary) => {
     try {
-      await setAdminDisabled(admin.id, !admin.disabled);
+      const nowDisabled = !admin.disabled;
+      await setAdminDisabled(admin.id, nowDisabled);
       refresh();
+      showSuccess(nowDisabled ? `${admin.email} disabled.` : `${admin.email} enabled.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Update failed');
     }
@@ -260,6 +264,7 @@ export default function UsersView() {
                 setShowForm(false);
                 setCreatedAdmin(a);
                 refresh();
+                showSuccess(`Admin ${a.email} created.`);
               }}
             />
           )}

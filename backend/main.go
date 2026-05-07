@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -21,12 +20,12 @@ import (
 )
 
 func main() {
-	port := 8080
-
-	env_err := godotenv.Load()
-	if env_err != nil {
-		log.Fatal(env_err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+
+	_ = godotenv.Load()
 	allowedOrigin := os.Getenv("FRONTEND_URL")
 
 	cloudflare.CloudflareInstance.Init()
@@ -50,7 +49,7 @@ func main() {
 		handlers.AllowedOrigins([]string{allowedOrigin}),
 	)
 
-	var address string = "0.0.0.0" + ":" + strconv.Itoa(port)
+	var address string = "0.0.0.0" + ":" + port
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 

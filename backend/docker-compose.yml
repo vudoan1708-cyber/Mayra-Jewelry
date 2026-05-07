@@ -2,7 +2,7 @@ services:
   mayra-jewelry:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: mayra-jewelry
     env_file:
       - .env

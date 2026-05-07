@@ -9,6 +9,7 @@ import { ChevronDown, Plus, Trash2, Upload, X } from 'lucide-react';
 import Button from '../../../components/Button';
 import AdminShell from '../AdminShell';
 import AutoTextarea from '../AutoTextarea';
+import { useToast } from '../Toast';
 import CropModal, { type CropRect } from './CropModal';
 import Preview, { type DetailImage } from './Preview';
 import {
@@ -207,11 +208,11 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
   const router = useRouter();
   const isEdit = Boolean(directoryId);
 
+  const { showSuccess } = useToast();
   const [state, setState] = useState<EditorState>(defaultState);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [cropTarget, setCropTarget] = useState<CropTarget | null>(null);
   const blobUrlsRef = useRef<Set<string>>(new Set());
 
@@ -450,7 +451,6 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
     }
     setSaving(true);
     setError(null);
-    setSuccess(null);
     try {
       const translationsPayload = serializeTranslations(state.translations);
       if (!isEdit) {
@@ -466,11 +466,11 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
         appendImageFields(fd);
         const res = await createAdminJewelry(fd);
         const newId = res?.directoryId;
+        showSuccess('Piece created.');
         if (newId) {
           router.push(`/admin/jewelry/${encodeURIComponent(newId)}`);
           return;
         }
-        setSuccess('Created.');
       } else {
         await updateAdminJewelry(directoryId!, {
           itemName: state.itemName,
@@ -496,7 +496,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           await uploadAdminJewelryMedia(directoryId!, fd);
         }
 
-        setSuccess('Saved.');
+        showSuccess('Changes saved.');
         const refreshed = await getAdminJewelry(directoryId!);
         if (refreshed) {
           const { thumbnail, extras } = mediaToState(refreshed);
@@ -861,11 +861,8 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
                 </div>
               </section>
 
-              {(error || success) && (
-                <div className="flex flex-col gap-2">
-                  {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-                  {success && !error && <p className="text-sm text-emerald-700">{success}</p>}
-                </div>
+              {error && (
+                <p role="alert" className="text-sm text-red-600">{error}</p>
               )}
             </>
           )}
