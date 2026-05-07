@@ -7,7 +7,6 @@ const publicBucketHostname = publicBucketUrl ? new URL(publicBucketUrl).hostname
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: './build',
   devIndicators: false,
   images: {
     remotePatterns: [
