@@ -55,7 +55,7 @@ export async function generateMetadata({
       languages: {
         en: '/en',
         vi: '/vi',
-        'x-default': '/vi',
+        'x-default': `/${routing.defaultLocale}`,
       },
     },
     openGraph: {

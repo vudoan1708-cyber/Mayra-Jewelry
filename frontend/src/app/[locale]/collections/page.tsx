@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 
 import { Link } from '../../../i18n/navigation';
 import { localizeJewelryItem } from '../../../i18n/productCopy';
+import { buildLocalizedMetadata } from '../../../i18n/metadata';
 import { getAllJewelry } from '../../../server/data';
 import {
   browseThumbnailOf,
@@ -21,13 +22,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.collections' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '/collections',
     title: t('title'),
     description: t('description'),
-    openGraph: { title: t('title'), description: t('description') },
-    twitter: { title: t('title'), description: t('description') },
-    alternates: { canonical: `/${locale}/collections` },
-  };
+  });
 }
 
 type CollectionCard = {

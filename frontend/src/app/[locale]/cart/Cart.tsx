@@ -101,9 +101,11 @@ export default function Cart({ userId, userEmail }: { userId: string; userEmail:
     )
   }
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col justify-center items-center h-full">
-      <p className="text-[100px] text-center select-none">🛒</p>
-      <p>{t('empty')} <a onClick={() => { router.push('/'); }}>{tCommon('backToHome')}</a> {t('emptyCta')}</p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col justify-center items-center h-full p-3">
+      <div className="bg-accent-200 rounded-2xl shadow-lg px-5 py-4 flex flex-col items-center max-w-md text-center">
+        <p className="text-[100px] text-center select-none leading-none">🛒</p>
+        <p className="mt-2">{t('empty')} <a onClick={() => { router.push('/browse'); }}>{tCommon('browseCollection')}</a> {t('emptyCta')}</p>
+      </div>
     </motion.div>
   );
 }

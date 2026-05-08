@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import Bio from '../../components/Bio';
 import QuickNav from '../../components/Home/QuickNav';
 import HomeJewelCanvas from '../../components/Background/HomeJewelCanvas';
+import { buildLocalizedMetadata } from '../../i18n/metadata';
 
 export async function generateMetadata({
   params,
@@ -13,12 +14,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.home' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '',
     title: t('title'),
     description: t('description'),
-    openGraph: { title: t('title'), description: t('description') },
-    twitter: { title: t('title'), description: t('description') },
-  };
+  });
 }
 
 export default function Home() {

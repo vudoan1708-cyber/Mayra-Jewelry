@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
 import SizeGuideView from './SizeGuideView';
+import { buildLocalizedMetadata } from '../../../i18n/metadata';
 
 export async function generateMetadata({
   params,
@@ -10,11 +11,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.sizeGuide' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '/size-guide',
     title: t('title'),
     description: t('description'),
-    alternates: { canonical: `/${locale}/size-guide` },
-  };
+  });
 }
 
 export default function Page() {

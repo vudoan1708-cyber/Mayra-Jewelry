@@ -8,6 +8,7 @@ import Grid from '../../../../components/Jewelry/Grid';
 import GridItem from '../../../../components/Jewelry/GridItem';
 import { Link } from '../../../../i18n/navigation';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
+import { buildLocalizedMetadata } from '../../../../i18n/metadata';
 import { getAllJewelry } from '../../../../server/data';
 import { minPrice, slugifyCollection } from '../../../../helpers';
 import type { JewelryItemInfo } from '../../../../../types';
@@ -67,13 +68,12 @@ export async function generateMetadata({
     featured: tCat('featured.name'),
   });
   const name = resolved?.name ?? decodeURIComponent(collectionName);
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: `/collections/${collectionName}`,
     title: t('title', { name }),
     description: t('description', { name }),
-    openGraph: { title: t('title', { name }), description: t('description', { name }) },
-    twitter: { title: t('title', { name }), description: t('description', { name }) },
-    alternates: { canonical: `/${locale}/collections/${collectionName}` },
-  };
+  });
 }
 
 export default async function Collection({

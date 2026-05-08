@@ -8,6 +8,7 @@ import Search, { type BrowseSearchItem } from './Search';
 
 import { getAllJewelry } from '../../../server/data';
 import { localizeJewelryItem } from '../../../i18n/productCopy';
+import { buildLocalizedMetadata } from '../../../i18n/metadata';
 import { browseThumbnailOf, minPrice } from '../../../helpers';
 
 export async function generateMetadata({
@@ -17,13 +18,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.browse' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '/browse',
     title: t('title'),
     description: t('description'),
-    openGraph: { title: t('title'), description: t('description') },
-    twitter: { title: t('title'), description: t('description') },
-    alternates: { canonical: `/${locale}/browse` },
-  };
+  });
 }
 
 

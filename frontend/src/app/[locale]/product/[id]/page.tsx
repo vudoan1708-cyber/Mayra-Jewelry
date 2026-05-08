@@ -7,6 +7,7 @@ import { auth } from '../../../auth';
 import { getJewelryItem, updateJewelry } from '../../../../server/data';
 import { browseThumbnailOf } from '../../../../helpers';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
+import { buildLocalizedMetadata } from '../../../../i18n/metadata';
 
 export async function generateMetadata({
   params,
@@ -23,23 +24,13 @@ export async function generateMetadata({
   const name = localized?.itemName ?? 'Mayra';
   const description = localized?.description?.split('\n')[0] ?? t('description', { name });
   const thumbnail = item ? browseThumbnailOf(item.media) : undefined;
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: `/product/${id}`,
     title: t('title', { name }),
     description,
-    openGraph: {
-      title: t('title', { name }),
-      description,
-      type: 'website',
-      images: thumbnail ? [{ url: thumbnail, alt: name }] : undefined,
-    },
-    twitter: {
-      card: thumbnail ? 'summary_large_image' : 'summary',
-      title: t('title', { name }),
-      description,
-      images: thumbnail ? [thumbnail] : undefined,
-    },
-    alternates: { canonical: `/${locale}/product/${id}` },
-  };
+    ogImage: thumbnail ? { url: thumbnail, alt: name } : undefined,
+  });
 }
 
 export default async function Product({ params }: { params: Promise<{ id: string }> }) {

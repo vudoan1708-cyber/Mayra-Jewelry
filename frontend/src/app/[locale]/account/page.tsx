@@ -5,6 +5,7 @@ import SelectProvider from './SelectProvider';
 import { auth } from '../../auth';
 import { getBuyer, getOrdersByBuyerId } from '../../../server/data';
 import { userIdOrBase64Email } from '../../../helpers';
+import { buildLocalizedMetadata } from '../../../i18n/metadata';
 
 export async function generateMetadata({
   params,
@@ -13,12 +14,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.account' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '/account',
     title: t('title'),
     description: t('description'),
-    robots: { index: false, follow: false },
-    alternates: { canonical: `/${locale}/account` },
-  };
+    noIndex: true,
+  });
 }
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {

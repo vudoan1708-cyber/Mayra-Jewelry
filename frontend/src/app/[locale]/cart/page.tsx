@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { auth } from '../../auth';
 import Cart from './Cart';
+import { buildLocalizedMetadata } from '../../../i18n/metadata';
 
 export async function generateMetadata({
   params,
@@ -11,12 +12,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata.cart' });
-  return {
+  return buildLocalizedMetadata({
+    locale,
+    path: '/cart',
     title: t('title'),
     description: t('description'),
-    robots: { index: false, follow: false },
-    alternates: { canonical: `/${locale}/cart` },
-  };
+    noIndex: true,
+  });
 }
 
 export default async function Page() {
