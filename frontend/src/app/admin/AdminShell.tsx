@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-import { Gem, Megaphone, Users, LogOut } from 'lucide-react';
+import { Gem, Megaphone, Users, LogOut, Menu, X } from 'lucide-react';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { useAdminAuth } from './AdminAuthContext';
 
@@ -20,12 +20,26 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const pathname = usePathname();
   const { status, email, signOut } = useAdminAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (status === 'anonymous') {
       router.replace('/admin/login');
     }
   }, [status, router]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const preventTouch = (e: TouchEvent) => e.preventDefault();
+    document.addEventListener('touchmove', preventTouch, { passive: false });
+    return () => {
+      document.removeEventListener('touchmove', preventTouch);
+    };
+  }, [mobileOpen]);
 
   if (status !== 'authenticated') {
     return (
@@ -34,6 +48,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </div>
     );
   }
+
+  const isItemActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -46,9 +62,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               </span>
               <span className="text-sm text-accent-100/90">{email}</span>
             </Link>
-            <nav className="flex items-center gap-7">
+            <nav className="hidden min-[900px]:flex items-center gap-7">
               {navItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive = isItemActive(item.href);
                 const Icon = item.icon;
                 return (
                   <Link
@@ -68,13 +84,96 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <button
             type="button"
             onClick={signOut}
-            className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent-200/80 hover:text-accent-300 transition-colors"
+            className="hidden min-[900px]:flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent-200/80 hover:text-accent-300 transition-colors cursor-pointer"
           >
             <LogOut className="size-4" />
             Sign out
           </button>
+          <button
+            type="button"
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            aria-controls="admin-mobile-nav-drawer"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setMobileOpen(true)}
+            className="min-[900px]:hidden text-accent-200 hover:text-accent-300 transition-colors p-1.5 cursor-pointer"
+          >
+            <Menu className="size-6" />
+          </button>
         </div>
       </header>
+
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-[60] min-[900px]:hidden">
+        <AnimatePresence>
+          {mobileOpen && (
+            <>
+              <motion.div
+                key="admin-mobile-nav-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileOpen(false)}
+                className="absolute inset-0 bg-brand-700/60 backdrop-blur-sm pointer-events-auto"
+              />
+              <motion.aside
+                id="admin-mobile-nav-drawer"
+                key="admin-mobile-nav-drawer"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+                className="absolute top-0 right-0 bottom-0 w-[78%] max-w-[320px] bg-brand-600 text-accent-100 flex flex-col py-5 px-6 shadow-2xl shadow-black/50 pointer-events-auto"
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <span className="font-serif font-semibold text-accent-300 text-lg tracking-[0.32em] pl-[0.32em]">
+                    MENU
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Close menu"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-accent-200 hover:text-accent-300 transition-colors p-1 cursor-pointer"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
+                <ul className="flex flex-col gap-7">
+                  {navItems.map((item) => {
+                    const isActive = isItemActive(item.href);
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={`flex items-center gap-2 text-sm uppercase tracking-[0.2em] transition-colors !no-underline ${
+                            isActive ? '!text-accent-300' : '!text-accent-200 hover:!text-accent-300'
+                          }`}
+                        >
+                          <Icon className="size-4" />
+                          {item.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <hr className="my-6 border-accent-500/20" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    signOut();
+                  }}
+                  className="flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-accent-200/80 hover:text-accent-300 transition-colors cursor-pointer"
+                >
+                  <LogOut className="size-4" />
+                  Sign out
+                </button>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
 
       <motion.main
         key={pathname}
