@@ -72,6 +72,7 @@ type EditorState = {
   description: string;
   featureCollection: string;
   giftable: boolean;
+  bestSeller: boolean;
   prices: AdminJewelryPrice[];
   thumbnail: ThumbnailState;
   extras: ExtraSlot[];
@@ -102,6 +103,7 @@ const defaultState: EditorState = {
   description: '',
   featureCollection: '',
   giftable: true,
+  bestSeller: false,
   prices: [{ variation: 'Silver', amount: 0, currency: 'VND', discount: 0 }],
   thumbnail: null,
   extras: [],
@@ -235,6 +237,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           description: item.description,
           featureCollection: item.featureCollection,
           giftable: item.giftable,
+          bestSeller: item.bestSeller,
           prices: hydratePrices(item),
           thumbnail,
           extras,
@@ -459,6 +462,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
         fd.append('description', state.description);
         fd.append('featureCollection', state.featureCollection);
         fd.append('giftable', String(state.giftable));
+        fd.append('bestSeller', String(state.bestSeller));
         fd.append('currency', state.prices[0]?.currency ?? 'VND');
         fd.append('prices', JSON.stringify(state.prices));
         fd.append('type', 'ring');
@@ -477,6 +481,7 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
           description: state.description,
           featureCollection: state.featureCollection,
           giftable: state.giftable,
+          bestSeller: state.bestSeller,
           translations: translationsPayload,
           prices: state.prices.map((p) => ({
             variation: p.variation,
@@ -694,6 +699,28 @@ export default function JewelryEditor({ directoryId }: { directoryId?: string })
                   </section>
                 );
               })}
+
+              <section className={adminCardPadded}>
+                <header className="flex flex-col gap-1">
+                  <p className={adminEyebrow}>Merchandising</p>
+                  <h2 className={adminSectionTitle}>Best seller</h2>
+                  <p className="text-xs text-brand-500/70">
+                    Featured on the /collections/best-sellers page, sorted by purchase count.
+                  </p>
+                </header>
+
+                <label className="inline-flex items-center gap-3 bg-accent-100/40 border border-accent-300/60 rounded-md px-3.5 py-3 cursor-pointer select-none w-full sm:max-w-sm">
+                  <input
+                    type="checkbox"
+                    checked={state.bestSeller}
+                    onChange={(e) => setState((s) => ({ ...s, bestSeller: e.target.checked }))}
+                    className="!size-4 accent-brand-700"
+                  />
+                  <span className="text-sm text-brand-700">
+                    {state.bestSeller ? 'Marked as best seller' : 'Not a best seller'}
+                  </span>
+                </label>
+              </section>
 
               <section className={adminCardPadded}>
                 <header className="flex items-end justify-between gap-3">

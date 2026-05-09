@@ -131,6 +131,7 @@ type updateJewelryRequest struct {
 	Description       *string                     `json:"description,omitempty"`
 	FeatureCollection *string                     `json:"featureCollection,omitempty"`
 	Giftable          *bool                       `json:"giftable,omitempty"`
+	BestSeller        *bool                       `json:"bestSeller,omitempty"`
 	Translations      *models.JewelryTranslations `json:"translations,omitempty"`
 	Prices            *[]models.JewelryPrice      `json:"prices,omitempty"`
 }
@@ -171,6 +172,9 @@ func UpdateJewelry(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Giftable != nil {
 		updates["giftable"] = *req.Giftable
+	}
+	if req.BestSeller != nil {
+		updates["bestSeller"] = *req.BestSeller
 	}
 	if req.Translations != nil {
 		updates["translations"] = *req.Translations
@@ -256,6 +260,15 @@ func CreateJewelry(w http.ResponseWriter, r *http.Request) {
 		}
 		giftable = parsed
 	}
+	bestSeller := false
+	if v := firstValue(data, "bestSeller"); v != "" {
+		parsed, err := strconv.ParseBool(v)
+		if err != nil {
+			middleware.HandleErrorResponse(w, http.StatusBadRequest, "bestSeller must be a boolean")
+			return
+		}
+		bestSeller = parsed
+	}
 	currency := firstValue(data, "currency")
 	if currency == "" {
 		currency = "VND"
@@ -282,6 +295,7 @@ func CreateJewelry(w http.ResponseWriter, r *http.Request) {
 			Currency:          currency,
 			InStock:           true,
 			Giftable:          giftable,
+			BestSeller:        bestSeller,
 			Translations:      translations,
 		}
 		if err := txn.Save(item).Error; err != nil {

@@ -154,6 +154,7 @@ export type AdminJewelryUpdate = {
   description?: string;
   featureCollection?: string;
   giftable?: boolean;
+  bestSeller?: boolean;
   translations?: JewelryTranslations;
   prices?: Array<{
     variation: AdminJewelryPrice['variation'];

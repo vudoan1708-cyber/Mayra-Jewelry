@@ -36,6 +36,7 @@ function Ring({
   tilt,
   rotateSpeed,
   opacity,
+  tint,
 }: {
   url: string;
   scrollY: { current: number };
@@ -44,6 +45,7 @@ function Ring({
   tilt: [number, number, number];
   rotateSpeed: number;
   opacity: number;
+  tint?: string;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(url) as unknown as { scene: THREE.Group };
@@ -51,6 +53,7 @@ function Ring({
   const cloned = useMemo(() => {
     const root = scene.clone(true);
     const useAlpha = opacity < 1;
+    const tintColor = tint ? new THREE.Color(tint) : null;
 
     root.traverse((child) => {
       if (!(child as THREE.Mesh).isMesh) return;
@@ -62,6 +65,9 @@ function Ring({
           cm.transparent = true;
           cm.opacity = opacity;
           cm.depthWrite = false;
+        }
+        if (tintColor && 'color' in cm && (cm as THREE.MeshStandardMaterial).color) {
+          (cm as THREE.MeshStandardMaterial).color.multiply(tintColor);
         }
         return cm;
       });
@@ -82,7 +88,7 @@ function Ring({
     const wrapper = new THREE.Group();
     wrapper.add(root);
     return wrapper;
-  }, [scene, opacity]);
+  }, [scene, opacity, tint]);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -172,6 +178,45 @@ function Dust({ count }: { count: number }) {
   );
 }
 
+function ScenePieces({ scrollY }: { scrollY: { current: number } }) {
+  const viewport = useThree((s) => s.viewport);
+  const spread = Math.max(1, viewport.width / 16);
+  const crownSpread = Math.max(1, viewport.width / 22);
+
+  return (
+    <>
+      <Ring
+        url={CROWN_MODEL}
+        scrollY={scrollY}
+        position={[3.5 * crownSpread, -1, -2]}
+        scale={1}
+        tilt={[0.5, 0.2, -0.25]}
+        rotateSpeed={0.18}
+        opacity={0.55}
+      />
+      <Ring
+        url={RING_MODEL}
+        scrollY={scrollY}
+        position={[-1.2, 2.5, -5]}
+        scale={0.42}
+        tilt={[1.0, -0.3, 0.5]}
+        rotateSpeed={-0.12}
+        opacity={0.28}
+        tint="#f0c66a"
+      />
+      <Ring
+        url={RING_MODEL}
+        scrollY={scrollY}
+        position={[-3 * spread, -2.8, -3.5]}
+        scale={0.59}
+        tilt={[-0.4, 0.6, 0.2]}
+        rotateSpeed={0.22}
+        opacity={0.38}
+      />
+    </>
+  );
+}
+
 export default function JewelCanvas() {
   const [active, setActive] = useState(true);
   const scrollY = useRef(0);
@@ -205,27 +250,10 @@ export default function JewelCanvas() {
 
       <Suspense fallback={null}>
         <StudioEnvironment />
-        <Ring
-          url={CROWN_MODEL}
-          scrollY={scrollY}
-          position={[3.5, -1, -2]}
-          scale={1}
-          tilt={[0.5, 0.2, -0.25]}
-          rotateSpeed={0.18}
-          opacity={0.55}
-        />
-        <Ring
-          url={RING_MODEL}
-          scrollY={scrollY}
-          position={[-4.5, 2.5, -5]}
-          scale={0.55}
-          tilt={[1.0, -0.3, 0.5]}
-          rotateSpeed={-0.12}
-          opacity={0.32}
-        />
+        <ScenePieces scrollY={scrollY} />
       </Suspense>
 
-      <Dust count={36} />
+      <Dust count={60} />
     </Canvas>
   );
 }
