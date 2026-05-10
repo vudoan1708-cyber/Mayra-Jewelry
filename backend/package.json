@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "watch-docker.js",
   "scripts": {
-    "dev": "docker compose up"
+    "dev": "mutagen-compose up"
   },
   "keywords": [],
   "author": "",

@@ -39,7 +39,7 @@ type CollectionCard = {
 
 export default async function CollectionsIndex() {
   const [items, locale, t] = await Promise.all([
-    getAllJewelry().catch(() => []),
+    getAllJewelry(),
     getLocale(),
     getTranslations('collections'),
   ]);
@@ -85,12 +85,14 @@ export default async function CollectionsIndex() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-8 md:-mt-10">
-        {cards.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-accent-400/40 bg-brand-700/40 backdrop-blur-sm p-12 text-center text-accent-200/80">
-            <p className="text-lg">{t('empty')}</p>
+      {cards.length === 0 ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-10 md:mt-14 flex justify-center">
+          <div className="bg-accent-200 rounded-2xl shadow-lg px-5 py-4 flex flex-col items-center max-w-md text-center">
+            <p className="text-lg text-brand-700">{t('empty')}</p>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-8 md:-mt-10">
           <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 md:gap-6 auto-rows-[220px] sm:auto-rows-[260px] md:auto-rows-[300px]">
             {hero && (
               <CollectionTile
@@ -115,8 +117,8 @@ export default async function CollectionsIndex() {
               />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

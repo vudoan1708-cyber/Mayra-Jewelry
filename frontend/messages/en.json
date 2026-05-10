@@ -83,6 +83,12 @@
     "message": "This page does not exist.",
     "back": "Back to homepage"
   },
+  "error": {
+    "title": "Something went wrong",
+    "message": "We couldn't load this page right now. Please try again in a moment.",
+    "retry": "Try again",
+    "back": "Back to homepage"
+  },
   "floating": {
     "signInForOffers": "Sign in to unlock offers"
   },

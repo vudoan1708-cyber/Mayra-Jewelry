@@ -10,4 +10,20 @@ services:
       - "8080:8080"
     volumes:
       # - ${GOPATH}/pkg/mod:/go/pkg/mod
-      - .:/app
+      - mayra-code:/app
+
+volumes:
+  mayra-code:
+
+x-mutagen:
+  sync:
+    code:
+      alpha: "."
+      beta: "volume://mayra-code"
+      mode: "two-way-resolved"
+      ignore:
+        vcs: true
+        paths:
+          - "/tmp"
+          - "/node_modules"
+          - ".env"

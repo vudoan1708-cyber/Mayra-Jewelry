@@ -58,7 +58,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, collectionName } = await params;
   const [items, t, tCat] = await Promise.all([
-    getAllJewelry().catch(() => [] as JewelryItemInfo[]),
+    getAllJewelry(),
     getTranslations({ locale, namespace: 'metadata.collection' }),
     getTranslations({ locale, namespace: 'home.categories' }),
   ]);
@@ -83,7 +83,7 @@ export default async function Collection({
 }) {
   const { collectionName } = await params;
   const [items, locale, t, tCat] = await Promise.all([
-    getAllJewelry().catch(() => [] as JewelryItemInfo[]),
+    getAllJewelry(),
     getLocale(),
     getTranslations('collections'),
     getTranslations('home.categories'),
@@ -135,12 +135,14 @@ export default async function Collection({
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto -mt-4 md:-mt-6">
-        {sorted.length === 0 ? (
-          <div className="m-6 rounded-2xl border border-dashed border-accent-400/40 bg-brand-700/40 backdrop-blur-sm p-12 text-center text-accent-200/80">
-            <p className="text-lg">{t('emptyCollection')}</p>
+      {sorted.length === 0 ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-10 md:mt-14 flex justify-center">
+          <div className="bg-accent-200 rounded-2xl shadow-lg px-5 py-4 flex flex-col items-center max-w-md text-center">
+            <p className="text-lg text-brand-700">{t('emptyCollection')}</p>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto -mt-4 md:-mt-6">
           <Grid>
             {sorted.map((item) => (
               <GridItem
@@ -169,8 +171,8 @@ export default async function Collection({
               </GridItem>
             ))}
           </Grid>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

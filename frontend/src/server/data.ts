@@ -1,16 +1,19 @@
 import { type Buyer, type JewelryItemInfo, type Order, type VeriyingOrderPayload } from '../../types';
+import { cacheRead } from './cache';
 
 export type UseFetchRequest = {
   url: string | URL | Request;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: BodyInit | undefined;
+  next?: NextFetchRequestConfig;
 }
 
-export const doFetch = async ({ url, method = 'GET', body }: UseFetchRequest) => {
+export const doFetch = async ({ url, method = 'GET', body, next }: UseFetchRequest) => {
   try {
     const options: RequestInit = {
       method,
       body: body instanceof FormData ? body : JSON.stringify(body) || undefined,
+      ...(next ? { next } : {}),
     };
     if (method === 'GET') {
       delete options.body;
@@ -29,6 +32,9 @@ export const doFetch = async ({ url, method = 'GET', body }: UseFetchRequest) =>
   }
 };
 
+const CATALOGUE_REVALIDATE = 60;
+const CATALOGUE_TAG = 'catalogue';
+
 export const fetchQRCode = async ({ amount, info }: { amount: string | number, info: string }) => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/qr?amount=${amount}&info=${info ?? ''}`;
   return doFetch({
@@ -37,25 +43,39 @@ export const fetchQRCode = async ({ amount, info }: { amount: string | number, i
   });
 };
 
-export const getJewelryItem = (id: string): Promise<JewelryItemInfo> => {
+export const getJewelryItem = (id: string): Promise<JewelryItemInfo | null> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/${id}`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
+  return cacheRead<JewelryItemInfo>(`item:${id}`, () =>
+    doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, `item:${id}`] },
+    }),
+  );
 };
-export const getBestSellers = (): Promise<Array<JewelryItemInfo>> => {
+export const getBestSellers = async (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/best`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
+  const result = await cacheRead<Array<JewelryItemInfo>>('best-sellers', () =>
+    doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'best-sellers'] },
+    }),
+  );
+  return result ?? [];
 };
 export const getAllJewelry = async (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry`;
-  const response = await doFetch({ url, method: 'GET' });
-  if (!response) return [];
-  return Object.values(response as Record<string, JewelryItemInfo>);
+  const result = await cacheRead<Array<JewelryItemInfo>>('all', async () => {
+    const response = await doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'all'] },
+    });
+    if (!response) return [];
+    return Object.values(response as Record<string, JewelryItemInfo>);
+  });
+  return result ?? [];
 };
 
 export type SiteBanner = {
@@ -67,28 +87,38 @@ export type SiteBanner = {
 };
 
 export const getSiteBanner = async (): Promise<SiteBanner | null> => {
-  try {
-    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/site/banner`;
-    const response = await doFetch({ url, method: 'GET' });
-    if (!response) return null;
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/site/banner`;
+  return cacheRead<SiteBanner>('banner', async () => {
+    const response = await doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'banner'] },
+    });
+    if (!response) return null as unknown as SiteBanner;
     return response as SiteBanner;
-  } catch {
-    return null;
-  }
+  });
 };
-export const getFeatureCollectionThumbnails = (): Promise<Array<JewelryItemInfo>> => {
+export const getFeatureCollectionThumbnails = async (): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/collection/feature`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
+  const result = await cacheRead<Array<JewelryItemInfo>>('featured', () =>
+    doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'featured'] },
+    }),
+  );
+  return result ?? [];
 };
-export const getMostViewedJewelryItems = (id: string): Promise<Array<JewelryItemInfo>> => {
+export const getMostViewedJewelryItems = async (id: string): Promise<Array<JewelryItemInfo>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/jewelry/${id}/collection/most-views`;
-  return doFetch({
-    url,
-    method: 'GET',
-  });
+  const result = await cacheRead<Array<JewelryItemInfo>>(`most-viewed:${id}`, () =>
+    doFetch({
+      url,
+      method: 'GET',
+      next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, `most-viewed:${id}`] },
+    }),
+  );
+  return result ?? [];
 };
 
 export const updateJewelry = (jewelryInfo: Partial<JewelryItemInfo>): Promise<void> => {

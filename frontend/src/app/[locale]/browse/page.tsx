@@ -29,7 +29,7 @@ export async function generateMetadata({
 
 export default async function Page() {
   const [items, locale, t] = await Promise.all([
-    getAllJewelry().catch(() => []),
+    getAllJewelry(),
     getLocale(),
     getTranslations('browse'),
   ]);
@@ -87,9 +87,11 @@ export default async function Page() {
           </Grid>
         )
         : (
-          <div className="m-6 flex flex-col gap-3">
-            <p className="text-[70px] text-center select-none">🥹</p>
-            <p className="text-center text-base !font-light">{t('empty')}</p>
+          <div className="m-6 flex flex-col justify-center items-center">
+            <div className="bg-accent-200 rounded-2xl shadow-lg px-5 py-4 flex flex-col items-center max-w-md text-center">
+              <p className="text-[70px] text-center select-none leading-none">🥹</p>
+              <p className="mt-2 text-center text-base !font-light text-brand-700">{t('empty')}</p>
+            </div>
           </div>
         )
       }

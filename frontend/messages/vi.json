@@ -83,6 +83,12 @@
     "message": "Trang này không tồn tại.",
     "back": "Quay về trang chủ"
   },
+  "error": {
+    "title": "Đã có lỗi xảy ra",
+    "message": "Hiện tại chúng tôi không thể tải trang này. Vui lòng thử lại sau giây lát.",
+    "retry": "Thử lại",
+    "back": "Quay về trang chủ"
+  },
   "floating": {
     "signInForOffers": "Đăng nhập để nhận ưu đãi"
   },

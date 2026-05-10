@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 import Wrapper from './Wrapper';
@@ -18,7 +19,7 @@ export async function generateMetadata({
   const decodedId = decodeURIComponent(id);
   const [t, item] = await Promise.all([
     getTranslations({ locale, namespace: 'metadata.product' }),
-    getJewelryItem(decodedId).catch(() => null),
+    getJewelryItem(decodedId),
   ]);
   const localized = item ? localizeJewelryItem(item, locale) : null;
   const name = localized?.itemName ?? 'Mayra';
@@ -38,10 +39,13 @@ export default async function Product({ params }: { params: Promise<{ id: string
   const decodedId = decodeURIComponent(id);
 
   const [session, jewelryItem, locale] = await Promise.all([auth(), getJewelryItem(decodedId), getLocale()]);
+  if (!jewelryItem) notFound();
   const localized = localizeJewelryItem(jewelryItem, locale);
 
   // As soon as this page loads, it means the view count of this produce has increased
-  await updateJewelry({ directoryId: decodedId, views: jewelryItem.views + 1 });
+  await updateJewelry({ directoryId: decodedId, views: jewelryItem.views + 1 }).catch((e) => {
+    console.error('failed to bump view count', e);
+  });
   return (
     <div className="w-full mb-5 grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[2fr_1fr] justify-around gap-2 p-2">
       <Wrapper

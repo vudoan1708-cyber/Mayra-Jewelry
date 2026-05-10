@@ -134,8 +134,10 @@ export default function QuickNavView({ featured }: { featured: QuickNavCard[] })
             </header>
 
             {featured.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-accent-400/40 bg-brand-700/40 backdrop-blur-sm p-10 text-center text-accent-200/70">
-                <p className="text-lg">{t('featured.empty')}</p>
+              <div className="flex justify-center">
+                <div className="bg-accent-200 rounded-2xl shadow-lg px-5 py-4 flex flex-col items-center max-w-md text-center">
+                  <p className="text-lg text-brand-700">{t('featured.empty')}</p>
+                </div>
               </div>
             ) : (
               <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 overflow-x-auto snap-x snap-mandatory scroll-px-4 sm:scroll-px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

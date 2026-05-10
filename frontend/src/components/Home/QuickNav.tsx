@@ -7,8 +7,8 @@ import { localizeJewelryItem } from '../../i18n/productCopy';
 
 export default async function QuickNav() {
   const [best, featured, locale] = await Promise.all([
-    getBestSellers().catch(() => []),
-    getFeatureCollectionThumbnails().catch(() => []),
+    getBestSellers(),
+    getFeatureCollectionThumbnails(),
     getLocale(),
   ]);
 
