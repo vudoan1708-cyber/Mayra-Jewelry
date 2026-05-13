@@ -18,6 +18,8 @@ export type QuickNavCard = {
   currency: string;
 };
 
+export type QuickNavCover = { image: string };
+
 type Category = {
   key: 'collections' | 'bestSellers' | 'featured';
   href: string;
@@ -29,10 +31,15 @@ const categories: Category[] = [
   { key: 'featured', href: '/collections/featured' },
 ];
 
-export default function QuickNavView({ featured }: { featured: QuickNavCard[] }) {
+export default function QuickNavView({
+  covers,
+  featured,
+}: {
+  covers: Array<QuickNavCover | null>;
+  featured: QuickNavCard[];
+}) {
   const t = useTranslations('home');
   const tCat = useTranslations('home.categories');
-  const covers = featured.slice(0, categories.length);
 
   return (
     <section className="relative w-full pb-12 space-y-10">

@@ -14,7 +14,7 @@ import throttle from 'lodash/throttle';
 
 import Variation from '../../../components/Jewelry/Variation';
 
-import { PAYMENT_INFO, SAVE_TO_CART, WAIT } from '../../../helpers';
+import { PAYMENT_INFO, SAVE_TO_CART, slugifyCollection, WAIT } from '../../../helpers';
 import { useCartCount, type CartItem } from '../../../stores/CartCountProvider';
 import { getJewelryItem } from '../../../server/data';
 import Share from './Share';
@@ -160,7 +160,7 @@ export default function Card({
           <span className="flex gap-1 items-center text-sm text-brand-700">
             <b>{tCommon('collection')}:</b>
             <NavItem
-              href={`/collections/${item.featureCollection}`}
+              href={`/collections/${slugifyCollection(item.featureCollection)}`}
               withBorder={false}
               className="!underline decoration-accent-500/70 underline-offset-4 !text-sm !text-brand-500 hover:!text-accent-600 hover:decoration-accent-600"
               onClick={stop}

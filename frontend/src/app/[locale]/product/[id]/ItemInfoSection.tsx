@@ -18,7 +18,7 @@ import Button from '../../../../components/Button';
 import Loading from '../../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../../stores/CartCountProvider';
-import { browseThumbnailOf, detailHeroOf, extrasForVariation, SAVE_TO_CART, WAIT } from '../../../../helpers';
+import { browseThumbnailOf, detailHeroOf, extrasForVariation, SAVE_TO_CART, slugifyCollection, WAIT } from '../../../../helpers';
 
 import type { Media } from '../../../../../types';
 import NavItem from '../../../../components/Navigation/NavItem';
@@ -247,7 +247,7 @@ export default function ItemInfoSection({
           <div className="flex gap-1 items-center text-brand-700">
             <h2 className="text-base font-semibold">{t('collection')}</h2>
             <NavItem
-              href={`/collections/${featureCollection}`}
+              href={`/collections/${slugifyCollection(featureCollection)}`}
               withBorder={false}
               className="!underline decoration-accent-500/70 underline-offset-4 !text-sm !text-brand-500 hover:!text-accent-600 hover:decoration-accent-600"
               onClick={(e) => { e.stopPropagation(); }}
