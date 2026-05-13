@@ -340,6 +340,7 @@
       "account": "Tài khoản"
     },
     "orderId": "Mã đơn #{id}",
+    "noOrders": "Bạn chưa có đơn hàng nào.",
     "loggedInVia": "Bạn đã đăng nhập vào Mayra thông qua tài khoản Facebook <b>{name}</b> và đang tích điểm Mayra Point.",
     "logoutHint": "Hãy bấm nút phía dưới nếu bạn muốn đăng xuất khỏi Mayra.",
     "logoutCta": "Đăng xuất",

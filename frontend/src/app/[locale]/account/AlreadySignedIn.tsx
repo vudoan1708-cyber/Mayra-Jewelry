@@ -78,7 +78,7 @@ export default function AlreadySignedIn({
     if (activeTab.id === 1) {
       return (
         <>
-          {orders?.length > 0 && (
+          {orders?.length > 0 ? (
             <ul className="grid grid-cols-1 gap-4 items-center justify-center list-none overflow-visible">
               {orders.map((order) => (
                 <li key={order.id} className="flex flex-col gap-1 border-radius-[0_6px_6px_0] p-1">
@@ -89,6 +89,8 @@ export default function AlreadySignedIn({
                 </li>
               ))}
             </ul>
+          ) : (
+            <p className="text-center text-brand-700/70 py-6">{t('noOrders')}</p>
           )}
         </>
       )

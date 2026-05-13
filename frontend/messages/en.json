@@ -340,6 +340,7 @@
       "account": "Account"
     },
     "orderId": "Order #{id}",
+    "noOrders": "You haven't placed any orders yet.",
     "loggedInVia": "You're signed in to Mayra with your Facebook account <b>{name}</b> and earning Mayra Points.",
     "logoutHint": "Press the button below if you want to sign out of Mayra.",
     "logoutCta": "Sign out",
