@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
@@ -13,9 +13,12 @@ import {
   adminLabelText,
 } from '../styles';
 import { adminLogin, setPendingToken } from '../api';
+import { sanitiseNextPath } from '../next';
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = sanitiseNextPath(searchParams.get('next'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -28,7 +31,8 @@ export default function LoginForm() {
     try {
       const { pendingToken } = await adminLogin(email.trim().toLowerCase(), password);
       setPendingToken(pendingToken);
-      router.push('/admin/login/totp');
+      const totpPath = next ? `/admin/login/totp?next=${encodeURIComponent(next)}` : '/admin/login/totp';
+      router.push(totpPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed');
       setBusy(false);

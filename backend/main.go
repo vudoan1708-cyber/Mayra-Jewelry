@@ -75,6 +75,7 @@ func main() {
 	adminProtectedRouter.HandleFunc("/users", admin_cms.ListAdmins).Methods("GET")
 	adminProtectedRouter.HandleFunc("/users", admin_cms.CreateAdmin).Methods("POST")
 	adminProtectedRouter.HandleFunc("/users/{id}", admin_cms.UpdateAdmin).Methods("PATCH")
+	adminProtectedRouter.HandleFunc("/payment/confirm-payment", api.ConfirmPaymentAndVerifyOrder).Methods("POST")
 
 	apiRouter.HandleFunc("/site/banner", site.GetBanner).Methods("GET")
 	apiRouter.HandleFunc("/jewelry/collection/best", api.GetJewelryItemsByBestSeller).Methods("GET")
@@ -89,7 +90,6 @@ func main() {
 	apiRouter.HandleFunc("/user/buyer/payment/pending-verification", api.RequestVerifyingOrder).Methods("POST")
 	apiRouter.HandleFunc("/user/buyer", api.UpsertBuyerDetails).Methods("POST")
 	apiRouter.HandleFunc("/order/buyer/{buyerId}", api.GetOrdersByBuyerId).Methods("GET")
-	apiRouter.HandleFunc("/payment/confirm-payment", api.ConfirmPaymentAndVerifyOrder).Methods("POST")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
 	apiRouter.HandleFunc("/payment/webhook/{provider}", api.HandlePaymentWebhook).Methods("POST")

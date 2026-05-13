@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 
@@ -9,30 +9,35 @@ import Button from '../../../../components/Button';
 import { adminEyebrow } from '../../styles';
 import { adminVerifyTotp, getPendingToken, setPendingToken } from '../../api';
 import { useAdminAuth } from '../../AdminAuthContext';
+import { sanitiseNextPath } from '../../next';
 
 const CODE_LENGTH = 6;
 
 export default function TotpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = sanitiseNextPath(searchParams.get('next'));
   const { setSession } = useAdminAuth();
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const loginRedirectPath = next ? `/admin/login?next=${encodeURIComponent(next)}` : '/admin/login';
+
   useEffect(() => {
     if (!getPendingToken()) {
-      router.replace('/admin/login');
+      router.replace(loginRedirectPath);
       return;
     }
     inputRef.current?.focus();
-  }, [router]);
+  }, [router, loginRedirectPath]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const pending = getPendingToken();
     if (!pending) {
-      router.replace('/admin/login');
+      router.replace(loginRedirectPath);
       return;
     }
     if (code.length !== CODE_LENGTH) {
@@ -45,7 +50,7 @@ export default function TotpForm() {
       const { sessionToken, email } = await adminVerifyTotp(pending, code);
       setPendingToken(null);
       setSession(sessionToken, email);
-      router.push('/admin');
+      router.push(next ?? '/admin');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
       setCode('');
@@ -97,7 +102,7 @@ export default function TotpForm() {
 
         <button
           type="button"
-          onClick={() => { setPendingToken(null); router.replace('/admin/login'); }}
+          onClick={() => { setPendingToken(null); router.replace(loginRedirectPath); }}
           className="text-xs uppercase tracking-[0.18em] text-brand-500/70 hover:text-brand-700 transition-colors"
         >
           Sign in as a different user

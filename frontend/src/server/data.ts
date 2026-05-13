@@ -164,17 +164,6 @@ export const requestVerifyingOrder = (payload: VeriyingOrderPayload): Promise<vo
     body: formData,
   });
 };
-export const verifyOrder = (payload: { id: string }): Promise<void> => {
-  const formData = new FormData();
-  formData.append('id', payload.id);
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payment/confirm-payment`;
-  return doFetch({
-    url,
-    method: 'POST',
-    body: formData,
-  });
-};
-
 // Orders
 export const getOrdersByBuyerId = (buyerId: string): Promise<Array<Order>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/buyer/${buyerId}`;

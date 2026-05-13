@@ -34,14 +34,13 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1, transition: { duration: .4, type: 'keyframes' } }}
-        whileHover={{ scale: 1.05, transition: { type: 'spring' } }}
-        className="cursor-pointer">
+        className="cursor-pointer overflow-hidden">
         <Image
           alt={item.itemName}
           src={browseThumbnailOf(item.media) ?? ''}
           width="250"
           height="250"
-          className="relative object-cover rounded-md hover:scale-105 transition-all"
+          className="object-cover hover:scale-105 transition-all"
           onClick={() => { router.push(`/product/${item.directoryId}`); }}
       />
       </motion.div>
@@ -53,15 +52,15 @@ export default function Order({ item, order, idx }: { item: JewelryItemInfo; ord
         <div className="flex flex-col gap-1">
           <strong>{t('status')}</strong>
           <div>
-            <div className="flex gap-2 items-center flex-wrap">
+            <div className="flex gap-2 items-center">
               <DotStatus />
-              {t(`statuses.${order.status}` as 'statuses.pending-verification')}
+              <span className="flex-1 min-w-0">{t(`statuses.${order.status}` as 'statuses.pending-verification')}</span>
             </div>
 
             {order.status === ORDER_STATUS.VERIFIED && (
               <div className="flex gap-2 items-center">
                 <DotStatus />
-                {t('preparingShip')}
+                <span className="flex-1 min-w-0">{t('preparingShip')}</span>
               </div>
             )}
           </div>

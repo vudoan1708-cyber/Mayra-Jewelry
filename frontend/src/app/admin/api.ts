@@ -240,3 +240,12 @@ export const setAdminDisabled = (id: string, disabled: boolean) =>
     headers: jsonHeaders,
     body: JSON.stringify({ disabled }),
   });
+
+export const confirmPayment = (encryptedId: string) => {
+  const formData = new FormData();
+  formData.append('id', encryptedId);
+  return adminFetch<null>('/api/admin/payment/confirm-payment', {
+    method: 'POST',
+    body: formData,
+  });
+};

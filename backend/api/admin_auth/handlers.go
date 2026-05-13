@@ -78,7 +78,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if admin.LockedUntil != nil && admin.LockedUntil.After(time.Now()) {
-		middleware.HandleErrorResponse(w, http.StatusLocked, "account temporarily locked, try again later")
+		middleware.HandleErrorResponse(w, http.StatusLocked, "Account temporarily locked, try again later")
 		return
 	}
 
@@ -132,7 +132,7 @@ func VerifyTotp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if admin.LockedUntil != nil && admin.LockedUntil.After(time.Now()) {
-		middleware.HandleErrorResponse(w, http.StatusLocked, "account temporarily locked, try again later")
+		middleware.HandleErrorResponse(w, http.StatusLocked, "Account temporarily locked, try again later")
 		return
 	}
 
