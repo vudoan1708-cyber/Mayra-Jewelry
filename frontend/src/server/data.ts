@@ -6,14 +6,20 @@ export type UseFetchRequest = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: BodyInit | undefined;
   next?: NextFetchRequestConfig;
+  timeoutMs?: number;
 }
 
-export const doFetch = async ({ url, method = 'GET', body, next }: UseFetchRequest) => {
+const CATALOGUE_FETCH_TIMEOUT_MS = 3000;
+
+export const doFetch = async ({ url, method = 'GET', body, next, timeoutMs }: UseFetchRequest) => {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
     const options: RequestInit = {
       method,
       body: body instanceof FormData ? body : JSON.stringify(body) || undefined,
       ...(next ? { next } : {}),
+      ...(controller ? { signal: controller.signal } : {}),
     };
     if (method === 'GET') {
       delete options.body;
@@ -29,6 +35,8 @@ export const doFetch = async ({ url, method = 'GET', body, next }: UseFetchReque
   } catch (e) {
     console.error(e);
     throw e;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 };
 
@@ -50,6 +58,7 @@ export const getJewelryItem = (id: string): Promise<JewelryItemInfo | null> => {
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, `item:${id}`] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     }),
   );
 };
@@ -60,6 +69,7 @@ export const getBestSellers = async (): Promise<Array<JewelryItemInfo>> => {
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'best-sellers'] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     }),
   );
   return result ?? [];
@@ -71,6 +81,7 @@ export const getAllJewelry = async (): Promise<Array<JewelryItemInfo>> => {
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'all'] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     });
     if (!response) return [];
     return Object.values(response as Record<string, JewelryItemInfo>);
@@ -93,6 +104,7 @@ export const getSiteBanner = async (): Promise<SiteBanner | null> => {
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'banner'] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     });
     if (!response) return null as unknown as SiteBanner;
     return response as SiteBanner;
@@ -105,6 +117,7 @@ export const getFeatureCollectionThumbnails = async (): Promise<Array<JewelryIte
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, 'featured'] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     }),
   );
   return result ?? [];
@@ -116,6 +129,7 @@ export const getMostViewedJewelryItems = async (id: string): Promise<Array<Jewel
       url,
       method: 'GET',
       next: { revalidate: CATALOGUE_REVALIDATE, tags: [CATALOGUE_TAG, `most-viewed:${id}`] },
+      timeoutMs: CATALOGUE_FETCH_TIMEOUT_MS,
     }),
   );
   return result ?? [];

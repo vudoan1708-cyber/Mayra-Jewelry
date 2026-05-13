@@ -20,6 +20,7 @@ import (
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/helpers"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/middleware"
 	nonDbModels "github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/models"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/payment"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -253,10 +254,16 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	chosenMethod := payment.MethodVietQRStatic
+	if data["paymentMethod"] != nil && data["paymentMethod"][0] != "" {
+		chosenMethod = payment.Method(data["paymentMethod"][0])
+	}
+
 	// PendingAt has a default value to now() so no need to fill it in the struct
 	orderPayload := models.Order{
-		Status:  models.PendingVerification,
-		BuyerId: buyerId,
+		Status:        models.PendingVerification,
+		BuyerId:       buyerId,
+		PaymentMethod: string(chosenMethod),
 	}
 
 	if tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {

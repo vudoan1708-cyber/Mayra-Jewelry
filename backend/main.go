@@ -17,6 +17,7 @@ import (
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/cloudflare"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/api/site"
 	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/database"
+	"github.com/vudoan1708-cyber/Mayra-Jewelry/backend/mayra-jewelry/payment"
 )
 
 func main() {
@@ -39,6 +40,10 @@ func main() {
 	if backfill_err := database.DatabaseInstance.BackfillJewelryTranslations(); backfill_err != nil {
 		log.Printf("warning: legacy translation backfill failed: %v", backfill_err)
 	}
+
+	// New providers (vietqr_webhook, stripe, vnpay) plug in by adding a Register
+	// call here; nothing else needs to change.
+	payment.Register(payment.ManualBankVerifier{})
 
 	r := mux.NewRouter()
 
@@ -87,6 +92,7 @@ func main() {
 	apiRouter.HandleFunc("/payment/confirm-payment", api.ConfirmPaymentAndVerifyOrder).Methods("POST")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
+	apiRouter.HandleFunc("/payment/webhook/{provider}", api.HandlePaymentWebhook).Methods("POST")
 
 	srv := &http.Server{
 		Handler: handlers.CombinedLoggingHandler(os.Stdout, cors(apiRouter)),
