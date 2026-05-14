@@ -89,6 +89,14 @@
     "retry": "Thử lại",
     "back": "Quay về trang chủ"
   },
+  "discount": {
+    "referralLabel": "giới thiệu",
+    "subtotal": "Tạm tính",
+    "productDiscount": "Giảm giá sản phẩm",
+    "referralDiscount": "Giảm giá giới thiệu",
+    "ownedCoupon": "Khuyến mãi giới thiệu của bạn",
+    "total": "Tổng cộng"
+  },
   "floating": {
     "signInForOffers": "Đăng nhập để nhận ưu đãi"
   },

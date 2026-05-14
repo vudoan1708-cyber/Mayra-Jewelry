@@ -4,19 +4,11 @@ import Money from '../Money/Money';
 import Grid from './Grid';
 import GridItem from './GridItem';
 import { getFeatureCollectionThumbnails } from '../../server/data';
-import type { Prices } from '../../../types';
+import { lowestPriceEntry } from '../../helpers';
 
 export default async function FeatureCollections() {
   const featureCollections = await getFeatureCollectionThumbnails();
   const t = await getTranslations('jewelry');
-
-  const minPrice = (prices: Prices[]) => {
-    let currentPrice = prices[0].amount;
-    prices.forEach((item) => {
-      currentPrice = Math.min(item.amount, currentPrice);
-    });
-    return currentPrice;
-  };
 
   return (
     <>
@@ -24,19 +16,22 @@ export default async function FeatureCollections() {
         ? (
             <Grid>
               {
-                featureCollections.map((item) => (
-                  <GridItem
-                    key={`feature-${item.directoryId}`}
-                    encodedId={item.directoryId}
-                    media={item.media}
-                    alt={item.description}>
-                    <div>
-                      <b className="text-lg text-gray-800">{item.featureCollection} {t('collectionSuffix')}</b>
-                      <p className="font-light">{item.itemName}</p>
-                    </div>
-                    <b><Money amount={minPrice(item.prices)} currency={item.currency} /></b>
-                  </GridItem>
-                ))
+                featureCollections.map((item) => {
+                  const cheapest = lowestPriceEntry(item.prices);
+                  return (
+                    <GridItem
+                      key={`feature-${item.directoryId}`}
+                      encodedId={item.directoryId}
+                      media={item.media}
+                      alt={item.description}>
+                      <div>
+                        <b className="text-lg text-gray-800">{item.featureCollection} {t('collectionSuffix')}</b>
+                        <p className="font-light">{item.itemName}</p>
+                      </div>
+                      <Money amount={cheapest.amount} discount={cheapest.discount} currency={item.currency} />
+                    </GridItem>
+                  );
+                })
               }
             </Grid>
           )

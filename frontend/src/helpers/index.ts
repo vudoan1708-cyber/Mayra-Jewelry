@@ -194,6 +194,16 @@ export const minPrice = (prices: Prices[]) => {
   return currentPrice;
 };
 
+export const lowestPriceEntry = (prices: Prices[]): Prices =>
+  prices.reduce((cheapest, candidate) =>
+    candidate.amount < cheapest.amount ? candidate : cheapest, prices[0]);
+
+export const applyDiscount = (amount: number, discount: number | undefined | null): number => {
+  if (!discount || discount <= 0) return amount;
+  const clamped = Math.min(discount, 1);
+  return amount * (1 - clamped);
+};
+
 const BuyerTier = {
   SilverTier: 'silver',
   GoldTier: 'gold',

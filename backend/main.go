@@ -90,6 +90,8 @@ func main() {
 	apiRouter.HandleFunc("/user/buyer/payment/pending-verification", api.RequestVerifyingOrder).Methods("POST")
 	apiRouter.HandleFunc("/user/buyer", api.UpsertBuyerDetails).Methods("POST")
 	apiRouter.HandleFunc("/order/buyer/{buyerId}", api.GetOrdersByBuyerId).Methods("GET")
+	apiRouter.HandleFunc("/referrals/token", api.CreateReferralToken).Methods("POST")
+	apiRouter.HandleFunc("/user/buyer/{buyerId}/referral-coupons", api.ListBuyerReferralCoupons).Methods("GET")
 	apiRouter.HandleFunc("/payment/banks", api.GetBanks).Methods("GET")
 	apiRouter.HandleFunc("/payment/qr", api.GetQRCode).Methods("GET")
 	apiRouter.HandleFunc("/payment/webhook/{provider}", api.HandlePaymentWebhook).Methods("POST")

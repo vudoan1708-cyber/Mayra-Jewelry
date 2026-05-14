@@ -78,6 +78,10 @@ func confirmOrderPaymentWithDB(_ context.Context, db *gorm.DB, confirmation Conf
 			return effectsErr
 		}
 
+		if couponErr := awardReferralCoupon(tx, &order); couponErr != nil {
+			return couponErr
+		}
+
 		log.Printf("ConfirmOrderPayment: order %s verified via %s (ref=%s)", confirmation.OrderID, confirmation.Source, confirmation.Ref)
 		return nil
 	})

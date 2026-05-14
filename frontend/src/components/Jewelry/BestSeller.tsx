@@ -5,7 +5,7 @@ import Grid from './Grid';
 import GridItem from './GridItem';
 
 import { getBestSellers } from '../../server/data';
-import { minPrice } from '../../helpers';
+import { lowestPriceEntry } from '../../helpers';
 
 export default async function BestSeller() {
   const bestSellerItems = await getBestSellers();
@@ -17,18 +17,21 @@ export default async function BestSeller() {
         ? (
             <Grid>
               {
-                bestSellerItems.map((item) => (
-                  <GridItem
-                    key={`best-seller-${item.directoryId}`}
-                    encodedId={item.directoryId}
-                    media={item.media}
-                    alt={item.description}>
-                    <div>
-                      <b className="text-lg text-gray-800">{item.itemName}</b>
-                    </div>
-                    <b><Money amount={minPrice(item.prices)} currency={item.currency} /></b>
-                  </GridItem>
-                ))
+                bestSellerItems.map((item) => {
+                  const cheapest = lowestPriceEntry(item.prices);
+                  return (
+                    <GridItem
+                      key={`best-seller-${item.directoryId}`}
+                      encodedId={item.directoryId}
+                      media={item.media}
+                      alt={item.description}>
+                      <div>
+                        <b className="text-lg text-gray-800">{item.itemName}</b>
+                      </div>
+                      <Money amount={cheapest.amount} discount={cheapest.discount} currency={item.currency} />
+                    </GridItem>
+                  );
+                })
               }
             </Grid>
           )

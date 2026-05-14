@@ -16,9 +16,9 @@ import { PAYMENT_INFO } from '../../helpers';
 import type { JewelryItemInfo } from '../../../types';
 
 export default function PaymentView({
-  amount, info, items, userId, userEmail, onSuccessfulConfirmation,
+  amount, info, items, userId, userEmail, couponId, onSuccessfulConfirmation,
 }: {
-  amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string; userEmail: string; onSuccessfulConfirmation?: () => void;
+  amount: string; info: string; items: Array<Partial<JewelryItemInfo>>; userId: string; userEmail: string; couponId?: string; onSuccessfulConfirmation?: () => void;
 }) {
   const t = useTranslations('payment');
   const tabs = useMemo<Array<Tab>>(() => [
@@ -73,6 +73,7 @@ export default function PaymentView({
                 userId={userId}
                 userEmail={userEmail}
                 totalAmount={amount}
+                couponId={couponId}
                 onSuccessfulConfirmation={onSuccessfulConfirmation} />
             : <div className="flex gap-1 items-center mt-2 bg-red-600 text-white p-1 rounded-sm"><TriangleAlert />{error}</div>}
         </Suspense>

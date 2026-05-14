@@ -259,14 +259,36 @@ func RequestVerifyingOrder(w http.ResponseWriter, r *http.Request) {
 		chosenMethod = payment.Method(data["paymentMethod"][0])
 	}
 
+	var referralToken string
+	if data["referralToken"] != nil && data["referralToken"][0] != "" {
+		candidateToken := data["referralToken"][0]
+		if _, validateErr := payment.ValidateReferralToken(database.DatabaseInstance.Gorm, candidateToken, buyerId); validateErr != nil {
+			middleware.HandleErrorResponse(w, http.StatusBadRequest, validateErr.Error())
+			return
+		}
+		referralToken = candidateToken
+	}
+
+	var couponId string
+	if data["couponId"] != nil && data["couponId"][0] != "" {
+		couponId = data["couponId"][0]
+	}
+
 	// PendingAt has a default value to now() so no need to fill it in the struct
 	orderPayload := models.Order{
-		Status:        models.PendingVerification,
-		BuyerId:       buyerId,
-		PaymentMethod: string(chosenMethod),
+		Status:          models.PendingVerification,
+		BuyerId:         buyerId,
+		PaymentMethod:   string(chosenMethod),
+		ReferralToken:   referralToken,
+		AppliedCouponId: couponId,
 	}
 
 	if tx_err := database.DatabaseInstance.Gorm.Transaction(func(tx *gorm.DB) error {
+		if couponId != "" {
+			if _, claimErr := payment.ClaimCoupon(tx, couponId, buyerId); claimErr != nil {
+				return claimErr
+			}
+		}
 		buyer := models.Buyer{}
 		// Get a buyer with a provided ID
 		if get_error := getOneBuyer(tx, buyerId, &buyer, "*"); get_error != nil {

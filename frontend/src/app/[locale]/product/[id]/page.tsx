@@ -6,6 +6,7 @@ import Wrapper from './Wrapper';
 import MostViewed from './MostViewed';
 import { auth } from '../../../auth';
 import { getJewelryItem, updateJewelry } from '../../../../server/data';
+import { hasReferralCookie } from '../../../../server/actions/order';
 import { browseThumbnailOf } from '../../../../helpers';
 import { localizeJewelryItem } from '../../../../i18n/productCopy';
 import { buildLocalizedMetadata } from '../../../../i18n/metadata';
@@ -38,7 +39,12 @@ export default async function Product({ params }: { params: Promise<{ id: string
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
 
-  const [session, jewelryItem, locale] = await Promise.all([auth(), getJewelryItem(decodedId), getLocale()]);
+  const [session, jewelryItem, locale, referralActive] = await Promise.all([
+    auth(),
+    getJewelryItem(decodedId),
+    getLocale(),
+    hasReferralCookie(),
+  ]);
   if (!jewelryItem) notFound();
   const localized = localizeJewelryItem(jewelryItem, locale);
 
@@ -57,7 +63,8 @@ export default async function Product({ params }: { params: Promise<{ id: string
         prices={jewelryItem.prices}
         purchases={jewelryItem.purchases}
         media={jewelryItem.media}
-        session={session} />
+        session={session}
+        referralActive={referralActive} />
       <MostViewed id={id} />
     </div>
   );

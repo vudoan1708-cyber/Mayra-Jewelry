@@ -19,6 +19,7 @@ import Loading from '../../../../components/Loading/Loading';
 
 import { useCartCount } from '../../../../stores/CartCountProvider';
 import { browseThumbnailOf, detailHeroOf, extrasForVariation, SAVE_TO_CART, slugifyCollection, WAIT } from '../../../../helpers';
+import { REFERRAL_DISCOUNT_PERCENT, type DiscountLayer } from '../../../../helpers/referral';
 
 import type { Media } from '../../../../../types';
 import NavItem from '../../../../components/Navigation/NavItem';
@@ -33,7 +34,9 @@ export default function ItemInfoSection({
   purchases,
   media,
   availableVariations,
-  selectedVariation,
+  currentVariation,
+  onSelectVariation,
+  referralActive,
 }: {
   id: string;
   itemName: string;
@@ -43,11 +46,16 @@ export default function ItemInfoSection({
   purchases: number;
   media: Media[];
   availableVariations: Array<JewelryVariation>;
-  selectedVariation: JewelryVariation;
+  currentVariation: JewelryVariation;
+  onSelectVariation: (variation: JewelryVariation) => void;
+  referralActive: boolean;
 }) {
   const router = useRouter();
   const t = useTranslations('product');
-  const [currentVariation, setCurrentVariation] = useState<JewelryVariation>(selectedVariation);
+  const tDiscount = useTranslations('discount');
+  const extraDiscounts: DiscountLayer[] = referralActive
+    ? [{ percent: REFERRAL_DISCOUNT_PERCENT, label: tDiscount('referralLabel') }]
+    : [];
 
   const imgUrls = useMemo(() => {
     const fallbackVariation = availableVariations[0]?.id;
@@ -76,7 +84,7 @@ export default function ItemInfoSection({
   const { addItem } = useCartCount();
 
   const selectVariation = (variation: JewelryVariation) => {
-    setCurrentVariation(variation);
+    onSelectVariation(variation);
   };
 
   const pickCartImgUrls = (): string[] => {
@@ -236,7 +244,7 @@ export default function ItemInfoSection({
         </small>
 
         <h2 className="text-2xl text-brand-700 font-semibold">
-          <Money amount={currentVariation.amount} />
+          <Money amount={currentVariation.amount} discount={currentVariation.discount} extraDiscounts={extraDiscounts} />
         </h2>
         <motion.hr
           initial={{ width: 0 }}

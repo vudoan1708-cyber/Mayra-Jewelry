@@ -41,9 +41,11 @@ type Order struct {
 	// PaymentMethod is what the buyer chose at checkout (e.g. "vietqr_static").
 	// PaymentSource is which channel ultimately confirmed payment (e.g. "manual_bank", "stripe").
 	// PaymentRef is the provider's idempotency key (bank txn id, webhook event id, etc.).
-	PaymentMethod string `json:"paymentMethod" gorm:"column:paymentMethod"`
-	PaymentSource string `json:"paymentSource" gorm:"column:paymentSource"`
-	PaymentRef    string `json:"paymentRef" gorm:"column:paymentRef"`
+	PaymentMethod   string `json:"paymentMethod" gorm:"column:paymentMethod"`
+	PaymentSource   string `json:"paymentSource" gorm:"column:paymentSource"`
+	PaymentRef      string `json:"paymentRef" gorm:"column:paymentRef"`
+	ReferralToken   string `json:"referralToken" gorm:"column:referralToken"`
+	AppliedCouponId string `json:"appliedCouponId" gorm:"column:appliedCouponId"`
 }
 
 type Buyer struct {

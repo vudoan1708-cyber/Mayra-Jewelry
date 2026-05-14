@@ -89,6 +89,14 @@
     "retry": "Try again",
     "back": "Back to homepage"
   },
+  "discount": {
+    "referralLabel": "referral",
+    "subtotal": "Subtotal",
+    "productDiscount": "Product discount",
+    "referralDiscount": "Referral discount",
+    "ownedCoupon": "Your referral credit",
+    "total": "Total"
+  },
   "floating": {
     "signInForOffers": "Sign in to unlock offers"
   },

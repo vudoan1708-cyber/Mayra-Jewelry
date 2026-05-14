@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 import Button from '../Button';
 import Modal from '../Modal/Modal';
 
-import { requestVerifyingOrder } from '../../server/data';
+import { submitVerifyingOrder } from '../../server/actions/order';
 import type { JewelryItemInfo } from '../../../types';
 import { useRouter } from 'next/navigation';
 
@@ -20,6 +20,7 @@ export default function QRCodeImage({
   userId,
   userEmail,
   totalAmount,
+  couponId,
   onSuccessfulConfirmation,
 }: {
   qrCode: string;
@@ -28,6 +29,7 @@ export default function QRCodeImage({
   userId: string;
   userEmail: string;
   totalAmount: string;
+  couponId?: string;
   onSuccessfulConfirmation?: () => void;
 }) {
   const router = useRouter();
@@ -63,14 +65,14 @@ export default function QRCodeImage({
   const sendConfirmation = async () => {
     try {
       setVerifying(true);
-      console.log('userEmail', userEmail)
-      await requestVerifyingOrder({
+      await submitVerifyingOrder({
         buyerId: userId || (userEmail ? window.btoa(userEmail) : 'anonymous'),
         buyerEmail: userEmail || 'anonymous',
         buyerName: name,
         digits: partialAccountNumber,
         jewelryItems: items,
         totalAmount,
+        couponId,
       })
       closeModal();
       if (onSuccessfulConfirmation) {

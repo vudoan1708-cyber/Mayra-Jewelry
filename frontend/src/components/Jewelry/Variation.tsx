@@ -11,6 +11,7 @@ export type JewelryVariation = {
   style: string;
   label: string;
   amount: number;
+  discount?: number;
   currency?: string;
 };
 

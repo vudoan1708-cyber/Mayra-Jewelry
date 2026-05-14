@@ -4,6 +4,9 @@ import { getTranslations } from 'next-intl/server';
 import { auth } from '../../auth';
 import Cart from './Cart';
 import { buildLocalizedMetadata } from '../../../i18n/metadata';
+import { hasReferralCookie } from '../../../server/actions/order';
+import { listOwnedReferralCoupons } from '../../../server/actions/coupons';
+import { pickSoonestExpiringCoupon } from '../../../helpers/referral';
 
 export async function generateMetadata({
   params,
@@ -22,7 +25,17 @@ export async function generateMetadata({
 }
 
 export default async function Page() {
-  const session = await auth();
-  
-  return <Cart userId={session?.user?.id ?? ''} userEmail={session?.user?.email ?? ''} />
+  const [session, referralActive] = await Promise.all([auth(), hasReferralCookie()]);
+  const buyerId = session?.user?.id ?? '';
+  const coupons = buyerId ? await listOwnedReferralCoupons(buyerId) : [];
+  const couponToApply = pickSoonestExpiringCoupon(coupons);
+
+  return (
+    <Cart
+      userId={buyerId}
+      userEmail={session?.user?.email ?? ''}
+      referralActive={referralActive}
+      couponToApply={couponToApply}
+    />
+  );
 }

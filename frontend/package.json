@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --experimental-strip-types --test src/helpers/referral.test.ts src/helpers/pricing.test.ts"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.17.1",

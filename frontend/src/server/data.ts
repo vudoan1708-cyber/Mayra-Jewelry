@@ -1,4 +1,4 @@
-import { type Buyer, type JewelryItemInfo, type Order, type VeriyingOrderPayload } from '../../types';
+import { type Buyer, type JewelryItemInfo, type Order } from '../../types';
 import { cacheRead } from './cache';
 
 export type UseFetchRequest = {
@@ -148,22 +148,6 @@ export const updateJewelry = (jewelryInfo: Partial<JewelryItemInfo>): Promise<vo
   });
 };
 
-// Produce Order
-export const requestVerifyingOrder = (payload: VeriyingOrderPayload): Promise<void> => {
-  const formData = new FormData();
-  formData.append('buyerId', payload.buyerId);
-  formData.append('buyerEmail', payload.buyerEmail);
-  formData.append('buyerName', payload.buyerName);
-  formData.append('digits', payload.digits);
-  formData.append('jewelryItems', JSON.stringify(payload.jewelryItems));
-  formData.append('totalAmount', payload.totalAmount);
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/buyer/payment/pending-verification`;
-  return doFetch({
-    url,
-    method: 'POST',
-    body: formData,
-  });
-};
 // Orders
 export const getOrdersByBuyerId = (buyerId: string): Promise<Array<Order>> => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/order/buyer/${buyerId}`;
